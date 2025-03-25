@@ -122,9 +122,12 @@ class ShipmentMethod extends \WC_Shipping_Method {
         }
 
         if ("{$method_id}" === (intval($method_id) . "")) {
-            $founded = @$founded ?: array_filter($zones_shipments, function ($item) use ($method_id) {
-                return $item->instance_id == $method_id;
-            });
+            // issue https://github.com/PPL-CZ/PPL-WooCommerce/issues/6
+            if (!isset($founded) || !$founded) {
+                $founded = array_filter($zones_shipments, function ($item) use ($method_id) {
+                    return $item->instance_id == $method_id;
+                });
+            }
             $method_id = reset($founded)->method_id;
             $this->id = $method_id;
             $pplId = str_replace(pplcz_create_name(""), "", $method_id);
@@ -348,15 +351,11 @@ class ShipmentMethod extends \WC_Shipping_Method {
 
         $curentCurrency = get_woocommerce_currency();
 
-        if (@$this->get_instance_option("cost_allow_{$curentCurrency}") !== 'yes'){
+        if (@$this->get_instance_option("cost_allow_{$curentCurrency}") !== 'yes') {
             return;
         }
 
-       // $countries = include __DIR__ . '/config/countries.php';
-
-
         $country = WC()->cart->get_customer()->get_shipping_country('');
-
 
         /**
          * @var CartModel $cartData
@@ -377,26 +376,27 @@ class ShipmentMethod extends \WC_Shipping_Method {
 
         $price = $cartData->getCost();
 
-        $priceWithDph = \WC_Tax::calc_shipping_tax($cartData->getCost(), \WC_Tax::get_shipping_tax_rates());
+        $priceWithDph = null;
 
-        if ($cartData->getPriceWithDph() && $price ) {
-            $first = reset($priceWithDph);
-            if ($first) {
-                $procento  = ($price + $first) / $price;
-                $price /= $procento;
+        if ($this->is_taxable()) {
+            $priceWithDph = \WC_Tax::calc_shipping_tax($cartData->getCost(), \WC_Tax::get_shipping_tax_rates());
+            if ($cartData->getPriceWithDph() && $price) {
+                $first = reset($priceWithDph);
+                if ($first) {
+                    $procento = ($price + $first) / $price;
+                    $price /= $procento;
+                }
+                $priceWithDph = \WC_Tax::calc_shipping_tax($price, \WC_Tax::get_shipping_tax_rates());
             }
-            $priceWithDph = \WC_Tax::calc_shipping_tax($price, \WC_Tax::get_shipping_tax_rates());
+            $cartData->setCost($price);
         }
 
-        $cartData->setCost($price);
-
-        $this->add_rate([
+        $this->add_rate(array_merge([
             'id' => $this->id,
             'label' => $this->instance_settings["title"] ?: $this->title ?: $this->method_title,
             'cost' => $price,
-            "meta_data" => pplcz_normalize($cartData) + [ 'pplcz_taxes' => $priceWithDph ],
-            "taxes" => $priceWithDph
-        ]);
+            "meta_data" => array_merge(pplcz_normalize($cartData), $priceWithDph ? ['pplcz_taxes' => $priceWithDph] : []),
+        ], $priceWithDph ? ['taxes' => $priceWithDph] : []));
     }
 
     public static function yay_currency($data, $method, $costs, $currency) {
@@ -431,25 +431,24 @@ class ShipmentMethod extends \WC_Shipping_Method {
 
     public static function recalculate_fees($cart)
     {
-
         $rate = pplcz_get_cart_shipping_method();
         if (!$rate)
             return $cart;
 
+        $shipmentMethod = new ShipmentMethod($rate->get_instance_id() ?: $rate->get_method_id());
 
         /**
          * @var CartModel $metadata
          */
-        $metadata = Serializer::getInstance()->denormalize(new ShipmentMethod($rate->get_instance_id() ?: $rate->get_method_id()), CartModel::class);
+        $metadata = Serializer::getInstance()->denormalize($shipmentMethod, CartModel::class);
+
         if ($metadata->isInitialized('codFee') && $metadata->getCodFee()) {
-            $selected_rates = \WC_Tax::get_shipping_tax_rates();
-            if ($selected_rates) {
+            if ($shipmentMethod->is_taxable() && $selected_rates = \WC_Tax::get_shipping_tax_rates()) {
                 $default_shipping_tax_class = get_option('woocommerce_shipping_tax_class');
 
                 // seznam možných daní
-                $shipping_rates = array_merge(wp_list_pluck(\WC_Tax::get_tax_rate_classes(), "slug"),  [""]);
-                foreach ($shipping_rates as $key =>$rates)
-                {
+                $shipping_rates = array_merge(wp_list_pluck(\WC_Tax::get_tax_rate_classes(), "slug"), [""]);
+                foreach ($shipping_rates as $key => $rates) {
                     $shipping_rates[$key] = \WC_Tax::get_rates($rates) + ["slug" => $rates];
                 }
                 // vyhledání daňové sazby navázanou na dopravu
@@ -473,21 +472,19 @@ class ShipmentMethod extends \WC_Shipping_Method {
 
                 WC()->cart->fees_api()->add_fee(
                     array(
-                        'name'      => "Příplatek za dobírku",
-                        'amount'    => (float)  $metadata->getCodFee(),
-                        'taxable'   => true,
+                        'name' => "Příplatek za dobírku",
+                        'amount' => (float)$metadata->getCodFee(),
+                        'taxable' => true,
                         'tax_class' => $default_shipping_tax_class,
                         "yay_currency_fee_converted" => true
                     )
                 );
-
-            }
-            else {
+            } else {
                 WC()->cart->fees_api()->add_fee(
                     array(
-                        'name'      => "Příplatek za dobírku",
-                        'amount'    => (float)  $metadata->getCodFee(),
-                        'taxable'   => false,
+                        'name' => "Příplatek za dobírku",
+                        'amount' => (float)$metadata->getCodFee(),
+                        'taxable' => false,
                         'tax_class' => '',
                         "yay_currency_fee_converted" => true
                     )

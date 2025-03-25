@@ -14,7 +14,7 @@ use PPLCZ\Model\Model\NewCollectionModel;
 class CollectionDataDenormalizer implements DenormalizerInterface
 {
 
-    public function denormalize($data, string $type, string $format = null, array $context = [])
+    public function denormalize($data, string $type, ?string $format = null, array $context = [])
     {
         if ($data instanceof CollectionData && $type == CollectionModel::class) {
             $collection = new CollectionModel();
@@ -65,7 +65,7 @@ class CollectionDataDenormalizer implements DenormalizerInterface
         throw new \Exception("Unsupported denormalize");
     }
 
-    public function supportsDenormalization($data, string $type, string $format = null)
+    public function supportsDenormalization($data, string $type, ?string $format = null)
     {
         return $data instanceof CollectionData && $type == CollectionModel::class ||
                $data instanceof NewCollectionModel && $type == CollectionData::class;

@@ -21,3 +21,6 @@
 # 1.0.19
 - v případě, že je doprava zdarma, je vypsáno "zdarma" u ppl dopravy
 - změna názvu ident. údajů pro napojení na ppl.cz api
+# 1.0.20
+- přepočítávání dph, pokud je $shipment->is_taxable() (issue: 2);
+- odstranění warningu (isset místo @) (issue: 5, 6, 7, 8)

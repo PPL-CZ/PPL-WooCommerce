@@ -539,7 +539,7 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
         return $shipment;
     }
 
-    public function denormalize($data, string $type, string $format = null, array $context = [])
+    public function denormalize($data, string $type, ?string $format = null, array $context = [])
     {
         if ($data instanceof ShipmentData && $type == ShipmentModel::class) {
             return $this->ShipmentDataToModel($data, $context);
@@ -568,7 +568,7 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
         }
     }
 
-    public function supportsDenormalization($data, string $type, string $format = null)
+    public function supportsDenormalization($data, string $type, ?string $format = null)
     {
         $stopka = 1;
         if($data instanceof ShipmentData && $type === ShipmentModel::class)

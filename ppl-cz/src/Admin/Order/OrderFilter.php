@@ -40,9 +40,11 @@ class OrderFilter {
     public static function filters() {
         ob_start();
         menu_page_url(OptionPage::SLUG);
+
         $newCollectionUrl = ob_get_clean() . '#/collection/new';
+        // issue: https://github.com/PPL-CZ/PPL-WooCommerce/issues/8
         wc_get_template("ppl/admin/order-filter.php", [
-            'newCollectionUrl' => $newCollectionUrl
+            'pplcz_newCollectionUrl' => $newCollectionUrl
         ]);
     }
 
@@ -64,10 +66,15 @@ class OrderFilter {
     {
         if (!is_admin())
             return $sql;
-        if ($item instanceof \WP_Query && @$item->query['post_type'] === "shop_order")
+        // issue: https://github.com/PPL-CZ/PPL-WooCommerce/issues/8
+        if ($item instanceof \WP_Query && isset($item->query['post_type']) && $item->query['post_type'] === "shop_order")
         {
             global $wpdb;
-            $s = @$item->query['s'];
+            $s = '';
+            if (isset($item->query['s']) && $item->query['s']) {
+                $s = $item->query['s'];
+            }
+
             $all = true;
             if (isset($item->query['search_filter']) && $item->query['search_filter'] === 'all')
             {
