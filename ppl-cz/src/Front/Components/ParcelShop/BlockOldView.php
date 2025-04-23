@@ -161,7 +161,7 @@ class BlockOldView
         /**
          * @var CartModel $cartModel
          */
-        $cartModel = Serializer::getInstance()->denormalize($shippingMethod->get_meta_data(), CartModel::class);
+        $cartModel = pplcz_denormalize($shippingMethod->get_meta_data(), CartModel::class);
         /**
          * @var ParcelDataModel $parcelshop
          */

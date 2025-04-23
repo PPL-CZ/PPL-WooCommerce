@@ -84,9 +84,8 @@ const refreshLabels = (
             if (ret.batchs?.length) {
               clearInterval(interval);
               ret.batchs.forEach(x => {
-                const url = new URL(document.location + "");
-                url.pathname = "/index.php";
-                url.search = "";
+                // @ts-ignore
+                const url = new URL(pplcz_data.file_download_url);
                 url.searchParams.append("pplcz_download", x);
                 url.searchParams.append("pplcz_print", printForm);
                 window.open(url, "_self");

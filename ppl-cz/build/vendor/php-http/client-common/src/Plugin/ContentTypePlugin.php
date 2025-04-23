@@ -47,9 +47,6 @@ final class ContentTypePlugin implements Plugin
         $this->skipDetection = $options['skip_detection'];
         $this->sizeLimit = $options['size_limit'];
     }
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first) : Promise
     {
         if (!$request->hasHeader('Content-Type')) {

@@ -56,12 +56,12 @@ foreach ($shipments as $key => $shipment) {
 
 ?>
     <?php if ($shipment->getImportState() === "Complete") :?>
-        <?php if ($batchLabelGroup):?><a href="<?php echo esc_html($uri) ?>"  class="pplcz-batch-filter" >Hromadně</a> <a target="_blank" href="/index.php?pplcz_download=<?php echo urlencode($batchLabelGroup)?>" class="dashicons dashicons-admin-page"></a><br/><?php endif; ?>
+        <?php if ($batchLabelGroup):?><a href="<?php echo esc_html($uri) ?>"  class="pplcz-batch-filter" >Hromadně</a> <a target="_blank" href="<?php echo esc_html(pplcz_get_download_pdf($batchLabelGroup)) ?>" class="dashicons dashicons-admin-page"></a><br/><?php endif; ?>
     <?php foreach ($shipment->getPackages() as $package):?>
         <div style="white-space: nowrap;">
         <?php if ($package->getShipmentNumber()): ?><a href="https://www.ppl.cz/vyhledat-zasilku?shipmentId=<?php echo esc_html($package->getShipmentNumber())?>" target="_blank"><?php echo esc_html($package->getShipmentNumber()) ?><?php endif; ?>&nbsp;
         <?php if ($package->getLabelId() && in_array($package->getPhase(), ["Order", "None"])):?>
-            <a target="_blank" href="/index.php?pplcz_download=<?php echo esc_html($package->getId())?>" class="dashicons dashicons-printer"></a>
+            <a target="_blank" href="<?php echo esc_html(pplcz_get_download_pdf($package->getId())) ?>" class="dashicons dashicons-printer"></a>
         <?php endif; ?>
         <?php if ($package->isInitialized("phaseLabel")): ?>
         <?php echo esc_html(@$shipmentPhase[$package->getPhase()]) ?>

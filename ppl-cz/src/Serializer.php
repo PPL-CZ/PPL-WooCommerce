@@ -18,6 +18,7 @@ use PPLCZ\ModelNormalizer\ProductModelDenormalizer;
 use PPLCZ\ModelNormalizer\CartModelDernomalizer;
 use PPLCZ\ModelNormalizer\ShipmentDataDenormalizer;
 use PPLCZ\ModelNormalizer\CollectionDataDenormalizer;
+use PPLCZ\ModelNormalizer\ShipmentSettingDenormalizer;
 
 class Serializer extends \PPLCZVendor\Symfony\Component\Serializer\Serializer {
     public function __construct(array $normalizers = [], array $encoders = [])
@@ -34,7 +35,7 @@ class Serializer extends \PPLCZVendor\Symfony\Component\Serializer\Serializer {
             new ProductModelDenormalizer(),
             new CartModelDernomalizer(),
             new CategoryModelDenormalizer(),
-
+            new ShipmentSettingDenormalizer(),
             // cpl
             new CPLBatchAddressDenormalizer(),
             new CPLBatchCreateShipmentsDenormalizer(),

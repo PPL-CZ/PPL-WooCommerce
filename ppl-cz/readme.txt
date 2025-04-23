@@ -1,12 +1,15 @@
 === PPL CZ ===
 Tags: PPL, woocommerce
 Tested up to: 6.7
-Stable tag: 1.0.20
+Stable tag: 1.0.21
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 === Description ===
 Jednoduché vytváření zásilek pro PPL CZ s.r.o. Integrace do košíku, editace adres objednávek, stavy zásilek (zjednodušené, kompletní) a jejich sledování. Základem pluginu je tisk etiket. Pro aktivaci pluginu, kontaktujte ithelp@ppl.cz Určeno pro WooCommerce verze 8.0 a vyšší.
+
+== Localization ==
+* Czech (cs_CZ)
 
 == External services ==
 The PPL WooCommerce Plugin is a free tool designed for PPL customers to integrate PPL shipping services into their WooCommerce stores. To use this plugin, you must have an active and signed contract with PPL. This contract provides an API key that is stored in your database, enabling the plugin's functionality. Without a valid contract and API key, the plugin will not function.

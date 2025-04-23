@@ -11,6 +11,7 @@ use PPLCZ\Admin\RestResponse\RestResponse400;
 use PPLCZ\Data\ShipmentData;
 use PPLCZ\Model\Model\BankAccountModel;
 use PPLCZ\Model\Model\MyApi2;
+use PPLCZ\Model\Model\ParcelPlacesModel;
 use PPLCZ\Model\Model\SenderAddressModel;
 use PPLCZ\Model\Model\ShipmentPhaseModel;
 use PPLCZ\Model\Model\SyncPhasesModel;
@@ -35,6 +36,18 @@ class SettingV1RestController extends  PPLRestController
             ], [
                 "methods"=>\WP_REST_Server::READABLE,
                 "callback" => [$this, "get_api"],
+                "permission_callback"=>[$this, "check_permission"],
+            ]
+        ]);
+
+        register_rest_route($this->namespace, "/". $this->base . "/parcelplaces", [
+            [
+                "methods"=>\WP_REST_Server::EDITABLE,
+                "permission_callback"=>[$this, "check_permission"],
+                "callback" => [$this, "update_parcelplaces"],
+            ], [
+                "methods"=>\WP_REST_Server::READABLE,
+                "callback" => [$this, "get_parcelplaces"],
                 "permission_callback"=>[$this, "check_permission"],
             ]
         ]);
@@ -261,6 +274,42 @@ class SettingV1RestController extends  PPLRestController
 
         $response = new \WP_REST_Response();
         $response->set_data($myapi2);
+        return $response;
+    }
+
+    public function get_parcelplaces(\WP_REST_Request $request)
+    {
+
+        $places = new ParcelPlacesModel();
+        $places->setDisabledParcelShop(!!get_option(pplcz_create_name("disabled_parcelshop")));
+        $places->setDisabledAlzaBox(!!get_option(pplcz_create_name("disabled_alzabox")));
+        $places->setDisabledParcelBox(!!get_option(pplcz_create_name("disabled_parcelbox")));
+
+        $places = pplcz_normalize($places);
+
+        $response = new \WP_REST_Response();
+        $response->set_data($places);
+        return $response;
+    }
+
+    public function update_parcelplaces(\WP_REST_Request $request)
+    {
+        $data = $request->get_json_params();
+        /**
+         * @var ParcelPlacesModel $setting
+         */
+        $setting = pplcz_denormalize($data, ParcelPlacesModel::class);
+
+        $parcelbox = pplcz_create_name("disabled_parcelbox");
+        $parcelshop =pplcz_create_name("disabled_parcelshop");
+        $alzabox =pplcz_create_name("disabled_alzabox");
+
+        add_option($parcelbox, $setting->getDisabledParcelBox()) || update_option($parcelbox, $setting->getDisabledParcelBox());
+        add_option($parcelshop, $setting->getDisabledParcelShop()) || update_option($parcelshop, $setting->getDisabledParcelShop());
+        add_option($alzabox, $setting->getDisabledAlzaBox()) || update_option($alzabox, $setting->getDisabledAlzaBox());
+
+        $response = new \WP_REST_Response();
+        $response->set_status(204);
         return $response;
     }
 }

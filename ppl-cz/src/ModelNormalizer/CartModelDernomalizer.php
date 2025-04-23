@@ -6,6 +6,8 @@ defined("WPINC") or die();
 
 use PPLCZ\Model\Model\CategoryModel;
 use PPLCZ\Model\Model\ProductModel;
+use PPLCZ\Model\Model\ShipmentMethodSettingCurrencyModel;
+use PPLCZ\Model\Model\ShipmentMethodSettingModel;
 use PPLCZ\Serializer;
 use PPLCZ\Validator\CartValidator;
 use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -20,7 +22,11 @@ class CartModelDernomalizer implements DenormalizerInterface
     {
         /**
          * @var ShipmentMethod $data
+         * @var ShipmentMethodSettingModel $setting
          */
+
+        $setting = pplcz_denormalize($data, ShipmentMethodSettingModel::class);
+
 
         if (!WC()->session)
             WC()->initialize_session();
@@ -37,6 +43,25 @@ class CartModelDernomalizer implements DenormalizerInterface
         $paymentMethod = WC()->session->get('chosen_payment_method');
 
         $currency = get_woocommerce_currency();
+
+        $currencySetting = null;
+
+        if ($setting->getCurrencies())
+        {
+            $currencySetting = array_filter($setting->getCurrencies(), function ($item) use ($currency)
+            {
+               return $item->getCurrency() ===  $currency;
+            });
+            $currencySetting = reset($currencySetting);
+        }
+
+        if ($currencySetting == null)
+        {
+            $currencySetting = new ShipmentMethodSettingCurrencyModel();
+            $currencySetting->setCurrency($currency);
+            $currencySetting->setEnabled(false);
+        }
+
         $shipmentCartModel = new CartModel();
 
         $countries = include __DIR__ . '/../config/countries.php';
@@ -47,10 +72,58 @@ class CartModelDernomalizer implements DenormalizerInterface
         $shipmentCartModel->setDisabledByCountry(false);
         $shipmentCartModel->setAgeRequired(false);
         $shipmentCartModel->setDisabledByRules(false);
-        $shipmentCartModel->setParcelShopEnabled(true);
-        $shipmentCartModel->setParcelBoxEnabled(true);
-        $shipmentCartModel->setAlzaBoxEnabled(true);
 
+        $disabledParcelBox = !!get_option(pplcz_create_name("disabled_parcelbox"));
+        $disabledParcelShop = !!get_option(pplcz_create_name("disabled_parcelshop"));
+        $disabledAlzaBox = !!get_option(pplcz_create_name("disabled_alzabox"));
+
+        $shipmentCartModel->setParcelShopEnabled(!$disabledParcelShop && !$setting->getDisabledParcelBox());
+        $shipmentCartModel->setParcelBoxEnabled(!$disabledParcelBox && !$setting->getDisabledParcelShop());
+        $shipmentCartModel->setAlzaBoxEnabled(!$disabledAlzaBox && !$setting->getDisabledAlzaBox());
+
+        $shipmentCartModel->setDisabledByWeight(true);
+
+        $totalWeight = $cart->get_cart_contents_weight();
+
+        $selectedWeightPrice = 0;
+
+        if ($setting->getCostByWeight()) {
+            $selectedWeightRule = null;
+            foreach ($setting->getWeights() as $weight) {
+                if (($weight->getFrom() == null || $weight->getFrom() <= $totalWeight)
+                    && ($weight->getTo() == null || $weight->getTo() > $totalWeight)) {
+                    $weightPrice = array_filter($weight->getPrices(), function ($price) use ($currency) {
+                        return $price->getCurrency() === $currency;
+                    });
+                    $weightPrice = reset($weightPrice);
+                    if ($weightPrice && $selectedWeightPrice < $weightPrice->getPrice()) {
+                        $selectedWeightPrice = $weightPrice->getPrice() ?: 0;
+                        $shipmentCartModel->setDisabledByWeight(false);
+                        $selectedWeightRule = $weight;
+                    }
+                }
+            }
+
+            if ($selectedWeightRule) {
+                $shipmentCartModel->setAlzaBoxEnabled($shipmentCartModel->getAlzaBoxEnabled() && !$selectedWeightRule->getDisabledAlzaBox());
+                $shipmentCartModel->setParcelShopEnabled($shipmentCartModel->getParcelShopEnabled() && !$selectedWeightRule->getDisabledParcelBox());
+                $shipmentCartModel->setParcelShopEnabled($shipmentCartModel->getParcelShopEnabled() && !$selectedWeightRule->getDisabledParcelShop());
+            }
+        } else {
+            $selectedWeightRule = array_filter($setting->getCurrencies(), function($currencies ) use ($currency) {
+                return $currencies->getCurrency() === $currency;
+            });
+
+            $selectedWeightRule = reset($selectedWeightRule);
+            if ($selectedWeightRule)
+            {
+                $shipmentCartModel->setDisabledByWeight(false);
+                /**
+                 * @var ShipmentMethodSettingCurrencyModel  $selectedWeightPrice
+                 */
+                $selectedWeightPrice = $selectedWeightRule->getCost() ?: 0;
+            }
+        }
 
         $serviceCode = str_replace(pplcz_create_name(''), '', $data->id);
         // preklad
@@ -81,16 +154,10 @@ class CartModelDernomalizer implements DenormalizerInterface
 
         $codServiceCode = ShipmentMethod::codMethods()[$serviceCode];
 
-        if (@$data->get_instance_option("codPayment")) {
-            $shipmentCartModel->setCodPayment(@$data->get_instance_option("codPayment"));
-        } else {
-            $shipmentCartModel->setCodPayment("");
-        }
 
-        $disabledPayments = @$data->get_instance_option("disablePayments");
+        $shipmentCartModel->setCodPayment($setting->getCodPayment() ?: '');
 
-        if (!is_array($disabledPayments))
-            $disabledPayments = [];
+        $disabledPayments = $setting->getDisablePayments();
 
         $shipmentCartModel->setDisablePayments($disabledPayments);
 
@@ -118,19 +185,19 @@ class CartModelDernomalizer implements DenormalizerInterface
 
         $total = $totalContents;
 
-        $priceWithDph = @$data->get_instance_option("priceWithDph");
+        $priceWithDph = $setting->getPriceWithDph();
 
-        $shipmentCartModel->setPriceWithDph($priceWithDph && $priceWithDph === 'yes');
+        $shipmentCartModel->setPriceWithDph($priceWithDph);
 
         if (!$maxCodPrice) {
             $shipmentCartModel->setDisableCod(true);
-            if (preg_match('~^[0-9]+(\\.[0-9]*)?$~', $data->get_instance_option("cost_order_free_{$currency}"))
-                && floatval(@$data->get_instance_option("cost_order_free_{$currency}")) < $total) {
+            if ($currencySetting->getCostOrderFree() != null
+                && $currencySetting->getCostOrderFree() < $total) {
                 $shipmentCartModel->setCodFee(0);
                 $shipmentCartModel->setCost(0);
             } else {
                 $shipmentCartModel->setCodFee(0);
-                $shipmentCartModel->setCost(@floatval(@$data->get_instance_option("cost_{$currency}") ?: 0));
+                $shipmentCartModel->setCost($selectedWeightPrice ?: 0);
             }
         } else {
             $max = @$maxCodPrice[0]['max'];
@@ -140,27 +207,27 @@ class CartModelDernomalizer implements DenormalizerInterface
                 $shipmentCartModel->setCost(100000);
             } else {
                 $isCod = $paymentMethod === $shipmentCartModel->getCodPayment();
-                $freeCodPrice = @$data->get_instance_option("cost_order_free_cod_{$currency}");
+                $freeCodPrice = $currencySetting->getCostOrderFreeCod();
 
                 if ($isCod
-                    && preg_match('~^[0-9]+(\\.[0-9]*)?$~', $freeCodPrice)
-                    && floatval($freeCodPrice) <= $total) {
-                    if (@$data->get_instance_option("cost_cod_fee_always_{$currency}") === 'yes')
-                        $shipmentCartModel->setCodFee(@$data->get_instance_option("cost_cod_fee_{$currency}") ?: 0);
+                    && $freeCodPrice != null
+                    && $freeCodPrice <= $total) {
+                    if ($currencySetting->getCostCodFeeAlways())
+                        $shipmentCartModel->setCodFee($currencySetting->getCostCodFee() ?: 0);
                     else
                         $shipmentCartModel->setCodFee(0);
                     $shipmentCartModel->setCost(0);
                 } else if ($isCod) {
-                    $shipmentCartModel->setCodFee(@$data->get_instance_option("cost_cod_fee_{$currency}") ?: 0);
-                    $shipmentCartModel->setCost(@$data->get_instance_option("cost_{$currency}") ?: 0);
+                    $shipmentCartModel->setCodFee($currencySetting->getCostCodFee() ?: 0);
+                    $shipmentCartModel->setCost($selectedWeightPrice ?: 0);
                 } else {
                     $shipmentCartModel->setCodFee(0);
-                    $costorderfree = @$data->get_instance_option("cost_order_free_{$currency}");
+                    $costorderfree = $currencySetting->getCostOrderFree();
 
-                    if (preg_match('~^[0-9]+(\\.[0-9]*)?$~', $costorderfree) && floatval($costorderfree) <= $total)
+                    if ($costorderfree != null && floatval($costorderfree) <= $total)
                         $shipmentCartModel->setCost(0);
                     else
-                        $shipmentCartModel->setCost(@floatval(@$data->get_instance_option("cost_{$currency}") ?: 0));
+                        $shipmentCartModel->setCost($selectedWeightPrice ?: 0);
                 }
             }
         }

@@ -19,7 +19,7 @@ use PPLCZVendor\Symfony\Component\Validator\Exception\UnexpectedValueException;
  */
 class TimeValidator extends ConstraintValidator
 {
-    public const PATTERN = '/^(\\d{2}):(\\d{2}):(\\d{2})$/';
+    public const PATTERN = '/^(\\d{2}):(\\d{2}):(\\d{2})$/D';
     /**
      * Checks whether a time is valid.
      *

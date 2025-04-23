@@ -42,6 +42,11 @@ export interface components {
         longitude?: number | null;
       }) | null;
     };
+    ParcelPlacesModel: {
+      disabledParcelBox?: boolean | null;
+      disabledAlzaBox?: boolean | null;
+      disabledParcelShop?: boolean | null;
+    };
     MyApi2: {
       client_id: string | null;
       client_secret: string | null;
@@ -175,6 +180,7 @@ export interface components {
       parcelShopEnabled?: boolean | null;
       alzaBoxEnabled?: boolean | null;
       mapEnabled?: boolean | null;
+      disabledByWeight?: boolean | null;
       disabledByRules?: boolean | null;
       disabledByCountry?: boolean;
       ageRequired?: boolean | null;
@@ -266,6 +272,42 @@ export interface components {
       telephone?: string | null;
       note?: string | null;
       email?: string | null;
+    };
+    ShipmentMethodSettingModel: {
+      code: string;
+      costByWeight?: boolean | null;
+      parcelBoxes?: boolean | null;
+      title?: string | null;
+      description?: string | null;
+      disablePayments?: string[];
+      codPayment?: string | null;
+      priceWithDph?: boolean | null;
+      currencies: components["schemas"]["ShipmentMethodSettingCurrencyModel"][];
+      weights: components["schemas"]["ShipmentMethodSettingWeightRuleModel"][];
+      disabledParcelBox?: boolean | null;
+      disabledAlzaBox?: boolean | null;
+      disabledParcelShop?: boolean | null;
+    };
+    ShipmentMethodSettingCurrencyModel: {
+      enabled?: boolean | null;
+      currency: string;
+      costOrderFree?: number | null;
+      costCodFee?: number | null;
+      costCodFeeAlways?: boolean | null;
+      costOrderFreeCod?: number | null;
+      cost?: number | null;
+    };
+    ShipmentMethodSettingPriceRuleModel: {
+      price?: number | null;
+      currency: string;
+    };
+    ShipmentMethodSettingWeightRuleModel: {
+      from?: number | null;
+      to?: number | null;
+      disabledParcelBox?: boolean | null;
+      disabledAlzaBox?: boolean;
+      disabledParcelShop?: boolean | null;
+      prices: components["schemas"]["ShipmentMethodSettingPriceRuleModel"][];
     };
   };
   responses: never;

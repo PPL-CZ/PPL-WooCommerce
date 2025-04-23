@@ -39,6 +39,11 @@ function pplcz_get_batch_print($batchId)
     return get_transient(pplcz_create_name("print_batch_{$batchId}"));
 }
 
+function pplcz_get_download_pdf($download, $reference = null, $print = null)
+{
+    return \PPLCZ\Admin\Page\FilePage::createUrl($download, $reference, $print);
+}
+
 function pplcz_normalize($value)
 {
     return Serializer::getInstance()->normalize($value);
@@ -88,7 +93,7 @@ function pplcz_get_phase_max_sync() {
 
 function pplcz_set_phase($key, $watch) {
     if ($watch)
-        add_option(pplcz_create_name("watch_phases_{$key}"), true) || update_option(pplcz_create_name("_watch_phases_{$key}"), true);
+        add_option(pplcz_create_name("watch_phases_{$key}"), true) || update_option(pplcz_create_name("watch_phases_{$key}"), true);
     else
         delete_option(pplcz_create_name("watch_phases_{$key}"));
 }
@@ -104,7 +109,6 @@ function pplcz_get_phases() {
 
         return $output;
     }, $phases, array_keys($phases));
-
 }
 
 function pplcz_get_version() {
@@ -202,6 +206,12 @@ function pplcz_currency($params)
 function pplcz_tables ($activate = false) {
     $version = get_option(pplcz_create_name("version"));
     if ($version !== pplcz_get_version()) {
+        if (!$version)
+        {
+            foreach (pplcz_get_phases() as $phase) {
+                pplcz_set_phase($phase['code'], true);
+            }
+        }
 
         require_once __DIR__ . '/installdb.php';
         pplcz_installdb();

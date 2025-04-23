@@ -53,6 +53,12 @@ class CartModel extends \ArrayObject
      *
      * @var bool|null
      */
+    protected $disabledByWeight;
+    /**
+     * 
+     *
+     * @var bool|null
+     */
     protected $disabledByRules;
     /**
      * 
@@ -238,6 +244,28 @@ class CartModel extends \ArrayObject
     {
         $this->initialized['mapEnabled'] = true;
         $this->mapEnabled = $mapEnabled;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return bool|null
+     */
+    public function getDisabledByWeight() : ?bool
+    {
+        return $this->disabledByWeight;
+    }
+    /**
+     * 
+     *
+     * @param bool|null $disabledByWeight
+     *
+     * @return self
+     */
+    public function setDisabledByWeight(?bool $disabledByWeight) : self
+    {
+        $this->initialized['disabledByWeight'] = true;
+        $this->disabledByWeight = $disabledByWeight;
         return $this;
     }
     /**

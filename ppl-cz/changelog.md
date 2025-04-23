@@ -24,3 +24,5 @@
 # 1.0.20
 - přepočítávání dph, pokud je $shipment->is_taxable() (issue: 2);
 - odstranění warningu (isset místo @) (issue: 5, 6, 7, 8)
+# 1.0.21
+- možnost ceny dopravy podle váhy

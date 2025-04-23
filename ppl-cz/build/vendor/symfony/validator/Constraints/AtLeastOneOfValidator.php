@@ -36,9 +36,11 @@ class AtLeastOneOfValidator extends ConstraintValidator
             if (!\in_array($this->context->getGroup(), $item->groups, \true)) {
                 continue;
             }
+            $context = $this->context;
             $executionContext = clone $this->context;
             $executionContext->setNode($value, $this->context->getObject(), $this->context->getMetadata(), $this->context->getPropertyPath());
             $violations = $validator->inContext($executionContext)->validate($value, $item, $this->context->getGroup())->getViolations();
+            $this->context = $context;
             if (\count($this->context->getViolations()) === \count($violations)) {
                 return;
             }

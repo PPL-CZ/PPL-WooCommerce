@@ -24,8 +24,8 @@ if (!class_exists('CustomQueryResolver', false) && !interface_exists('CustomQuer
 if (!class_exists('BaseEndpoint', false) && !interface_exists('BaseEndpoint', false) && !trait_exists('BaseEndpoint', false)) {
     spl_autoload_call('PPLCZVendor\BaseEndpoint');
 }
-if (!class_exists('ComposerAutoloaderInitb286982f37f0f363c42b4b8dcc4bbf6a', false) && !interface_exists('ComposerAutoloaderInitb286982f37f0f363c42b4b8dcc4bbf6a', false) && !trait_exists('ComposerAutoloaderInitb286982f37f0f363c42b4b8dcc4bbf6a', false)) {
-    spl_autoload_call('PPLCZVendor\ComposerAutoloaderInitb286982f37f0f363c42b4b8dcc4bbf6a');
+if (!class_exists('ComposerAutoloaderInit4777630d57292fbfd30fceb81832bcb6', false) && !interface_exists('ComposerAutoloaderInit4777630d57292fbfd30fceb81832bcb6', false) && !trait_exists('ComposerAutoloaderInit4777630d57292fbfd30fceb81832bcb6', false)) {
+    spl_autoload_call('PPLCZVendor\ComposerAutoloaderInit4777630d57292fbfd30fceb81832bcb6');
 }
 if (!class_exists('Salute', false) && !interface_exists('Salute', false) && !trait_exists('Salute', false)) {
     spl_autoload_call('PPLCZVendor\Salute');
@@ -684,6 +684,21 @@ if (!function_exists('mb_ucfirst')) {
 if (!function_exists('mb_lcfirst')) {
     function mb_lcfirst() {
         return \PPLCZVendor\mb_lcfirst(...func_get_args());
+    }
+}
+if (!function_exists('mb_trim')) {
+    function mb_trim() {
+        return \PPLCZVendor\mb_trim(...func_get_args());
+    }
+}
+if (!function_exists('mb_ltrim')) {
+    function mb_ltrim() {
+        return \PPLCZVendor\mb_ltrim(...func_get_args());
+    }
+}
+if (!function_exists('mb_rtrim')) {
+    function mb_rtrim() {
+        return \PPLCZVendor\mb_rtrim(...func_get_args());
     }
 }
 if (!function_exists('get_last_tag_name')) {

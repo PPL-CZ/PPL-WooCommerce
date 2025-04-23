@@ -106,6 +106,8 @@ class IbanValidator extends ConstraintValidator
         // Spain
         'FI' => 'FI\\d{2}\\d{3}\\d{11}',
         // Finland
+        'FK' => 'FK\\d{2}[A-Z]{2}\\d{12}',
+        // Falkland Islands
         'FO' => 'FO\\d{2}\\d{4}\\d{9}\\d{1}',
         // Faroe Islands
         'FR' => 'FR\\d{2}\\d{5}\\d{5}[\\dA-Z]{11}\\d{2}',
@@ -194,6 +196,8 @@ class IbanValidator extends ConstraintValidator
         // Macedonia
         'ML' => 'ML\\d{2}[\\dA-Z]{2}\\d{22}',
         // Mali
+        'MN' => 'MN\\d{2}\\d{4}\\d{12}',
+        // Mongolia
         'MQ' => 'FR\\d{2}\\d{5}\\d{5}[\\dA-Z]{11}\\d{2}',
         // France
         'MR' => 'MR\\d{2}\\d{5}\\d{5}\\d{11}\\d{2}',
@@ -214,6 +218,8 @@ class IbanValidator extends ConstraintValidator
         // Netherlands (The)
         'NO' => 'NO\\d{2}\\d{4}\\d{6}\\d{1}',
         // Norway
+        'OM' => 'OM\\d{2}\\d{3}[\\dA-Z]{16}',
+        // Oman
         'PF' => 'FR\\d{2}\\d{5}\\d{5}[\\dA-Z]{11}\\d{2}',
         // France
         'PK' => 'PK\\d{2}[A-Z]{4}[\\dA-Z]{16}',
@@ -280,6 +286,8 @@ class IbanValidator extends ConstraintValidator
         // France
         'XK' => 'XK\\d{2}\\d{4}\\d{10}\\d{2}',
         // Kosovo
+        'YE' => 'YE\\d{2}[A-Z]{4}\\d{4}[\\dA-Z]{18}',
+        // Yemen
         'YT' => 'FR\\d{2}\\d{5}\\d{5}[\\dA-Z]{11}\\d{2}',
     ];
     /**

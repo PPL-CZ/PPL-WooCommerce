@@ -89,6 +89,13 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
         elseif (\array_key_exists('mapEnabled', $data) && $data['mapEnabled'] === null) {
             $object->setMapEnabled(null);
         }
+        if (\array_key_exists('disabledByWeight', $data) && $data['disabledByWeight'] !== null) {
+            $object->setDisabledByWeight($data['disabledByWeight']);
+            unset($data['disabledByWeight']);
+        }
+        elseif (\array_key_exists('disabledByWeight', $data) && $data['disabledByWeight'] === null) {
+            $object->setDisabledByWeight(null);
+        }
         if (\array_key_exists('disabledByRules', $data) && $data['disabledByRules'] !== null) {
             $object->setDisabledByRules($data['disabledByRules']);
             unset($data['disabledByRules']);
@@ -184,6 +191,9 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
         }
         if ($object->isInitialized('mapEnabled') && null !== $object->getMapEnabled()) {
             $data['mapEnabled'] = $object->getMapEnabled();
+        }
+        if ($object->isInitialized('disabledByWeight') && null !== $object->getDisabledByWeight()) {
+            $data['disabledByWeight'] = $object->getDisabledByWeight();
         }
         if ($object->isInitialized('disabledByRules') && null !== $object->getDisabledByRules()) {
             $data['disabledByRules'] = $object->getDisabledByRules();
