@@ -388,17 +388,17 @@
         },
         {
             "name": "guzzlehttp\/guzzle",
-            "version": "7.9.2",
-            "version_normalized": "7.9.2.0",
+            "version": "7.9.3",
+            "version_normalized": "7.9.3.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/guzzle\/guzzle.git",
-                "reference": "d281ed313b989f213357e3be1a179f02196ac99b"
+                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/guzzle\/guzzle\/zipball\/d281ed313b989f213357e3be1a179f02196ac99b",
-                "reference": "d281ed313b989f213357e3be1a179f02196ac99b",
+                "url": "https:\/\/api.github.com\/repos\/guzzle\/guzzle\/zipball\/7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
+                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
                 "shasum": ""
             },
             "require": {
@@ -425,7 +425,7 @@
                 "ext-intl": "Required for Internationalized Domain Name (IDN) support",
                 "psr\/log": "Required for using the Log middleware"
             },
-            "time": "2024-07-24T11:22:20+00:00",
+            "time": "2025-03-27T13:37:11+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -497,7 +497,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/guzzle\/guzzle\/issues",
-                "source": "https:\/\/github.com\/guzzle\/guzzle\/tree\/7.9.2"
+                "source": "https:\/\/github.com\/guzzle\/guzzle\/tree\/7.9.3"
             },
             "funding": [
                 {
@@ -517,17 +517,17 @@
         },
         {
             "name": "guzzlehttp\/promises",
-            "version": "2.0.4",
-            "version_normalized": "2.0.4.0",
+            "version": "2.2.0",
+            "version_normalized": "2.2.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/guzzle\/promises.git",
-                "reference": "f9c436286ab2892c7db7be8c8da4ef61ccf7b455"
+                "reference": "7c69f28996b0a6920945dd20b3857e499d9ca96c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/guzzle\/promises\/zipball\/f9c436286ab2892c7db7be8c8da4ef61ccf7b455",
-                "reference": "f9c436286ab2892c7db7be8c8da4ef61ccf7b455",
+                "url": "https:\/\/api.github.com\/repos\/guzzle\/promises\/zipball\/7c69f28996b0a6920945dd20b3857e499d9ca96c",
+                "reference": "7c69f28996b0a6920945dd20b3857e499d9ca96c",
                 "shasum": ""
             },
             "require": {
@@ -537,7 +537,7 @@
                 "bamarni\/composer-bin-plugin": "^1.8.2",
                 "phpunit\/phpunit": "^8.5.39 || ^9.6.20"
             },
-            "time": "2024-10-17T10:06:22+00:00",
+            "time": "2025-03-27T13:27:01+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -583,7 +583,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/guzzle\/promises\/issues",
-                "source": "https:\/\/github.com\/guzzle\/promises\/tree\/2.0.4"
+                "source": "https:\/\/github.com\/guzzle\/promises\/tree\/2.2.0"
             },
             "funding": [
                 {
@@ -603,17 +603,17 @@
         },
         {
             "name": "guzzlehttp\/psr7",
-            "version": "2.7.0",
-            "version_normalized": "2.7.0.0",
+            "version": "2.7.1",
+            "version_normalized": "2.7.1.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/guzzle\/psr7.git",
-                "reference": "a70f5c95fb43bc83f07c9c948baa0dc1829bf201"
+                "reference": "c2270caaabe631b3b44c85f99e5a04bbb8060d16"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/guzzle\/psr7\/zipball\/a70f5c95fb43bc83f07c9c948baa0dc1829bf201",
-                "reference": "a70f5c95fb43bc83f07c9c948baa0dc1829bf201",
+                "url": "https:\/\/api.github.com\/repos\/guzzle\/psr7\/zipball\/c2270caaabe631b3b44c85f99e5a04bbb8060d16",
+                "reference": "c2270caaabe631b3b44c85f99e5a04bbb8060d16",
                 "shasum": ""
             },
             "require": {
@@ -634,7 +634,7 @@
             "suggest": {
                 "laminas\/laminas-httphandlerrunner": "Emit PSR-7 responses"
             },
-            "time": "2024-07-18T11:15:46+00:00",
+            "time": "2025-03-27T12:30:47+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -702,7 +702,7 @@
             ],
             "support": {
                 "issues": "https:\/\/github.com\/guzzle\/psr7\/issues",
-                "source": "https:\/\/github.com\/guzzle\/psr7\/tree\/2.7.0"
+                "source": "https:\/\/github.com\/guzzle\/psr7\/tree\/2.7.1"
             },
             "funding": [
                 {
@@ -4112,6 +4112,86 @@
             "install-path": "..\/thecodingmachine\/safe"
         },
         {
+            "name": "tracy\/tracy",
+            "version": "v2.7.9",
+            "version_normalized": "2.7.9.0",
+            "source": {
+                "type": "git",
+                "url": "https:\/\/github.com\/nette\/tracy.git",
+                "reference": "d2ce9ca5c1e87f9c2a36a888e5712b2dd1f49560"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https:\/\/api.github.com\/repos\/nette\/tracy\/zipball\/d2ce9ca5c1e87f9c2a36a888e5712b2dd1f49560",
+                "reference": "d2ce9ca5c1e87f9c2a36a888e5712b2dd1f49560",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-session": "*",
+                "php": ">=7.1"
+            },
+            "conflict": {
+                "nette\/di": "<3.0"
+            },
+            "require-dev": {
+                "latte\/latte": "^2.5",
+                "nette\/di": "^3.0",
+                "nette\/mail": "^3.0",
+                "nette\/tester": "^2.2",
+                "nette\/utils": "^3.0",
+                "phpstan\/phpstan": "^0.12",
+                "psr\/log": "^1.0|^2.0|^3.0"
+            },
+            "suggest": {
+                "https:\/\/nette.org\/donate": "Please support Tracy via a donation"
+            },
+            "time": "2021-12-10T04:28:58+00:00",
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.7-dev"
+                }
+            },
+            "installation-source": "dist",
+            "autoload": {
+                "files": [
+                    "src\/Tracy\/shortcuts.php"
+                ],
+                "classmap": [
+                    "src"
+                ]
+            },
+            "notification-url": "https:\/\/packagist.org\/downloads\/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "David Grudl",
+                    "homepage": "https:\/\/davidgrudl.com"
+                },
+                {
+                    "name": "Nette Community",
+                    "homepage": "https:\/\/nette.org\/contributors"
+                }
+            ],
+            "description": "\ud83d\ude0e  Tracy: the addictive tool to ease debugging PHP code for cool developers. Friendly design, logging, profiler, advanced features like debugging AJAX calls or CLI support. You will love it.",
+            "homepage": "https:\/\/tracy.nette.org",
+            "keywords": [
+                "Xdebug",
+                "debug",
+                "debugger",
+                "nette",
+                "profiler"
+            ],
+            "support": {
+                "issues": "https:\/\/github.com\/nette\/tracy\/issues",
+                "source": "https:\/\/github.com\/nette\/tracy\/tree\/v2.7.9"
+            },
+            "install-path": "..\/tracy\/tracy"
+        },
+        {
             "name": "webmozart\/assert",
             "version": "1.11.0",
             "version_normalized": "1.11.0.0",
@@ -4228,6 +4308,7 @@
         "symfony\/var-dumper",
         "symfony\/yaml",
         "thecodingmachine\/safe",
+        "tracy\/tracy",
         "webmozart\/assert"
     ]
 }

@@ -30,7 +30,8 @@ class Map {
             "ppl_parcelshop",
             "ppl_parcelbox",
             "ppl_address",
-            "ppl_hiddenpoints"
+            "ppl_hiddenpoints",
+            "ppl_countries"
         ]);
     }
 
@@ -38,15 +39,16 @@ class Map {
     {
         if (isset($vars['ppl_map']) && $vars['ppl_map'] === "1") {
             $vars['ppl_map'] = true;
-            $vars['ppl_lat'] = floatval(@$vars['ppl_lat'] ?: "0");
-            $vars['ppl_lng'] = floatval(@$vars['ppl_lng'] ?: "0");
-            $vars['ppl_withCard'] = intval(@$vars['ppl_withCard'] ?: "0");
-            $vars['ppl_withCash'] = intval(@$vars['ppl_withCash'] ?: "0");
-            $vars['ppl_parcelbox'] = intval(@$vars['ppl_parcelbox'] ?: "0");
-            $vars['ppl_parcelshop'] = intval(@$vars['ppl_parcelshop'] ?: "0");
-            $vars['ppl_address'] = @$vars['ppl_address'] ?: null;
-            $vars['ppl_country'] = @$vars['ppl_country'] ? strtolower(@$vars['ppl_country']) : null;
-            $vars['ppl_hiddenpoints'] = @$vars['ppl_hiddenpoints'] ?: null;
+            $vars['ppl_lat'] = isset ($vars['ppl_lat']) ? floatval($vars['ppl_lat'] ?: "0") : 0;
+            $vars['ppl_lng'] = isset($vars['ppl_lng']) ? floatval($vars['ppl_lng'] ?: "0") : 0;
+            $vars['ppl_withCard'] = isset($vars['ppl_withCard']) ? intval($vars['ppl_withCard'] ?: "0") : 0;
+            $vars['ppl_withCash'] = isset($vars['ppl_withCash']) ? intval($vars['ppl_withCash'] ?: "0") : 0;
+            $vars['ppl_parcelbox'] = isset($vars['ppl_parcelbox']) ? intval($vars['ppl_parcelbox'] ?: "0") : 0;
+            $vars['ppl_parcelshop'] = isset($vars['ppl_parcelshop']) ? intval($vars['ppl_parcelshop'] ?: "0") : 0;
+            $vars['ppl_address'] = isset($vars['ppl_address']) ? ($vars['ppl_address'] ?: null) : null;
+            $vars['ppl_country'] = isset($vars['ppl_country']) && $vars['ppl_country'] ? strtolower($vars['ppl_country']) : null;
+            $vars['ppl_hiddenpoints'] = isset($vars['ppl_hiddenpoints']) ? ($vars['ppl_hiddenpoints'] ?: null) : null;
+            $vars['ppl_countries'] = isset($vars['ppl_countries']) ? (@$vars['ppl_countries'] ?: null) : null;
         }
         return $vars;
     }
@@ -60,6 +62,8 @@ class Map {
         $withCash = $wp_query->query_vars['ppl_withCash'];
         $country = $wp_query->query_vars['ppl_country'];
         $hiddenPoints = $wp_query->query_vars['ppl_hiddenpoints'];
+        $countries = $wp_query->query_vars['ppl_countries'];
+
         $address = $wp_query->query_vars['ppl_address'];
         $data = [];
 
@@ -67,14 +71,14 @@ class Map {
             $data["data-lat"] = $lat;
             $data["data-lng"] = $lng;
         }
-
-        if (intval($withCard))
+        $data['data-initialfilters'] = [];
+        if (intval($withCard)) {
             $data["data-initialfilters"][] = "CardPayment";
-
+        }
         if (intval($withCash))
             $data["data-initialfilters"][] = "ParcelShop";
 
-        if (!@$data["data-initialfilters"]) {
+        if (!$data["data-initialfilters"]) {
             unset($data["data-initialfilters"]);
         } else {
             $data["data-initialfilters"] = join(',', $data["data-initialfilters"]);
@@ -86,6 +90,9 @@ class Map {
         if ($hiddenPoints)
             $data['data-hiddenpoints'] = $hiddenPoints;
 
+        if ($countries)
+            $data['data-countries'] = $countries;
+
         if ($address)
         {
             $data["data-address"] = $address;
@@ -95,6 +102,13 @@ class Map {
         {
             $data['data-country'] = $country;
         }
+
+        $languageMap = pplcz_create_name("map_language");
+        $lang = strtolower(get_option($languageMap));
+        if (!in_array($lang, ["cs", "en"]))
+            $lang = 'cs';
+
+        $data['data-language'] = $lang;
 
         return $data;
     }

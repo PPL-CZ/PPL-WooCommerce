@@ -59,7 +59,7 @@ class ShipmentMethodSettingModel extends \ArrayObject
      *
      * @var bool|null
      */
-    protected $priceWithDph;
+    protected $isPriceWithDph;
     /**
      * 
      *
@@ -72,6 +72,12 @@ class ShipmentMethodSettingModel extends \ArrayObject
      * @var ShipmentMethodSettingWeightRuleModel[]
      */
     protected $weights;
+    /**
+     * 
+     *
+     * @var string[]|null
+     */
+    protected $disabledParcelCountries;
     /**
      * 
      *
@@ -249,21 +255,21 @@ class ShipmentMethodSettingModel extends \ArrayObject
      *
      * @return bool|null
      */
-    public function getPriceWithDph() : ?bool
+    public function getIsPriceWithDph() : ?bool
     {
-        return $this->priceWithDph;
+        return $this->isPriceWithDph;
     }
     /**
      * 
      *
-     * @param bool|null $priceWithDph
+     * @param bool|null $isPriceWithDph
      *
      * @return self
      */
-    public function setPriceWithDph(?bool $priceWithDph) : self
+    public function setIsPriceWithDph(?bool $isPriceWithDph) : self
     {
-        $this->initialized['priceWithDph'] = true;
-        $this->priceWithDph = $priceWithDph;
+        $this->initialized['isPriceWithDph'] = true;
+        $this->isPriceWithDph = $isPriceWithDph;
         return $this;
     }
     /**
@@ -308,6 +314,28 @@ class ShipmentMethodSettingModel extends \ArrayObject
     {
         $this->initialized['weights'] = true;
         $this->weights = $weights;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string[]|null
+     */
+    public function getDisabledParcelCountries() : ?array
+    {
+        return $this->disabledParcelCountries;
+    }
+    /**
+     * 
+     *
+     * @param string[]|null $disabledParcelCountries
+     *
+     * @return self
+     */
+    public function setDisabledParcelCountries(?array $disabledParcelCountries) : self
+    {
+        $this->initialized['disabledParcelCountries'] = true;
+        $this->disabledParcelCountries = $disabledParcelCountries;
         return $this;
     }
     /**

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit4777630d57292fbfd30fceb81832bcb6
+class ComposerStaticInitaedbb7a8b05c4d12061c34c570f1a02a
 {
     public static $files = array (
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
@@ -111,6 +111,7 @@ class ComposerStaticInit4777630d57292fbfd30fceb81832bcb6
         'fe1d4898277c26748a003292f432cd3b' => __DIR__ . '/..' . '/jetbrains/phpstorm-stubs/PhpStormStubsMap.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '107bb9f2fcf71c39f243ed29e9ceb506' => __DIR__ . '/..' . '/humbug/php-scoper/src/functions.php',
+        '19a7e2c3b1d506dcdc1b60aab8e102e4' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/shortcuts.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -384,6 +385,22 @@ class ComposerStaticInit4777630d57292fbfd30fceb81832bcb6
         'PPLCZVendor\\Normalizer' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
         'PPLCZVendor\\PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
         'PPLCZVendor\\ReturnTypeWillChange' => __DIR__ . '/..' . '/symfony/polyfill-php81/Resources/stubs/ReturnTypeWillChange.php',
+        'PPLCZVendor\\Tracy\\Bar' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/Bar/Bar.php',
+        'PPLCZVendor\\Tracy\\BlueScreen' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/BlueScreen/BlueScreen.php',
+        'PPLCZVendor\\Tracy\\Bridges\\Nette\\Bridge' => __DIR__ . '/..' . '/tracy/tracy/src/Bridges/Nette/Bridge.php',
+        'PPLCZVendor\\Tracy\\Bridges\\Nette\\MailSender' => __DIR__ . '/..' . '/tracy/tracy/src/Bridges/Nette/MailSender.php',
+        'PPLCZVendor\\Tracy\\Bridges\\Nette\\TracyExtension' => __DIR__ . '/..' . '/tracy/tracy/src/Bridges/Nette/TracyExtension.php',
+        'PPLCZVendor\\Tracy\\Bridges\\Psr\\PsrToTracyLoggerAdapter' => __DIR__ . '/..' . '/tracy/tracy/src/Bridges/Psr/PsrToTracyLoggerAdapter.php',
+        'PPLCZVendor\\Tracy\\Bridges\\Psr\\TracyToPsrLoggerAdapter' => __DIR__ . '/..' . '/tracy/tracy/src/Bridges/Psr/TracyToPsrLoggerAdapter.php',
+        'PPLCZVendor\\Tracy\\Debugger' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/Debugger/Debugger.php',
+        'PPLCZVendor\\Tracy\\DefaultBarPanel' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/Bar/DefaultBarPanel.php',
+        'PPLCZVendor\\Tracy\\Dumper' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/Dumper/Dumper.php',
+        'PPLCZVendor\\Tracy\\FireLogger' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/Logger/FireLogger.php',
+        'PPLCZVendor\\Tracy\\Helpers' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/Helpers.php',
+        'PPLCZVendor\\Tracy\\IBarPanel' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/Bar/IBarPanel.php',
+        'PPLCZVendor\\Tracy\\ILogger' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/Logger/ILogger.php',
+        'PPLCZVendor\\Tracy\\Logger' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/Logger/Logger.php',
+        'PPLCZVendor\\Tracy\\OutputDebugger' => __DIR__ . '/..' . '/tracy/tracy/src/Tracy/OutputDebugger/OutputDebugger.php',
         'PPLCZVendor\\UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
         'PPLCZVendor\\ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
         'Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
@@ -392,9 +409,9 @@ class ComposerStaticInit4777630d57292fbfd30fceb81832bcb6
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit4777630d57292fbfd30fceb81832bcb6::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit4777630d57292fbfd30fceb81832bcb6::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit4777630d57292fbfd30fceb81832bcb6::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitaedbb7a8b05c4d12061c34c570f1a02a::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitaedbb7a8b05c4d12061c34c570f1a02a::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitaedbb7a8b05c4d12061c34c570f1a02a::$classMap;
 
         }, null, ClassLoader::class);
     }

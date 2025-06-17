@@ -4,6 +4,7 @@ namespace PPLCZ\ModelNormalizer;
 
 defined("WPINC") or die();
 
+use PPLCZ\Model\Model\CalculatedDPH;
 use PPLCZ\Model\Model\CategoryModel;
 use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingCurrencyModel;
@@ -77,9 +78,68 @@ class CartModelDernomalizer implements DenormalizerInterface
         $disabledParcelShop = !!get_option(pplcz_create_name("disabled_parcelshop"));
         $disabledAlzaBox = !!get_option(pplcz_create_name("disabled_alzabox"));
 
-        $shipmentCartModel->setParcelShopEnabled(!$disabledParcelShop && !$setting->getDisabledParcelBox());
-        $shipmentCartModel->setParcelBoxEnabled(!$disabledParcelBox && !$setting->getDisabledParcelShop());
-        $shipmentCartModel->setAlzaBoxEnabled(!$disabledAlzaBox && !$setting->getDisabledAlzaBox());
+
+        if ($setting->getParcelBoxes()) {
+            $shipmentCartModel->setMapEnabled(true);
+            $shipmentCartModel->setParcelRequired(true);
+            /**
+             * ppl ma vzdy 4 zeme, CR, PL, DE, SK
+             *
+             * 1. nactu 4 zeme
+             * 2. zeptam se, ktere jsou disablovane [PL, DE]
+             *
+             * [CR, PL, DE, SK] - [PL, DE] = [CR, SK]
+             *
+             * je zmene v [CR, SK]?
+             *
+             */
+            // ziskani zemi s parcelshopy
+            $countriesWithParcelshop = array_keys(pplcz_get_parcel_countries());
+
+            // ziskani nepovelnych zemi s nastaveni dopravy a zakladniho nastaveni
+            $disabledCountriesFromShipmentSetting = $setting->getDisabledParcelCountries() ?? [];
+            $disabledCountriesFromBaseSetting = get_option(pplcz_create_name("disabled_parcel_countries"));
+            if (!is_array($disabledCountriesFromBaseSetting))
+                $disabledCountriesFromBaseSetting = [];
+            $disabledCountries = array_merge($disabledCountriesFromBaseSetting, $disabledCountriesFromShipmentSetting);
+
+            /**
+             * @var \WC_Shipping_Zone[] $zones
+             */
+            $zones = \WC_Shipping_Zones::get_zones();
+            $data_countries = [];
+            foreach ($zones as $zone)
+            {
+                foreach ($zone["shipping_methods"] as $method) {
+                    if ($method->instance_id == $data->instance_id)
+                    {
+                        $data_countries = array_map(function ($item) { return $item->code; }, $zone["zone_locations"]);
+                    }
+                }
+            }
+
+
+            // zikani povolenych zemi pomoci mnozinove operace minus (viz vyse)
+            $allowedParcelCountries = array_diff($countriesWithParcelshop, $disabledCountries);
+            // zeme musi byt podporovana i wp zonou
+            $allowedParcelCountries = array_intersect($allowedParcelCountries, $data_countries);
+            // je povolena zeme, kteoru ted mame v ramci parcelshopu?
+            $enabledByCountry = in_array($country, $allowedParcelCountries, true);
+
+            $shipmentCartModel->setEnabledParcelCountries($allowedParcelCountries);
+
+            $shipmentCartModel->setParcelShopEnabled($enabledByCountry && !$disabledParcelShop && !$setting->getDisabledParcelBox());
+            $shipmentCartModel->setParcelBoxEnabled($enabledByCountry && !$disabledParcelBox && !$setting->getDisabledParcelShop());
+            $shipmentCartModel->setAlzaBoxEnabled($enabledByCountry && !$disabledAlzaBox && !$setting->getDisabledAlzaBox());
+            $shipmentCartModel->setDisabledByCountry(!$enabledByCountry);
+
+        }
+        else {
+            $shipmentCartModel->setDisabledByCountry(false);
+            $shipmentCartModel->setParcelBoxEnabled(false);
+            $shipmentCartModel->setParcelShopEnabled(false);
+            $shipmentCartModel->setAlzaBoxEnabled(false);
+        }
 
         $shipmentCartModel->setDisabledByWeight(true);
 
@@ -92,6 +152,8 @@ class CartModelDernomalizer implements DenormalizerInterface
             foreach ($setting->getWeights() as $weight) {
                 if (($weight->getFrom() == null || $weight->getFrom() <= $totalWeight)
                     && ($weight->getTo() == null || $weight->getTo() > $totalWeight)) {
+                    //["EUR" => 6, "CZK" => 5]. ["CZK" => 5], 5
+                    // [] => null
                     $weightPrice = array_filter($weight->getPrices(), function ($price) use ($currency) {
                         return $price->getCurrency() === $currency;
                     });
@@ -125,6 +187,8 @@ class CartModelDernomalizer implements DenormalizerInterface
             }
         }
 
+
+
         $serviceCode = str_replace(pplcz_create_name(''), '', $data->id);
         // preklad
         $serviceCode = ShipmentMethod::methodsFor($country, $serviceCode);
@@ -140,15 +204,6 @@ class CartModelDernomalizer implements DenormalizerInterface
             $shipmentCartModel->setDisabledByCountry(true);
         }
 
-
-        if (@$data->parcelBoxRequired) {
-            $shipmentCartModel->setParcelRequired(true);
-            $shipmentCartModel->setMapEnabled(true);
-            if (!in_array($country, ["CZ", "SK", "DE", "PL"], true))
-            {
-                $shipmentCartModel->setDisabledByCountry(true);
-            }
-        }
 
         $shipmentCartModel->setServiceCode($serviceCode);
 
@@ -167,13 +222,13 @@ class CartModelDernomalizer implements DenormalizerInterface
             return $item['country'] == $country && $item['currency'] == $currency;
         });
 
-        if (!@$countries[$country] || !$accountIn)
+        if (!isset($countries[$country]) || !$countries[$country] || !$accountIn)
             $shipmentCartModel->setDisableCod(true);
         else
             $shipmentCartModel->setDisableCod(false);
 
-        $maxCodPrice = array_values(array_filter($limits['COD'], function ($item) use ($codServiceCode, $currency) {
-            if ($item['product'] === $codServiceCode && $item['currency'] === $currency) {
+        $maxCodPrice = array_values(array_filter($limits['COD'], function ($item) use ($country, $codServiceCode, $currency) {
+            if ($item['product'] === $codServiceCode && $item['currency'] === $currency && $item['country'] === $country) {
                 return true;
             }
             return false;
@@ -185,14 +240,14 @@ class CartModelDernomalizer implements DenormalizerInterface
 
         $total = $totalContents;
 
-        $priceWithDph = $setting->getPriceWithDph();
+        $isPriceWithDph = $setting->getIsPriceWithDph();
 
-        $shipmentCartModel->setPriceWithDph($priceWithDph);
+        $shipmentCartModel->setIsPriceWithDph($isPriceWithDph);
 
         if (!$maxCodPrice) {
             $shipmentCartModel->setDisableCod(true);
             if ($currencySetting->getCostOrderFree() != null
-                && $currencySetting->getCostOrderFree() < $total) {
+                && $currencySetting->getCostOrderFree() <= $total) {
                 $shipmentCartModel->setCodFee(0);
                 $shipmentCartModel->setCost(0);
             } else {
@@ -298,6 +353,11 @@ class CartModelDernomalizer implements DenormalizerInterface
             $shipmentCartModel->setDisabledByRules(true);
         }
 
+        $shipmentCartModel->setMapEnabled(
+            ($shipmentCartModel->getParcelShopEnabled() || $shipmentCartModel->getParcelBoxEnabled() || $shipmentCartModel->getAlzaBoxEnabled())
+            && !$shipmentCartModel->getDisabledByCountry()
+        );
+
         // kupony
         $coupons = WC()->cart->get_applied_coupons();
         foreach ($coupons as $coupon)
@@ -308,6 +368,74 @@ class CartModelDernomalizer implements DenormalizerInterface
                 $shipmentCartModel->setCost(0);
             }
         }
+
+        // -----------------------------------------------------------------------------------------------------------------------
+
+        $isPriceWithDph = $shipmentCartModel->getIsPriceWithDph();
+
+        if ($data->is_taxable() && $isPriceWithDph) {
+            $selected_rates = \WC_Tax::get_shipping_tax_rates();
+
+            $default_shipping_tax_class = get_option('woocommerce_shipping_tax_class');
+            // seznam možných daní
+            $shipping_rates = array_merge(wp_list_pluck(\WC_Tax::get_tax_rate_classes(), "slug"), [""]);
+            foreach ($shipping_rates as $key => $rates) {
+                $shipping_rates[$key] = \WC_Tax::get_rates($rates) + ["slug" => $rates];
+            }
+            // vyhledání daňové sazby navázanou na dopravu
+            foreach ($shipping_rates as $specific_rate) {
+                foreach ($specific_rate as $rateKey => $globalRate) {
+                    if ($rateKey === key($selected_rates)) {
+                        $default_shipping_tax_class = $specific_rate['slug'];
+                        break 2;
+                    }
+                }
+            }
+            $shipmentCartModel->setTaxableName($default_shipping_tax_class);
+
+
+            $priceWithDph = \WC_Tax::calc_shipping_tax($shipmentCartModel->getCost(), \WC_Tax::get_shipping_tax_rates());
+            $selectedWeightPrice = $shipmentCartModel->getCost();
+            if ($selectedWeightPrice && $priceWithDph) {
+                $first = reset($priceWithDph);
+                if ($first) {
+                    $procento = ($selectedWeightPrice + $first) / $selectedWeightPrice;
+                    $selectedWeightPrice /= $procento;
+                }
+                $priceWithDph = \WC_Tax::calc_shipping_tax($selectedWeightPrice, \WC_Tax::get_shipping_tax_rates());
+                $costDPH = new CalculatedDPH();
+                $costDPH->setValue(reset($priceWithDph));
+                $costDPH->setDphId(key($priceWithDph));
+                $shipmentCartModel->setCostDPH($costDPH);
+            }
+            $shipmentCartModel->setCost($selectedWeightPrice);
+
+            if ($shipmentCartModel->getCodFee())
+            {
+                $codFeeDPH = \WC_Tax::calc_shipping_tax($shipmentCartModel->getCodFee(), \WC_Tax::get_shipping_tax_rates());
+
+                if($codFeeDPH){
+                    $first = reset($codFeeDPH);
+                    $codFee = $shipmentCartModel->getCodFee();
+                    if ($first) {
+                        $procento = ($first + $codFee) / $codFee;
+                        $codFee /= $procento;
+                    }
+                    $codFeeDPH = \WC_Tax::calc_shipping_tax($codFee, \WC_Tax::get_shipping_tax_rates());
+                    $costDPH = new CalculatedDPH();
+                    $costDPH->setValue(reset($codFeeDPH));
+                    $costDPH->setDphId(key($codFeeDPH));
+                    $shipmentCartModel->setCodFeeDPH($costDPH);
+                    $shipmentCartModel->setCodFee($codFee);
+                }
+
+            }
+
+            //   $shipmentCartModel->setTaxes(honta)
+          //  $shipmentCartModel->setCost($priceWithDph ?: 0);
+        }
+
+        // -------------------------------------------------------------------------------------------------------------------
 
         return $shipmentCartModel;
     }

@@ -46,6 +46,8 @@ export interface components {
       disabledParcelBox?: boolean | null;
       disabledAlzaBox?: boolean | null;
       disabledParcelShop?: boolean | null;
+      disabledCountries?: string[] | null;
+      mapLanguage?: string | null;
     };
     MyApi2: {
       client_id: string | null;
@@ -174,7 +176,7 @@ export interface components {
       phone?: string | null;
     };
     CartModel: {
-      priceWithDph?: boolean | null;
+      isPriceWithDph?: boolean | null;
       parcelRequired?: boolean | null;
       parcelBoxEnabled?: boolean | null;
       parcelShopEnabled?: boolean | null;
@@ -183,6 +185,7 @@ export interface components {
       disabledByWeight?: boolean | null;
       disabledByRules?: boolean | null;
       disabledByCountry?: boolean;
+      enabledParcelCountries?: string[] | null;
       ageRequired?: boolean | null;
       codPayment?: string | null;
       serviceCode?: string;
@@ -190,7 +193,10 @@ export interface components {
       disabledByProduct?: boolean;
       disableCod?: boolean | null;
       codFee?: number | null;
+      codFeeDPH?: components["schemas"]["CalculatedDPH"];
       cost?: number | null;
+      costDPH?: components["schemas"]["CalculatedDPH"];
+      taxableName?: string | null;
     };
     ShipmentModel: {
       id?: number | null;
@@ -281,9 +287,10 @@ export interface components {
       description?: string | null;
       disablePayments?: string[];
       codPayment?: string | null;
-      priceWithDph?: boolean | null;
+      isPriceWithDph?: boolean | null;
       currencies: components["schemas"]["ShipmentMethodSettingCurrencyModel"][];
       weights: components["schemas"]["ShipmentMethodSettingWeightRuleModel"][];
+      disabledParcelCountries?: string[] | null;
       disabledParcelBox?: boolean | null;
       disabledAlzaBox?: boolean | null;
       disabledParcelShop?: boolean | null;
@@ -308,6 +315,22 @@ export interface components {
       disabledAlzaBox?: boolean;
       disabledParcelShop?: boolean | null;
       prices: components["schemas"]["ShipmentMethodSettingPriceRuleModel"][];
+    };
+    ErrorLogItemModel: {
+      id?: number;
+      trace?: string;
+    };
+    ErrorLogModel: {
+      mail?: string | null;
+      info?: string | null;
+      errors?: components["schemas"]["ErrorLogItemModel"][];
+    };
+    SendErrorLogModel: components["schemas"]["ErrorLogModel"] & ({
+      message?: string | null;
+    });
+    CalculatedDPH: {
+      dphId?: number;
+      value?: number;
     };
   };
   responses: never;

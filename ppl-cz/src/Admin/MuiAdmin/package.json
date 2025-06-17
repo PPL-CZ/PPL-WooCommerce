@@ -22,6 +22,7 @@
     "tss-react": "^4.9.2",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
+    "react-markdown": "^10.1.0",
     "copy-to-clipboard": "3.3.3"
   },
   "devDependencies": {

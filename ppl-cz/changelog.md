@@ -26,3 +26,6 @@
 - odstranění warningu (isset místo @) (issue: 5, 6, 7, 8)
 # 1.0.21
 - možnost ceny dopravy podle váhy
+# 1.0.22
+- možnost povolení/zakázání mapy v rámci dopravy či globálně
+- možnost odeslání info o pluginu

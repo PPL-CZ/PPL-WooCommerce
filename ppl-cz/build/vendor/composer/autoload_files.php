@@ -110,4 +110,5 @@ return array(
     'fe1d4898277c26748a003292f432cd3b' => $vendorDir . '/jetbrains/phpstorm-stubs/PhpStormStubsMap.php',
     '37a3dc5111fe8f707ab4c132ef1dbc62' => $vendorDir . '/guzzlehttp/guzzle/src/functions_include.php',
     '107bb9f2fcf71c39f243ed29e9ceb506' => $vendorDir . '/humbug/php-scoper/src/functions.php',
+    '19a7e2c3b1d506dcdc1b60aab8e102e4' => $vendorDir . '/tracy/tracy/src/Tracy/shortcuts.php',
 );

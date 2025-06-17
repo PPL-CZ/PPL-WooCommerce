@@ -34,10 +34,7 @@ class CodelistV1RestController extends PPLRestController
             "callback" => [$this, "get_countries"],
             "permission_callback"=>[$this, "check_permission"],
         ]);
-
-
     }
-
 
 
     public function get_countries(\WP_REST_Request $request)
@@ -45,12 +42,13 @@ class CodelistV1RestController extends PPLRestController
 
         $allowedCountries = pplcz_get_allowed_countries();
         $currencies = pplcz_get_cod_currencies();
+        $parcelAllowed = array_keys(pplcz_get_parcel_countries());
 
-        $output = array_map(function ($value, $key) use ($currencies) {
+        $output = array_map(function ($value, $key) use ($currencies, $parcelAllowed) {
             return new CountryModel([
                 "code" => $key,
                 "title" =>$value,
-                "parcelAllowed" => in_array($key, ["CZ", "SK", "PL", "DE"]),
+                "parcelAllowed" => in_array($key, $parcelAllowed),
                 "codAllowed" => array_unique(array_map(function ($item) {
                     return $item['currency'];
 

@@ -59,6 +59,16 @@ const getHiddenPoints = (shipment) => {
 	return Object.keys(allowedParcels).filter(x => !allowedParcels[x]);
 }
 
+const getAllowedCountries = (shipment) => {
+
+	const shipping_rate = shipment.shipping_rates?.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
+	const meta_data = shipping_rate?.meta_data;
+
+	const allowedCountries = meta_data?.find(x => x.key === "enabledParcelCountries" && x.value)?.value;
+	return allowedCountries ?? [];
+
+}
+
 const isParcelShopSelected = (cart) => {
 	return cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
 
@@ -154,7 +164,6 @@ const Block = (props) => {
 
 	const shippingRates = cart?.shippingRates?.[0];
 
-	console.log(shippingRates);
 
 	const parcelRequired = isParcelRequired(shippingRates)
 
@@ -227,8 +236,10 @@ const Block = (props) => {
 	}
 
 	const hiddenPoints = getHiddenPoints(shippingRates);
+	const allowedCountries = getAllowedCountries(shippingRates);
 
 	mapSetting.hiddenPoints = hiddenPoints.length ? hiddenPoints.join(",") : null;
+	mapSetting.countries = allowedCountries.join(",").toLowerCase();
 
 	if (parcelRequired && !parcelShop)
 		messages.push(<li key={"ageControl"}>Pro dodání zboží je nutno vybrat jedno z výdejních míst</li>);

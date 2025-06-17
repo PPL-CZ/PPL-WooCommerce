@@ -13,6 +13,7 @@ class FilePage {
     const SLUG = "pplcz_filedownload";
 
     public static function render() {
+        throw new \Exception("Not implemented");
 ?>
         I am teapot!
 <?php
@@ -87,7 +88,7 @@ class FilePage {
         if ($addMenu)
             return;
         $addMenu = true;
-        $hook = add_submenu_page(null, "File download", "File download", "manage_woocommerce", self::SLUG, [self::class, "render"]);
+        $hook = add_submenu_page("", "File download", "File download", "manage_woocommerce", self::SLUG, [self::class, "render"]);
         add_action("load-{$hook}", [self::class, "page_hook"]);
     }
 

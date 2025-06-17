@@ -142,6 +142,17 @@
                     "disabledParcelShop": {
                         "type": "boolean",
                         "nullable": true
+                    },
+                    "disabledCountries": {
+                        "type": "array",
+                        "nullable": true,
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "mapLanguage": {
+                        "type": "string",
+                        "nullable": true
                     }
                 }
             },
@@ -668,7 +679,7 @@
             "CartModel": {
                 "type": "object",
                 "properties": {
-                    "priceWithDph": {
+                    "isPriceWithDph": {
                         "type": "boolean",
                         "nullable": true
                     },
@@ -704,6 +715,13 @@
                         "type": "boolean",
                         "nullable": false
                     },
+                    "enabledParcelCountries": {
+                        "type": "array",
+                        "items" : {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
                     "ageRequired": {
                         "type": "boolean",
                         "nullable": true
@@ -735,8 +753,22 @@
                         "type": "number",
                         "nullable": true
                     },
+                    "codFeeDPH": {
+
+                        "$ref": "#/components/schemas/CalculatedDPH"
+
+                    },
                     "cost": {
                         "type": "number",
+                        "nullable": true
+                    },
+
+                    "costDPH": {
+                        "$ref": "#/components/schemas/CalculatedDPH"
+                    },
+
+                    "taxableName": {
+                        "type": "string",
                         "nullable": true
                     }
                 }
@@ -1111,7 +1143,6 @@
                         "type": "string",
                         "nullable": true
                     },
-
                     "disablePayments": {
                         "type": "array",
                         "items": {
@@ -1122,7 +1153,7 @@
                         "type": "string",
                         "nullable": true
                     },
-                    "priceWithDph": {
+                    "isPriceWithDph": {
                         "type": "boolean",
                         "nullable": true
                     },
@@ -1139,6 +1170,13 @@
                             "$ref": "#/components/schemas/ShipmentMethodSettingWeightRuleModel"
                         },
                         "nullable": false
+                    },
+                    "disabledParcelCountries": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
                     },
                     "disabledParcelBox": {
                         "type": "boolean",
@@ -1233,7 +1271,71 @@
                         }
                     }
                 }
+            },
+            "ErrorLogItemModel": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "nullable": false
+                    },
+                    "trace": {
+                        "type": "string",
+                        "nullable": false
+                    }
+                }
+            },
+            "ErrorLogModel": {
+                "type": "object",
+                "properties": {
+                    "mail": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "info": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "errors": {
+                        "type": "array",
+                        "nullable": false,
+                        "items": {
+                            "$ref": "#/components/schemas/ErrorLogItemModel"
+                        }
+                    }
+                }
+            },
+            "SendErrorLogModel": {
+                "allOf": [
+                    {
+                        "$ref" : "#/components/schemas/ErrorLogModel"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "message": {
+                                "type": "string",
+                                "nullable": true
+                            }
+                        }
+                    }
+                ]
+            },
+            "CalculatedDPH": {
+                "type": "object",
+                "properties": {
+                    "dphId": {
+                        "type": "integer",
+                        "nullable": false
+                    },
+                    "value": {
+                        "type": "number",
+                        "nullable": false
+                    }
+                }
             }
+
+
         }
     },
     "info": {

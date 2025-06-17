@@ -19,6 +19,9 @@ const pages = [
     key: "/setting",
     label: "Nastaveni",
   },
+  { key: "/news", label: "Novinky"},
+  { key: "/links", label: "Odkazy" },
+  { key: "/logs", label: "Nahlásit problém"}
 ];
 
 const HeaderMain = () => {

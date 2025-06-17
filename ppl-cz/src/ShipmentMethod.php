@@ -10,6 +10,7 @@ use PPLCZ\Admin\Assets\JsTemplate;
 use PPLCZ\Front\Validator\ParcelShopValidator;
 use PPLCZ\Model\Model\CartModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingModel;
+use PPLCZ\ModelNormalizer\CartModelDernomalizer;
 
 
 class ShipmentMethod extends \WC_Shipping_Method {
@@ -95,7 +96,6 @@ class ShipmentMethod extends \WC_Shipping_Method {
 
     public function getMethodCodeByPayment($paymentCode)
     {
-
         $cod = @$this->get_instance_option("codPayment");
         if ($cod === $paymentCode) {
             $originalCode = str_replace(pplcz_create_name(""), "", $this->id);
@@ -148,15 +148,9 @@ class ShipmentMethod extends \WC_Shipping_Method {
             "instance-settings"
         );
 
-        $this->plugin_id = pplcz_create_name("");
         $this->title = $this->method_title = self::methods()[$pplId];
         $this->method_description = self::methodsDescriptions()[$pplId];
-        /*
-        if ($isInstance) {
-            $this->init_instance_settings();
-        } else {
-            $this->init_settings();
-        }*/
+
     }
 
     public function get_instance_form_fields() {
@@ -226,7 +220,30 @@ class ShipmentMethod extends \WC_Shipping_Method {
                 'default' => '',
                 'desc_tip' => true
             );
+
+            $parcelCountries = pplcz_get_parcel_countries();
+
+            $allowedCoutries = $this->get_allowed_countries();
+            foreach ($parcelCountries as $countryKey => $_ )
+            {
+                if (!in_array($countryKey, $allowedCoutries, true))
+                    unset($parcelCountries[$countryKey]);
+            }
+
+            $parcelCountries[""] = "Nevybráno";
+
+            if (count($parcelCountries) > 2)
+            {
+                $form_fields['disabledParcelCountries'] = array(
+                    "title" =>   esc_html__('Nepovolené země pro výdejní místa', 'ppl-cz'),
+                    'type'        => 'multiselect',
+                    "options" => $parcelCountries,
+                    'default'     => [],
+                    'desc_tip'    => true
+                );
+            }
         }
+
         foreach (array_unique(array_merge([ get_option( 'woocommerce_currency' )],array_values($currencies))) as $currency) {
             $pplcz_currency_safe = esc_html($currency);
 
@@ -358,6 +375,40 @@ class ShipmentMethod extends \WC_Shipping_Method {
         ]);
     }
 
+    public function get_allowed_countries()
+    {
+        $instance_id = $this->instance_id;
+
+        $all_zones = \WC_Shipping_Zones::get_zones();
+        $all_zones[] = [ 'zone_id' => 0 ];
+        $allowedCountriesByZone = [];
+
+        foreach ( $all_zones as $zone_data ) {
+            $zone = new \WC_Shipping_Zone( $zone_data['zone_id'] );
+            // true = načíst i neaktivní metody
+            $methods = $zone->get_shipping_methods( true );
+
+            // Zjistíme, zda naše instance patří do této zóny
+            if ( isset( $methods[ $instance_id ] ) ) {
+                // fallback zóna = „Rest of World“
+                if ( 0 === (int) $zone_data['zone_id'] ) {
+                    // přidáme všechny země, které dosud nejsou v $allowedCountries
+                    foreach ( WC()->countries->get_countries() as $iso => $name ) {
+                        $allowedCountriesByZone[ $iso ] = true;
+                    }
+                } else {
+                    // běžná zóna: sbíráme jen jednotlivé země
+                    foreach ( $zone->get_zone_locations() as $loc ) {
+                        if ( 'country' === $loc->type ) {
+                            $allowedCountriesByZone[ $loc->code ] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return array_keys($allowedCountriesByZone);
+    }
 
     /**
      * Výpočet ceny dopravy
@@ -376,18 +427,15 @@ class ShipmentMethod extends \WC_Shipping_Method {
             $cart = wc()->cart;
         }
 
-        $curentCurrency = get_woocommerce_currency();
-
-        if (@$this->get_instance_option("cost_allow_{$curentCurrency}") !== 'yes') {
-            return;
-        }
-
         $country = WC()->cart->get_customer()->get_shipping_country('');
 
         /**
          * @var CartModel $cartData
          */
         $cartData = pplcz_denormalize($this, CartModel::class);
+
+        if ($cartData->getDisabledByCountry())
+            return;
 
         if ($cartData->getDisabledByWeight())
             return;
@@ -404,34 +452,32 @@ class ShipmentMethod extends \WC_Shipping_Method {
         if ($cartData->getDisabledByRules())
             return;
 
+
         $price = $cartData->getCost();
-
-        $priceWithDph = null;
-
-        if ($this->is_taxable()) {
-            $priceWithDph = \WC_Tax::calc_shipping_tax($cartData->getCost(), \WC_Tax::get_shipping_tax_rates());
-            if ($cartData->getPriceWithDph() && $price) {
-                $first = reset($priceWithDph);
-                if ($first) {
-                    $procento = ($price + $first) / $price;
-                    $price /= $procento;
-                }
-                $priceWithDph = \WC_Tax::calc_shipping_tax($price, \WC_Tax::get_shipping_tax_rates());
-            }
-            $cartData->setCost($price);
+        $dph = $cartData->getCostDPH();
+        if ($dph)
+        {
+            $dph = [$dph->getDphId() => $dph->getValue()];
+        }
+        else {
+            $dph= [];
         }
 
+
         $this->add_rate(array_merge([
-            'id' => $this->id,
             'label' => $this->instance_settings["title"] ?: $this->title ?: $this->method_title,
             'cost' => $price,
-            "meta_data" => array_merge(pplcz_normalize($cartData), $priceWithDph ? ['pplcz_taxes' => $priceWithDph] : []),
-        ], $priceWithDph ? ['taxes' => $priceWithDph] : []));
+            "meta_data" => array_merge(pplcz_normalize($cartData), $cartData->getIsPriceWithDph() ? ['pplcz_taxes' => $dph] : []),
+        ], $cartData->getIsPriceWithDph() ? ['taxes' => $dph] : []));
     }
 
     public static function yay_currency($data, $method, $costs, $currency) {
 
-        unset($data['cost']);
+        if (str_starts_with($method, pplcz_create_name("")))
+        {
+            unset($data['cost']);
+        }
+
         return $data;
     }
 
@@ -466,61 +512,24 @@ class ShipmentMethod extends \WC_Shipping_Method {
             return $cart;
 
         $shipmentMethod = new ShipmentMethod($rate->get_instance_id() ?: $rate->get_method_id());
-
+        // Odseparování volání z podmínky, l. 546
+        $selected_rates = \WC_Tax::get_shipping_tax_rates();
         /**
          * @var CartModel $metadata
          */
         $metadata = Serializer::getInstance()->denormalize($shipmentMethod, CartModel::class);
 
-        if ($metadata->isInitialized('codFee') && $metadata->getCodFee()) {
-            if ($shipmentMethod->is_taxable() && $selected_rates = \WC_Tax::get_shipping_tax_rates()) {
-                $default_shipping_tax_class = get_option('woocommerce_shipping_tax_class');
-
-                // seznam možných daní
-                $shipping_rates = array_merge(wp_list_pluck(\WC_Tax::get_tax_rate_classes(), "slug"), [""]);
-                foreach ($shipping_rates as $key => $rates) {
-                    $shipping_rates[$key] = \WC_Tax::get_rates($rates) + ["slug" => $rates];
-                }
-                // vyhledání daňové sazby navázanou na dopravu
-                foreach ($shipping_rates as $specific_rate) {
-                    foreach ($specific_rate as $rateKey => $globalRate) {
-                        if ($rateKey === key($selected_rates)) {
-                            $default_shipping_tax_class = $specific_rate['slug'];
-                            break 2;
-                        }
-                    }
-                }
-
-                $priceWithDph = \WC_Tax::calc_shipping_tax($metadata->getCodFee(), $selected_rates);
-                if ($metadata->getPriceWithDph()) {
-                    $first = reset($priceWithDph);
-                    if ($first) {
-                        $procento = ($metadata->getCodFee() + $first) / $metadata->getCodFee();
-                        $metadata->setCodFee($metadata->getCodFee() / $procento);
-                    }
-                }
-
-                WC()->cart->fees_api()->add_fee(
-                    array(
-                        'name' => "Příplatek za dobírku",
-                        'amount' => (float)$metadata->getCodFee(),
-                        'taxable' => true,
-                        'tax_class' => $default_shipping_tax_class,
-                        "yay_currency_fee_converted" => true
-                    )
-                );
-            } else {
-                WC()->cart->fees_api()->add_fee(
-                    array(
-                        'name' => "Příplatek za dobírku",
-                        'amount' => (float)$metadata->getCodFee(),
-                        'taxable' => false,
-                        'tax_class' => '',
-                        "yay_currency_fee_converted" => true
-                    )
-                );
-
-            }
+        if ($metadata->getCodFee())
+        {
+            WC()->cart->fees_api()->add_fee(
+                array(
+                    'name' => "Příplatek za dobírku",
+                    'amount' => (float)$metadata->getCodFee(),
+                    'taxable' => !!$metadata->getCodFeeDPH(),
+                    'tax_class' => $metadata->getTaxableName() ?: "",
+                    "yay_currency_fee_converted" => true
+                )
+            );
 
         }
 
@@ -545,7 +554,7 @@ class ShipmentMethod extends \WC_Shipping_Method {
         /**
          * @var CartModel $metadata
          */
-        $metadata = Serializer::getInstance()->denormalize($rate->get_meta_data(), CartModel::class);
+        $metadata = pplcz_denormalize($rate->get_meta_data(), CartModel::class);
         if ($metadata->isInitialized("disablePayments") && $metadata->getDisablePayments()) {
             $disablePayments = $metadata->getDisablePayments();
             foreach ( $available_gateways as $gateway_id => $gateway ) {
@@ -610,15 +619,15 @@ class ShipmentMethod extends \WC_Shipping_Method {
             if (!is_array($values))
                 $values = [];
 
-            array_walk_recursive($values, function(&$item, &$key){
+            array_walk_recursive($values, function(&$item){
                if ($item === "")
                    $item = null;
-            });
-            if (!$values)
-                $values = [];
-            add_option( $this->get_instance_option_weight_key(), $values) || update_option( $this->get_instance_option_weight_key(), $values);
-            return $item;
-        },10, 2);
+                });
+                if (!$values)
+                    $values = [];
+                add_option( $this->get_instance_option_weight_key(), $values) || update_option( $this->get_instance_option_weight_key(), $values);
+                return $item;
+            },10, 2);
 
         parent::process_admin_options();
         wp_cache_delete(pplcz_create_name("zones_shipment"));
@@ -631,7 +640,7 @@ class ShipmentMethod extends \WC_Shipping_Method {
 
     public static function hide_order_itemmeta($metas)
     {
-        return array_merge(['priceWithDph', 'disablePayments', "parcelRequired", "mapEnabled", "codFee", "codPayment", "disableCod", "ageRequired", "cost", "codFee", "serviceCode", "parcelBoxEnabled", "alzaBoxEnabled", "parcelShopEnabled"], $metas );
+        return array_merge(['taxableName', 'priceWithDph', 'isPriceWithDph', 'disablePayments', "parcelRequired", "mapEnabled", "codFee", "codPayment", "disableCod", "ageRequired", "cost", "codFee", "serviceCode", "parcelBoxEnabled", "alzaBoxEnabled", "parcelShopEnabled"], $metas );
     }
 
     public static function shipping_zone_shipping_methods($methods)

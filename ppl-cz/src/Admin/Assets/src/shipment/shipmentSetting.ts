@@ -16,7 +16,7 @@ export const InitSettingShipment = (id) => {
         }
     }]);
 
-    jQuery(`[name=pplcz_${code}_cost_by_weight]`).on("change", function(ev) {
+    jQuery(`[name=woocommerce_${code}_cost_by_weight]`).on("change", function(ev) {
         if (rerender) {
             rerender({
                 setting,

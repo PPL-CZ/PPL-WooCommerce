@@ -88,12 +88,12 @@ class ShipmentMethodSettingModelNormalizer implements DenormalizerInterface, Nor
         elseif (\array_key_exists('codPayment', $data) && $data['codPayment'] === null) {
             $object->setCodPayment(null);
         }
-        if (\array_key_exists('priceWithDph', $data) && $data['priceWithDph'] !== null) {
-            $object->setPriceWithDph($data['priceWithDph']);
-            unset($data['priceWithDph']);
+        if (\array_key_exists('isPriceWithDph', $data) && $data['isPriceWithDph'] !== null) {
+            $object->setIsPriceWithDph($data['isPriceWithDph']);
+            unset($data['isPriceWithDph']);
         }
-        elseif (\array_key_exists('priceWithDph', $data) && $data['priceWithDph'] === null) {
-            $object->setPriceWithDph(null);
+        elseif (\array_key_exists('isPriceWithDph', $data) && $data['isPriceWithDph'] === null) {
+            $object->setIsPriceWithDph(null);
         }
         if (\array_key_exists('currencies', $data)) {
             $values_1 = array();
@@ -110,6 +110,17 @@ class ShipmentMethodSettingModelNormalizer implements DenormalizerInterface, Nor
             }
             $object->setWeights($values_2);
             unset($data['weights']);
+        }
+        if (\array_key_exists('disabledParcelCountries', $data) && $data['disabledParcelCountries'] !== null) {
+            $values_3 = array();
+            foreach ($data['disabledParcelCountries'] as $value_3) {
+                $values_3[] = $value_3;
+            }
+            $object->setDisabledParcelCountries($values_3);
+            unset($data['disabledParcelCountries']);
+        }
+        elseif (\array_key_exists('disabledParcelCountries', $data) && $data['disabledParcelCountries'] === null) {
+            $object->setDisabledParcelCountries(null);
         }
         if (\array_key_exists('disabledParcelBox', $data) && $data['disabledParcelBox'] !== null) {
             $object->setDisabledParcelBox($data['disabledParcelBox']);
@@ -132,9 +143,9 @@ class ShipmentMethodSettingModelNormalizer implements DenormalizerInterface, Nor
         elseif (\array_key_exists('disabledParcelShop', $data) && $data['disabledParcelShop'] === null) {
             $object->setDisabledParcelShop(null);
         }
-        foreach ($data as $key => $value_3) {
+        foreach ($data as $key => $value_4) {
             if (preg_match('/.*/', (string) $key)) {
-                $object[$key] = $value_3;
+                $object[$key] = $value_4;
             }
         }
         return $object;
@@ -168,8 +179,8 @@ class ShipmentMethodSettingModelNormalizer implements DenormalizerInterface, Nor
         if ($object->isInitialized('codPayment') && null !== $object->getCodPayment()) {
             $data['codPayment'] = $object->getCodPayment();
         }
-        if ($object->isInitialized('priceWithDph') && null !== $object->getPriceWithDph()) {
-            $data['priceWithDph'] = $object->getPriceWithDph();
+        if ($object->isInitialized('isPriceWithDph') && null !== $object->getIsPriceWithDph()) {
+            $data['isPriceWithDph'] = $object->getIsPriceWithDph();
         }
         $values_1 = array();
         foreach ($object->getCurrencies() as $value_1) {
@@ -181,6 +192,13 @@ class ShipmentMethodSettingModelNormalizer implements DenormalizerInterface, Nor
             $values_2[] = $this->normalizer->normalize($value_2, 'json', $context);
         }
         $data['weights'] = $values_2;
+        if ($object->isInitialized('disabledParcelCountries') && null !== $object->getDisabledParcelCountries()) {
+            $values_3 = array();
+            foreach ($object->getDisabledParcelCountries() as $value_3) {
+                $values_3[] = $value_3;
+            }
+            $data['disabledParcelCountries'] = $values_3;
+        }
         if ($object->isInitialized('disabledParcelBox') && null !== $object->getDisabledParcelBox()) {
             $data['disabledParcelBox'] = $object->getDisabledParcelBox();
         }
@@ -190,9 +208,9 @@ class ShipmentMethodSettingModelNormalizer implements DenormalizerInterface, Nor
         if ($object->isInitialized('disabledParcelShop') && null !== $object->getDisabledParcelShop()) {
             $data['disabledParcelShop'] = $object->getDisabledParcelShop();
         }
-        foreach ($object as $key => $value_3) {
+        foreach ($object as $key => $value_4) {
             if (preg_match('/.*/', (string) $key)) {
-                $data[$key] = $value_3;
+                $data[$key] = $value_4;
             }
         }
         return $data;

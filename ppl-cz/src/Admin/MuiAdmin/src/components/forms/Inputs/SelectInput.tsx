@@ -4,22 +4,46 @@ import React from "react";
 
 type Optional = { id: string; label: string };
 
-const SelectInput = (props: {
-  optionals: Optional[];
-  disableClearable?: boolean;
-  value?: string;
-  endAdornment?: React.ReactNode;
-  onChange: (id?: string) => void;
-  error?: string;
-  size?: "medium" | "small";
-}) => {
-  const { optionals, value, onChange, disableClearable } = props;
+type BaseProps = {
+    optionals: Optional[];
+    disableClearable?: boolean;
 
-  const current = optionals.filter(x => x.id === props.value)[0];
+    endAdornment?: React.ReactNode;
+    error?: string;
+    size?: "medium" | "small";
+}
+
+type MultipleFalse = BaseProps &  {
+    value?: string;
+    multiple?: false;
+    onChange: (id?: string) => void;
+};
+
+type MultipleTrue = BaseProps & {
+    multiple: true
+    multipleValue: string[]
+    onMultipleChange: (ids: string[]) => void;
+}
+
+type Props = MultipleFalse | MultipleTrue;
+
+const SelectInput = (props:Props)=> {
+  const { optionals, disableClearable } = props;
+
+  const isSelected = (x: Optional) => {
+      if (props.multiple)
+          return props.multipleValue.indexOf(x.id) > -1;
+      return x.id === props.value
+  }
+
+  const current = (!props.multiple) ? (optionals ?? []).filter(isSelected)[0] : ((optionals ?? []).filter(isSelected));
+
+  const key = props.multiple ? props.multipleValue.join(",") : props.value;
 
   return (
     <Autocomplete
-      key={props.value ?? "no-id-defined"}
+      key={key ?? "no-id-defined"}
+      multiple={props.multiple}
       options={props.optionals}
       value={current}
       getOptionLabel={item => {
@@ -28,7 +52,17 @@ const SelectInput = (props: {
       disableClearable={disableClearable}
       getOptionKey={item => item.id!}
       onChange={(e, val) => {
-        onChange((val || undefined)?.id);
+          if (!props.multiple)
+          {
+
+              const oneId = Array.isArray(val) ? val.pop()?.id: (val|| undefined)?.id
+              props.onChange?.(oneId);
+          }
+          else {
+
+              const multipleId = Array.isArray(val) ? val.map(item => item.id) : [(val || undefined)?.id].filter(i => !!i) as string[];
+              props.onMultipleChange?.(multipleId as any)
+          }
       }}
       renderOption={(props, options, valueIndex) => {
         return (
@@ -37,7 +71,7 @@ const SelectInput = (props: {
               <span
                 key={valueIndex.index}
                 style={{
-                  fontWeight: options.id === value ? 700 : "inherit",
+                  fontWeight: isSelected(options) ? 700 : "inherit",
                 }}
               >
                 {`${options.label}`}

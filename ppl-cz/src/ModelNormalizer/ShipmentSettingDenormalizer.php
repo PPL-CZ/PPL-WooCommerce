@@ -25,13 +25,15 @@ class ShipmentSettingDenormalizer implements DenormalizerInterface
             $shipment = new ShipmentMethodSettingModel();
             $shipment->setCode($data->id);
             $shipment->setParcelBoxes($data->parcelBoxRequired);
+
             $formFields = array_reduce(array_keys($data->get_instance_form_fields()), function($sum, $key) use ($data) {
                 $sum[$key] = @$data->get_instance_option($key);
                 return $sum;
             }, []);
-            $shipment->setDescription($formFields['title'] ?: null);
-            $shipment->setTitle($formFields['description'] ?: null);
-            $shipment->setPriceWithDph($formFields['priceWithDph'] === 'yes' );
+
+            $shipment->setDescription($formFields['description'] ?: null);
+            $shipment->setTitle($formFields['title'] ?: null);
+            $shipment->setIsPriceWithDph($formFields['priceWithDph'] === 'yes' );
             $shipment->setCodPayment($formFields['codPayment'] ?: '');
             $shipment->setDisablePayments($formFields['disablePayments'] ?: []);
             $shipment->setCostByWeight($formFields["cost_by_weight"] === 'yes' );
@@ -39,6 +41,17 @@ class ShipmentSettingDenormalizer implements DenormalizerInterface
             $shipment->setDisabledAlzaBox(!$data->parcelBoxRequired || $formFields["disabledAlzaBox"] === 'yes' );
             $shipment->setDisabledParcelBox(!$data->parcelBoxRequired || $formFields["disabledParcelBox"] === 'yes' );
             $shipment->setDisabledParcelShop(!$data->parcelBoxRequired || $formFields["disabledParcelShop"] === 'yes' );
+
+
+            if ($data->parcelBoxRequired)
+                $savedDisabledParcel = isset($formFields['disabledParcelCountries']) ? $formFields['disabledParcelCountries'] : [];
+            else
+                $savedDisabledParcel = [];
+
+            if (!is_array($savedDisabledParcel))
+                $savedDisabledParcel = [];
+
+            $shipment->setDisabledParcelCountries( $savedDisabledParcel);
 
             $shipment->setCurrencies([]);
             $shipment->setWeights([]);
@@ -96,8 +109,8 @@ class ShipmentSettingDenormalizer implements DenormalizerInterface
                         $weight[$key] = pplcz_denormalize($value, ShipmentMethodSettingWeightRuleModel::class);
                     }
                     usort($weight, function (ShipmentMethodSettingWeightRuleModel $item1, ShipmentMethodSettingWeightRuleModel $item2) {
-                        $to1 = $item1->getTo() ?: 0;
-                        $to2 = $item2->getTo() ?: 0;
+                        $to1 = $item1->getTo() ?: 1000000000;
+                        $to2 = $item2->getTo() ?: 1000000000;
 
                         if ($to2 == $to1)
                         {

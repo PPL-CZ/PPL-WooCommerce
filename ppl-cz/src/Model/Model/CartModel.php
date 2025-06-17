@@ -17,7 +17,7 @@ class CartModel extends \ArrayObject
      *
      * @var bool|null
      */
-    protected $priceWithDph;
+    protected $isPriceWithDph;
     /**
      * 
      *
@@ -69,6 +69,12 @@ class CartModel extends \ArrayObject
     /**
      * 
      *
+     * @var string[]|null
+     */
+    protected $enabledParcelCountries;
+    /**
+     * 
+     *
      * @var bool|null
      */
     protected $ageRequired;
@@ -111,29 +117,47 @@ class CartModel extends \ArrayObject
     /**
      * 
      *
+     * @var CalculatedDPH
+     */
+    protected $codFeeDPH;
+    /**
+     * 
+     *
      * @var float|null
      */
     protected $cost;
     /**
      * 
      *
+     * @var CalculatedDPH
+     */
+    protected $costDPH;
+    /**
+     * 
+     *
+     * @var string|null
+     */
+    protected $taxableName;
+    /**
+     * 
+     *
      * @return bool|null
      */
-    public function getPriceWithDph() : ?bool
+    public function getIsPriceWithDph() : ?bool
     {
-        return $this->priceWithDph;
+        return $this->isPriceWithDph;
     }
     /**
      * 
      *
-     * @param bool|null $priceWithDph
+     * @param bool|null $isPriceWithDph
      *
      * @return self
      */
-    public function setPriceWithDph(?bool $priceWithDph) : self
+    public function setIsPriceWithDph(?bool $isPriceWithDph) : self
     {
-        $this->initialized['priceWithDph'] = true;
-        $this->priceWithDph = $priceWithDph;
+        $this->initialized['isPriceWithDph'] = true;
+        $this->isPriceWithDph = $isPriceWithDph;
         return $this;
     }
     /**
@@ -315,6 +339,28 @@ class CartModel extends \ArrayObject
     /**
      * 
      *
+     * @return string[]|null
+     */
+    public function getEnabledParcelCountries() : ?array
+    {
+        return $this->enabledParcelCountries;
+    }
+    /**
+     * 
+     *
+     * @param string[]|null $enabledParcelCountries
+     *
+     * @return self
+     */
+    public function setEnabledParcelCountries(?array $enabledParcelCountries) : self
+    {
+        $this->initialized['enabledParcelCountries'] = true;
+        $this->enabledParcelCountries = $enabledParcelCountries;
+        return $this;
+    }
+    /**
+     * 
+     *
      * @return bool|null
      */
     public function getAgeRequired() : ?bool
@@ -469,6 +515,28 @@ class CartModel extends \ArrayObject
     /**
      * 
      *
+     * @return CalculatedDPH
+     */
+    public function getCodFeeDPH() : ?CalculatedDPH
+    {
+        return $this->codFeeDPH;
+    }
+    /**
+     * 
+     *
+     * @param CalculatedDPH $codFeeDPH
+     *
+     * @return self
+     */
+    public function setCodFeeDPH(?CalculatedDPH $codFeeDPH) : self
+    {
+        $this->initialized['codFeeDPH'] = true;
+        $this->codFeeDPH = $codFeeDPH;
+        return $this;
+    }
+    /**
+     * 
+     *
      * @return float|null
      */
     public function getCost() : ?float
@@ -486,6 +554,50 @@ class CartModel extends \ArrayObject
     {
         $this->initialized['cost'] = true;
         $this->cost = $cost;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return CalculatedDPH
+     */
+    public function getCostDPH() : ?CalculatedDPH
+    {
+        return $this->costDPH;
+    }
+    /**
+     * 
+     *
+     * @param CalculatedDPH $costDPH
+     *
+     * @return self
+     */
+    public function setCostDPH(?CalculatedDPH $costDPH) : self
+    {
+        $this->initialized['costDPH'] = true;
+        $this->costDPH = $costDPH;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string|null
+     */
+    public function getTaxableName() : ?string
+    {
+        return $this->taxableName;
+    }
+    /**
+     * 
+     *
+     * @param string|null $taxableName
+     *
+     * @return self
+     */
+    public function setTaxableName(?string $taxableName) : self
+    {
+        $this->initialized['taxableName'] = true;
+        $this->taxableName = $taxableName;
         return $this;
     }
 }

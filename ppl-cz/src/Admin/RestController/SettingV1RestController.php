@@ -52,6 +52,17 @@ class SettingV1RestController extends  PPLRestController
             ]
         ]);
 
+        register_rest_route($this->namespace, "/". $this->base . "/parcelcountries", [
+            [
+                "methods"=>\WP_REST_Server::EDITABLE,
+                "permission_callback"=>[$this, "check_permission"],
+                "callback" => [$this, "update_parcelcountries"],
+            ], [
+                "methods"=>\WP_REST_Server::READABLE,
+                "callback" => [$this, "get_parcelcountries"],
+                "permission_callback"=>[$this, "check_permission"],
+            ]
+        ]);
 
         register_rest_route($this->namespace, "/". $this->base . "/sender-addresses", [
             [
@@ -285,6 +296,19 @@ class SettingV1RestController extends  PPLRestController
         $places->setDisabledAlzaBox(!!get_option(pplcz_create_name("disabled_alzabox")));
         $places->setDisabledParcelBox(!!get_option(pplcz_create_name("disabled_parcelbox")));
 
+        $disabledCountries = get_option(pplcz_create_name("disabled_parcel_countries"));
+        if (!is_array($disabledCountries))
+            $disabledCountries = [];
+
+        $mapLanguage = get_option(pplcz_create_name("map_language"));
+        if (!is_string($mapLanguage))
+            $mapLanguage = null;
+
+        $places->setMapLanguage($mapLanguage);
+
+
+        $places->setDisabledCountries($disabledCountries);
+
         $places = pplcz_normalize($places);
 
         $response = new \WP_REST_Response();
@@ -302,11 +326,15 @@ class SettingV1RestController extends  PPLRestController
 
         $parcelbox = pplcz_create_name("disabled_parcelbox");
         $parcelshop =pplcz_create_name("disabled_parcelshop");
-        $alzabox =pplcz_create_name("disabled_alzabox");
+        $alzabox = pplcz_create_name("disabled_alzabox");
+        $disabledCountries = pplcz_create_name("disabled_parcel_countries");
+        $languageMap = pplcz_create_name("map_language");
 
         add_option($parcelbox, $setting->getDisabledParcelBox()) || update_option($parcelbox, $setting->getDisabledParcelBox());
         add_option($parcelshop, $setting->getDisabledParcelShop()) || update_option($parcelshop, $setting->getDisabledParcelShop());
         add_option($alzabox, $setting->getDisabledAlzaBox()) || update_option($alzabox, $setting->getDisabledAlzaBox());
+        add_option($disabledCountries, $setting->getDisabledCountries()) || update_option($disabledCountries, $setting->getDisabledCountries());
+        add_option($languageMap, $setting->getMapLanguage()) || update_option($languageMap, $setting->getMapLanguage());
 
         $response = new \WP_REST_Response();
         $response->set_status(204);

@@ -60,9 +60,9 @@ export const WeightsForm = (props: {
     const [selected, setSelected] = useState("CZK")
 
     const inputName = (basename: string, currency: string) => {
-        return `pplcz_${props.data.code}_${basename}_${currency}`;
+        return `woocommerce_${props.data.code}_${basename}_${currency}`;
     }
-    const inputWeightName = (...args: (string | number)[]) => `pplcz_${props.data.code}_weights${args.map(x => `[${x}]`).join('')}`;
+    const inputWeightName = (...args: (string | number)[]) => `woocommerce_${props.data.code}_weights${args.map(x => `[${x}]`).join('')}`;
 
     const values = getValues();
 

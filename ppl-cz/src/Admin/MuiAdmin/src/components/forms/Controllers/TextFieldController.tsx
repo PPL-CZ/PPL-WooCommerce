@@ -23,7 +23,6 @@ const TextFieldController = <
       name={props.name}
       control={props.control}
       render={({ field: { onChange, value }, fieldState: { error }, formState }) => {
-          console.log('value', value);
         return (
           <TextField
             value={value}

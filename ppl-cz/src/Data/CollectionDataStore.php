@@ -157,9 +157,9 @@ class CollectionDataStore extends \WC_Data_Store_WP implements CollectionDataSto
     {
         global $wpdb;
 
-
         $filter = ["1 = 1"];
-        if (@$args["state"]) {
+
+        if (isset($args['state']) && $args["state"]) {
             $filter[] = $wpdb->prepare(" state in ( " . join(", ", array_fill(0, count($args["state"]), "%s" )) .   ") ", ...$args["state"]);
         }
         $d = (new \DateTime())->sub(new \DateInterval('P10D'));

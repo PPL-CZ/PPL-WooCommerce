@@ -33,6 +33,18 @@ class ParcelPlacesModel extends \ArrayObject
     /**
      * 
      *
+     * @var string[]|null
+     */
+    protected $disabledCountries;
+    /**
+     * 
+     *
+     * @var string|null
+     */
+    protected $mapLanguage;
+    /**
+     * 
+     *
      * @return bool|null
      */
     public function getDisabledParcelBox() : ?bool
@@ -94,6 +106,50 @@ class ParcelPlacesModel extends \ArrayObject
     {
         $this->initialized['disabledParcelShop'] = true;
         $this->disabledParcelShop = $disabledParcelShop;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string[]|null
+     */
+    public function getDisabledCountries() : ?array
+    {
+        return $this->disabledCountries;
+    }
+    /**
+     * 
+     *
+     * @param string[]|null $disabledCountries
+     *
+     * @return self
+     */
+    public function setDisabledCountries(?array $disabledCountries) : self
+    {
+        $this->initialized['disabledCountries'] = true;
+        $this->disabledCountries = $disabledCountries;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string|null
+     */
+    public function getMapLanguage() : ?string
+    {
+        return $this->mapLanguage;
+    }
+    /**
+     * 
+     *
+     * @param string|null $mapLanguage
+     *
+     * @return self
+     */
+    public function setMapLanguage(?string $mapLanguage) : self
+    {
+        $this->initialized['mapLanguage'] = true;
+        $this->mapLanguage = $mapLanguage;
         return $this;
     }
 }

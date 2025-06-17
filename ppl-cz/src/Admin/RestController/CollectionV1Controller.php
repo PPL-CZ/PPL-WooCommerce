@@ -169,7 +169,6 @@ class CollectionV1Controller extends PPLRestController
 
         $inputCollection = pplcz_denormalize($params, NewCollectionModel::class);
 
-        $validator = Validator::getInstance();
         $errors = new Errors();
 
         pplcz_validate($inputCollection, $errors, "");

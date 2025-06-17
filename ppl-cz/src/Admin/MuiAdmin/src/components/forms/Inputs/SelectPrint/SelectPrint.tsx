@@ -39,13 +39,7 @@ const SelectPrint = (props: {
             key={`${JSON.stringify(availableValues)}${refreshValue}`}
             disableClearable
             onChange={e => {
-                if (e !== "4/PDF" || position === 1) {
-                    props.onChange?.(e);
-                }
-                else
-                {
-                    props.onChange?.(e.replace("4", `4.${position}`));
-                }
+                props.onChange?.(e);
             }}
             value={getValue()}
             optionals={availableValues}

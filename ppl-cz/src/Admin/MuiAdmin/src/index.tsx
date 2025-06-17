@@ -30,7 +30,7 @@ const methods = {
     const root = ReactDOM.createRoot(el);
 
 
-    return ReactDOM.createRoot(el).render(
+    return root.render(
         <React.StrictMode>
           <QueryContextOverlay>
             <ThemeContextOverlay >

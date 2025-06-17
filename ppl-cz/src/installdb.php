@@ -5,6 +5,7 @@
 function pplcz_installdb()
 {
 
+
     global $wpdb;
 
     $suppress = $wpdb->suppress_errors(true);
@@ -18,10 +19,27 @@ function pplcz_installdb()
 
     $wpdb->suppress_errors($suppress);
 
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+    $charset = $wpdb->get_charset_collate();
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $table = $wpdb->prefix . 'pplcz_log';
+    $sql = "CREATE TABLE `$table` (
+  `ppl_log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `timestamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
+  `message` text NOT NULL,
+  `errorhash` varchar(128) NOT NULL,
+  PRIMARY KEY (`ppl_log_id`),
+  UNIQUE KEY `errorhas` (`errorhash`)
+) $charset_collate";
+    dbDelta($sql);
+
+
     $table = $wpdb->prefix . 'pplcz_address';
     $charset = $wpdb->get_charset_collate();
     $charset_collate = $wpdb->get_charset_collate();
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
     $sql = "CREATE TABLE `$table` (
   `ppl_address_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `address_name` varchar(40) DEFAULT NULL,
@@ -246,5 +264,10 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
 
     $wpdb->query("update {$wpdb->prefix}woocommerce_shipping_zone_methods set method_id = replace(method_id, 'woocommerce_ppl_', 'pplshipping_') where  method_id like 'woocommerce_ppl_%'");
     $wpdb->query("update {$wpdb->prefix}woocommerce_shipping_zone_methods set method_id = replace(method_id, 'pplshipping_', 'pplcz_') where  method_id like 'pplshipping_%'");
+
+    $wpdb->query("update {$wpdb->prefix}options set option_name = replace(option_name, 'pplcz_pplcz_PRIV', 'woocommerce_pplcz_PRIV') where option_name like 'pplcz_pplcz_PRIV%' ");
+    $wpdb->query("update {$wpdb->prefix}options set option_name = replace(option_name, 'pplcz_pplcz_SMAR', 'woocommerce_pplcz_SMAR') where option_name like 'pplcz_pplcz_SMAR%' ");
+    $wpdb->query("update {$wpdb->prefix}options set option_name = replace(option_name, 'pplcz_pplcz_SMEU', 'woocommerce_pplcz_SMEU') where option_name like 'pplcz_pplcz_SMEU%' ");
+    $wpdb->query("update {$wpdb->prefix}options set option_name = replace(option_name, 'pplcz_pplcz_CONN', 'woocommerce_pplcz_CONN') where option_name like 'pplcz_pplcz_CONN%' ");
 
 }

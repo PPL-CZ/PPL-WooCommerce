@@ -62,9 +62,27 @@ class ParcelPlacesModelNormalizer implements DenormalizerInterface, NormalizerIn
         elseif (\array_key_exists('disabledParcelShop', $data) && $data['disabledParcelShop'] === null) {
             $object->setDisabledParcelShop(null);
         }
-        foreach ($data as $key => $value) {
+        if (\array_key_exists('disabledCountries', $data) && $data['disabledCountries'] !== null) {
+            $values = array();
+            foreach ($data['disabledCountries'] as $value) {
+                $values[] = $value;
+            }
+            $object->setDisabledCountries($values);
+            unset($data['disabledCountries']);
+        }
+        elseif (\array_key_exists('disabledCountries', $data) && $data['disabledCountries'] === null) {
+            $object->setDisabledCountries(null);
+        }
+        if (\array_key_exists('mapLanguage', $data) && $data['mapLanguage'] !== null) {
+            $object->setMapLanguage($data['mapLanguage']);
+            unset($data['mapLanguage']);
+        }
+        elseif (\array_key_exists('mapLanguage', $data) && $data['mapLanguage'] === null) {
+            $object->setMapLanguage(null);
+        }
+        foreach ($data as $key => $value_1) {
             if (preg_match('/.*/', (string) $key)) {
-                $object[$key] = $value;
+                $object[$key] = $value_1;
             }
         }
         return $object;
@@ -84,9 +102,19 @@ class ParcelPlacesModelNormalizer implements DenormalizerInterface, NormalizerIn
         if ($object->isInitialized('disabledParcelShop') && null !== $object->getDisabledParcelShop()) {
             $data['disabledParcelShop'] = $object->getDisabledParcelShop();
         }
-        foreach ($object as $key => $value) {
+        if ($object->isInitialized('disabledCountries') && null !== $object->getDisabledCountries()) {
+            $values = array();
+            foreach ($object->getDisabledCountries() as $value) {
+                $values[] = $value;
+            }
+            $data['disabledCountries'] = $values;
+        }
+        if ($object->isInitialized('mapLanguage') && null !== $object->getMapLanguage()) {
+            $data['mapLanguage'] = $object->getMapLanguage();
+        }
+        foreach ($object as $key => $value_1) {
             if (preg_match('/.*/', (string) $key)) {
-                $data[$key] = $value;
+                $data[$key] = $value_1;
             }
         }
         return $data;
