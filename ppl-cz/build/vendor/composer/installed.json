@@ -2831,8 +2831,8 @@
         },
         {
             "name": "symfony\/polyfill-ctype",
-            "version": "v1.31.0",
-            "version_normalized": "1.31.0.0",
+            "version": "v1.32.0",
+            "version_normalized": "1.32.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/symfony\/polyfill-ctype.git",
@@ -2893,7 +2893,7 @@
                 "portable"
             ],
             "support": {
-                "source": "https:\/\/github.com\/symfony\/polyfill-ctype\/tree\/v1.31.0"
+                "source": "https:\/\/github.com\/symfony\/polyfill-ctype\/tree\/v1.32.0"
             },
             "funding": [
                 {
@@ -2913,8 +2913,8 @@
         },
         {
             "name": "symfony\/polyfill-intl-grapheme",
-            "version": "v1.31.0",
-            "version_normalized": "1.31.0.0",
+            "version": "v1.32.0",
+            "version_normalized": "1.32.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/symfony\/polyfill-intl-grapheme.git",
@@ -2974,7 +2974,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https:\/\/github.com\/symfony\/polyfill-intl-grapheme\/tree\/v1.31.0"
+                "source": "https:\/\/github.com\/symfony\/polyfill-intl-grapheme\/tree\/v1.32.0"
             },
             "funding": [
                 {
@@ -2994,8 +2994,8 @@
         },
         {
             "name": "symfony\/polyfill-intl-normalizer",
-            "version": "v1.31.0",
-            "version_normalized": "1.31.0.0",
+            "version": "v1.32.0",
+            "version_normalized": "1.32.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/symfony\/polyfill-intl-normalizer.git",
@@ -3058,7 +3058,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https:\/\/github.com\/symfony\/polyfill-intl-normalizer\/tree\/v1.31.0"
+                "source": "https:\/\/github.com\/symfony\/polyfill-intl-normalizer\/tree\/v1.32.0"
             },
             "funding": [
                 {
@@ -3078,20 +3078,21 @@
         },
         {
             "name": "symfony\/polyfill-mbstring",
-            "version": "v1.31.0",
-            "version_normalized": "1.31.0.0",
+            "version": "v1.32.0",
+            "version_normalized": "1.32.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/symfony\/polyfill-mbstring.git",
-                "reference": "85181ba99b2345b0ef10ce42ecac37612d9fd341"
+                "reference": "6d857f4d76bd4b343eac26d6b539585d2bc56493"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/symfony\/polyfill-mbstring\/zipball\/85181ba99b2345b0ef10ce42ecac37612d9fd341",
-                "reference": "85181ba99b2345b0ef10ce42ecac37612d9fd341",
+                "url": "https:\/\/api.github.com\/repos\/symfony\/polyfill-mbstring\/zipball\/6d857f4d76bd4b343eac26d6b539585d2bc56493",
+                "reference": "6d857f4d76bd4b343eac26d6b539585d2bc56493",
                 "shasum": ""
             },
             "require": {
+                "ext-iconv": "*",
                 "php": ">=7.2"
             },
             "provide": {
@@ -3100,7 +3101,7 @@
             "suggest": {
                 "ext-mbstring": "For best performance"
             },
-            "time": "2024-09-09T11:45:10+00:00",
+            "time": "2024-12-23T08:48:59+00:00",
             "type": "library",
             "extra": {
                 "thanks": {
@@ -3141,7 +3142,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https:\/\/github.com\/symfony\/polyfill-mbstring\/tree\/v1.31.0"
+                "source": "https:\/\/github.com\/symfony\/polyfill-mbstring\/tree\/v1.32.0"
             },
             "funding": [
                 {
@@ -3161,23 +3162,23 @@
         },
         {
             "name": "symfony\/polyfill-php80",
-            "version": "v1.31.0",
-            "version_normalized": "1.31.0.0",
+            "version": "v1.32.0",
+            "version_normalized": "1.32.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/symfony\/polyfill-php80.git",
-                "reference": "60328e362d4c2c802a54fcbf04f9d3fb892b4cf8"
+                "reference": "0cc9dd0f17f61d8131e7df6b84bd344899fe2608"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/symfony\/polyfill-php80\/zipball\/60328e362d4c2c802a54fcbf04f9d3fb892b4cf8",
-                "reference": "60328e362d4c2c802a54fcbf04f9d3fb892b4cf8",
+                "url": "https:\/\/api.github.com\/repos\/symfony\/polyfill-php80\/zipball\/0cc9dd0f17f61d8131e7df6b84bd344899fe2608",
+                "reference": "0cc9dd0f17f61d8131e7df6b84bd344899fe2608",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2"
             },
-            "time": "2024-09-09T11:45:10+00:00",
+            "time": "2025-01-02T08:10:11+00:00",
             "type": "library",
             "extra": {
                 "thanks": {
@@ -3224,7 +3225,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https:\/\/github.com\/symfony\/polyfill-php80\/tree\/v1.31.0"
+                "source": "https:\/\/github.com\/symfony\/polyfill-php80\/tree\/v1.32.0"
             },
             "funding": [
                 {
@@ -3244,8 +3245,8 @@
         },
         {
             "name": "symfony\/polyfill-php81",
-            "version": "v1.31.0",
-            "version_normalized": "1.31.0.0",
+            "version": "v1.32.0",
+            "version_normalized": "1.32.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/symfony\/polyfill-php81.git",
@@ -3303,7 +3304,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https:\/\/github.com\/symfony\/polyfill-php81\/tree\/v1.31.0"
+                "source": "https:\/\/github.com\/symfony\/polyfill-php81\/tree\/v1.32.0"
             },
             "funding": [
                 {
@@ -4112,86 +4113,6 @@
             "install-path": "..\/thecodingmachine\/safe"
         },
         {
-            "name": "tracy\/tracy",
-            "version": "v2.7.9",
-            "version_normalized": "2.7.9.0",
-            "source": {
-                "type": "git",
-                "url": "https:\/\/github.com\/nette\/tracy.git",
-                "reference": "d2ce9ca5c1e87f9c2a36a888e5712b2dd1f49560"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/nette\/tracy\/zipball\/d2ce9ca5c1e87f9c2a36a888e5712b2dd1f49560",
-                "reference": "d2ce9ca5c1e87f9c2a36a888e5712b2dd1f49560",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "ext-session": "*",
-                "php": ">=7.1"
-            },
-            "conflict": {
-                "nette\/di": "<3.0"
-            },
-            "require-dev": {
-                "latte\/latte": "^2.5",
-                "nette\/di": "^3.0",
-                "nette\/mail": "^3.0",
-                "nette\/tester": "^2.2",
-                "nette\/utils": "^3.0",
-                "phpstan\/phpstan": "^0.12",
-                "psr\/log": "^1.0|^2.0|^3.0"
-            },
-            "suggest": {
-                "https:\/\/nette.org\/donate": "Please support Tracy via a donation"
-            },
-            "time": "2021-12-10T04:28:58+00:00",
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.7-dev"
-                }
-            },
-            "installation-source": "dist",
-            "autoload": {
-                "files": [
-                    "src\/Tracy\/shortcuts.php"
-                ],
-                "classmap": [
-                    "src"
-                ]
-            },
-            "notification-url": "https:\/\/packagist.org\/downloads\/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "David Grudl",
-                    "homepage": "https:\/\/davidgrudl.com"
-                },
-                {
-                    "name": "Nette Community",
-                    "homepage": "https:\/\/nette.org\/contributors"
-                }
-            ],
-            "description": "\ud83d\ude0e  Tracy: the addictive tool to ease debugging PHP code for cool developers. Friendly design, logging, profiler, advanced features like debugging AJAX calls or CLI support. You will love it.",
-            "homepage": "https:\/\/tracy.nette.org",
-            "keywords": [
-                "Xdebug",
-                "debug",
-                "debugger",
-                "nette",
-                "profiler"
-            ],
-            "support": {
-                "issues": "https:\/\/github.com\/nette\/tracy\/issues",
-                "source": "https:\/\/github.com\/nette\/tracy\/tree\/v2.7.9"
-            },
-            "install-path": "..\/tracy\/tracy"
-        },
-        {
             "name": "webmozart\/assert",
             "version": "1.11.0",
             "version_normalized": "1.11.0.0",
@@ -4308,7 +4229,6 @@
         "symfony\/var-dumper",
         "symfony\/yaml",
         "thecodingmachine\/safe",
-        "tracy\/tracy",
         "webmozart\/assert"
     ]
 }

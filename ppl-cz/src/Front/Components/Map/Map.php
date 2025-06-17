@@ -83,7 +83,7 @@ class Map {
         } else {
             $data["data-initialfilters"] = join(',', $data["data-initialfilters"]);
         }
-        if (@$data["data-lat"]) {
+        if (isset($data["data-lat"]) && $data['data-lat']) {
 
             $data["data-mode"] = "static";
         }

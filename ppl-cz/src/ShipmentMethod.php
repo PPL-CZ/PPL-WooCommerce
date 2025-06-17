@@ -615,7 +615,7 @@ class ShipmentMethod extends \WC_Shipping_Method {
         add_filter( 'woocommerce_shipping_' . $this->id . '_instance_settings_values', function ($item, $setting) {
             $key = $this->get_field_key( "weights" );
             $postdata = $this->get_post_data();
-            $values = $postdata[$key];
+            $values = isset($postdata[$key]) ? $postdata[$key] : [];
             if (!is_array($values))
                 $values = [];
 

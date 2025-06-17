@@ -128,8 +128,8 @@ class CartModelDernomalizer implements DenormalizerInterface
 
             $shipmentCartModel->setEnabledParcelCountries($allowedParcelCountries);
 
-            $shipmentCartModel->setParcelShopEnabled($enabledByCountry && !$disabledParcelShop && !$setting->getDisabledParcelBox());
-            $shipmentCartModel->setParcelBoxEnabled($enabledByCountry && !$disabledParcelBox && !$setting->getDisabledParcelShop());
+            $shipmentCartModel->setParcelShopEnabled($enabledByCountry && !$disabledParcelShop && !$setting->getDisabledParcelShop());
+            $shipmentCartModel->setParcelBoxEnabled($enabledByCountry && !$disabledParcelBox && !$setting->getDisabledParcelBox());
             $shipmentCartModel->setAlzaBoxEnabled($enabledByCountry && !$disabledAlzaBox && !$setting->getDisabledAlzaBox());
             $shipmentCartModel->setDisabledByCountry(!$enabledByCountry);
 
@@ -168,7 +168,7 @@ class CartModelDernomalizer implements DenormalizerInterface
 
             if ($selectedWeightRule) {
                 $shipmentCartModel->setAlzaBoxEnabled($shipmentCartModel->getAlzaBoxEnabled() && !$selectedWeightRule->getDisabledAlzaBox());
-                $shipmentCartModel->setParcelShopEnabled($shipmentCartModel->getParcelShopEnabled() && !$selectedWeightRule->getDisabledParcelBox());
+                $shipmentCartModel->setParcelBoxEnabled($shipmentCartModel->getParcelBoxEnabled() && !$selectedWeightRule->getDisabledParcelBox());
                 $shipmentCartModel->setParcelShopEnabled($shipmentCartModel->getParcelShopEnabled() && !$selectedWeightRule->getDisabledParcelShop());
             }
         } else {

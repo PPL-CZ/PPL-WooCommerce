@@ -29,3 +29,5 @@
 # 1.0.22
 - možnost povolení/zakázání mapy v rámci dopravy či globálně
 - možnost odeslání info o pluginu
+# 1.0.23
+- oprava uložení výdejního místa v novém košíku

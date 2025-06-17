@@ -48,12 +48,6 @@ if (!class_exists('Foo', false) && !interface_exists('Foo', false) && !trait_exi
 if (!class_exists('Bar', false) && !interface_exists('Bar', false) && !trait_exists('Bar', false)) {
     spl_autoload_call('PPLCZVendor\Bar');
 }
-if (!class_exists('Test', false) && !interface_exists('Test', false) && !trait_exists('Test', false)) {
-    spl_autoload_call('PPLCZVendor\Test');
-}
-if (!class_exists('DemoClass', false) && !interface_exists('DemoClass', false) && !trait_exists('DemoClass', false)) {
-    spl_autoload_call('PPLCZVendor\DemoClass');
-}
 
 // Exposed functions. For more information see:
 // https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#exposing-functions
@@ -795,56 +789,6 @@ if (!function_exists('event_base_reinit')) {
 if (!function_exists('event_priority_set')) {
     function event_priority_set() {
         return \PPLCZVendor\event_priority_set(...func_get_args());
-    }
-}
-if (!function_exists('dumpe')) {
-    function dumpe() {
-        return \PPLCZVendor\dumpe(...func_get_args());
-    }
-}
-if (!function_exists('bdump')) {
-    function bdump() {
-        return \PPLCZVendor\bdump(...func_get_args());
-    }
-}
-if (!function_exists('this_is_fatal_error')) {
-    function this_is_fatal_error() {
-        return \PPLCZVendor\this_is_fatal_error(...func_get_args());
-    }
-}
-if (!function_exists('first')) {
-    function first() {
-        return \PPLCZVendor\first(...func_get_args());
-    }
-}
-if (!function_exists('second')) {
-    function second() {
-        return \PPLCZVendor\second(...func_get_args());
-    }
-}
-if (!function_exists('third')) {
-    function third() {
-        return \PPLCZVendor\third(...func_get_args());
-    }
-}
-if (!function_exists('head')) {
-    function head() {
-        return \PPLCZVendor\head(...func_get_args());
-    }
-}
-if (!function_exists('demo')) {
-    function demo() {
-        return \PPLCZVendor\demo(...func_get_args());
-    }
-}
-if (!function_exists('compressJs')) {
-    function compressJs() {
-        return \PPLCZVendor\compressJs(...func_get_args());
-    }
-}
-if (!function_exists('compressCss')) {
-    function compressCss() {
-        return \PPLCZVendor\compressCss(...func_get_args());
     }
 }
 
