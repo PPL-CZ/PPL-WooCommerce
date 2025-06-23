@@ -272,6 +272,12 @@ function pplcz_tables ($activate = false) {
     }
 }
 
+function pplcz_woocommerce_loaded()
+{
+    if (!WC()->session)
+        WC()->initialize_session();
+}
+
 
 function pplcz_activate () {
     pplcz_tables(true);
@@ -283,4 +289,5 @@ function pplcz_deactivate()
     as_unschedule_action(pplcz_create_name("refresh_setting_cron"));
     as_unschedule_action(pplcz_create_name("delete_logs"));
 }
+
 

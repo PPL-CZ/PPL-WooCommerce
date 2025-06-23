@@ -48,11 +48,17 @@ function pplcz_error_handler ($errno, $errstr, $errfile, $errline) {
         $show_errors = $wpdb->show_errors;
         $wpdb->hide_errors();
         $error = $errstr . "\n" . join("\n", $out);
-        $logdata = new \PPLCZ\Data\LogData();
-        $logdata->set_message($error);
-        $logdata->set_errorhash(sha1($error));
-        $logdata->set_timestamp(date('Y-m-d H:i:s'));
-        $logdata->save();
+        try {
+            $logdata = new \PPLCZ\Data\LogData();
+            $logdata->set_message($error);
+            $logdata->set_errorhash(sha1($error));
+            $logdata->set_timestamp(date('Y-m-d H:i:s'));
+            $logdata->save();
+        }
+        catch (\Throwable $ex)
+        {
+
+        }
         $wpdb->show_errors = $show_errors;
     }
 }
@@ -71,11 +77,17 @@ function pplcz_shutdown_handler()
             global $wpdb;
             $show_errors = $wpdb->show_errors;
             $wpdb->hide_errors();
-            $logdata = new \PPLCZ\Data\LogData();
-            $logdata->set_message($error['message']);
-            $logdata->set_errorhash(sha1($error['message']));
-            $logdata->set_timestamp(date('Y-m-d H:i:s'));
-            $logdata->save();
+            try {
+                $logdata = new \PPLCZ\Data\LogData();
+                $logdata->set_message($error['message']);
+                $logdata->set_errorhash(sha1($error['message']));
+                $logdata->set_timestamp(date('Y-m-d H:i:s'));
+                $logdata->save();
+            }
+            catch (\Throwable $ex)
+            {
+
+            }
             $wpdb->show_errors = $show_errors;
         }
         return;

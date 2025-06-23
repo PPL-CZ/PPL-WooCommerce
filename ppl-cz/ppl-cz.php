@@ -6,7 +6,7 @@ Plugin URI: https://www.ppl.cz/jak-zacit#plugin
 Author URI: https://www.ppl.cz
 Description: Jednoduché vytváření zásilek pro PPL CZ s.r.o. Integrace do košíku, editace adres objednávek, stavy zásilek (zjednodušené, kompletní) a jejich sledování. Základem pluginu je tisk etiket. Pro aktivaci pluginu, kontaktujte ithelp@ppl.cz. Určeno pro WooCommerce verze 8.0 a vyšší.
 Author: PPL
-Version: 1.0.23
+Version: 1.0.24
 Requires Plugins: woocommerce
 License: GPLv2 or later
 Requires PHP: 7.3
@@ -39,30 +39,6 @@ PPLCZ\Admin\Cron\DeleteLogCron::register();
 
 function pplcz_init()
 {
-    if (!WC()->session) {
-        WC()->initialize_session();
-    }
-    PPLCZ\Template\Template::register();
-
-    if (class_exists(\Automattic\WooCommerce\Blocks\BlockTypes\OrderConfirmation\ShippingAddress::class)) {
-        PPLCZ\Front\Components\ParcelShopSummary\BlockOrderConfirmation::register();
-    }
-
-
-    PPLCZ\ShipmentMethod::register();
-
-    PPLCZ\Front\Components\ParcelShop\BlockOldView::register();
-
-    PPLCZ\Admin\Product\Tab::register();
-    PPLCZ\Front\Validator\ParcelShopValidator::register();
-
-
-    PPLCZ\Front\Operation\ParcelShopOperation::register();
-    PPLCZ\Admin\Order\ParcelShop::register();
-    PPLCZ\Admin\Order\OrderFilter::register();
-    PPLCZ\Admin\Order\OrderPanel::register();
-    PPLCZ\Admin\Order\OrderTable::register();
-    PPLCZ\Admin\Category\CategoryPanel::register();
 
     PPLCZ\Data\CollectionDataStore::register();
     PPLCZ\Data\ShipmentDataStore::register();
@@ -71,9 +47,31 @@ function pplcz_init()
     PPLCZ\Data\PackageDataStore::register();
     PPLCZ\Data\ParcelDataStore::register();
     PPLCZ\Data\LogDataStore::register();
+
+    PPLCZ\Template\Template::register();
+
+    if (class_exists(\Automattic\WooCommerce\Blocks\BlockTypes\OrderConfirmation\ShippingAddress::class)) {
+        PPLCZ\Front\Components\ParcelShopSummary\BlockOrderConfirmation::register();
+    }
+
+    PPLCZ\ShipmentMethod::register();
+
+    PPLCZ\Front\Components\ParcelShop\BlockOldView::register();
+
+    PPLCZ\Admin\Product\Tab::register();
+    PPLCZ\Front\Validator\ParcelShopValidator::register();
+
+    PPLCZ\Front\Operation\ParcelShopOperation::register();
+    PPLCZ\Admin\Order\ParcelShop::register();
+    PPLCZ\Admin\Order\OrderFilter::register();
+    PPLCZ\Admin\Order\OrderPanel::register();
+    PPLCZ\Admin\Order\OrderTable::register();
+    PPLCZ\Admin\Category\CategoryPanel::register();
+
 }
 
 add_action("before_woocommerce_init", "pplcz_init");
+add_action("woocommerce_loaded", "pplcz_woocommerce_loaded");
 add_action("woocommerce_init", "pplcz_tables");
 add_action("woocommerce_cart_shipping_packages", "pplcz_currency");
 

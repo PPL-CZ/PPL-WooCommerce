@@ -31,3 +31,5 @@
 - možnost odeslání info o pluginu
 # 1.0.23
 - oprava uložení výdejního místa v novém košíku
+# 1.0.24
+- oprava inicializace pluginu

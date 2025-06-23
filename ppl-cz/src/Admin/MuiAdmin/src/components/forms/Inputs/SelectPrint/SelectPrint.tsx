@@ -11,7 +11,7 @@ const SelectPrint = (props: {
     const [refreshValue, setRefreshValue] = useState(1);
     const availableValues = useMemo(() =>
         props.optionals.reduce((acc, value) => {
-            const matched = value.code.match(/4\.[2-4]\/PDF/);
+
             acc.push({
                 id: value.code,
                 label: value.title
