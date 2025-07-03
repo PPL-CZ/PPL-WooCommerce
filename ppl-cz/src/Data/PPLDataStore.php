@@ -23,16 +23,12 @@ class PPLDataStore extends \WC_Data_Store_WP implements \WC_Object_Data_Store_In
         return $cache;
     }
 
-    public function create(&$data)
-    {
-        /**
-         * @var PPLData $data
-         */
-
+public function create(&$data)
+{
     global $wpdb;
     $insertData = $data->get_props_for_store("create");
 
-    // Pokud je v datech errorhash, zkontroluj, jestli už v DB existuje stejný záznam
+    // If there is an errorhash in the data, check if the same record already exists in the DB
     if (isset($insertData['errorhash'])) {
         $exists = $wpdb->get_var(
             $wpdb->prepare(
@@ -41,7 +37,7 @@ class PPLDataStore extends \WC_Data_Store_WP implements \WC_Object_Data_Store_In
             )
         );
         if ($exists > 0) {
-            // Nepřidávej duplicitní záznam
+            // Do not add duplicate entries.
             return;
         }
     }
