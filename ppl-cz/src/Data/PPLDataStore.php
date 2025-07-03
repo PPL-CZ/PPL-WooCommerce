@@ -29,15 +29,29 @@ class PPLDataStore extends \WC_Data_Store_WP implements \WC_Object_Data_Store_In
          * @var PPLData $data
          */
 
-        global $wpdb;
-        $insertData = $data->get_props_for_store("create");
-        $wpdb->insert($wpdb->prefix . "pplcz_". $this->table_name, $insertData); // WPCS: DB call ok.
-        $id = $wpdb->insert_id;
-        $data->set_id($id);
-        $data->apply_changes();
-        do_action("pplcz_{$this->table_name}_new", $id, $data);
+    global $wpdb;
+    $insertData = $data->get_props_for_store("create");
+
+    // Pokud je v datech errorhash, zkontroluj, jestli už v DB existuje stejný záznam
+    if (isset($insertData['errorhash'])) {
+        $exists = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}pplcz_{$this->table_name} WHERE errorhash = %s",
+                $insertData['errorhash']
+            )
+        );
+        if ($exists > 0) {
+            // Nepřidávej duplicitní záznam
+            return;
+        }
     }
 
+    $wpdb->insert($wpdb->prefix . "pplcz_". $this->table_name, $insertData);
+    $id = $wpdb->insert_id;
+    $data->set_id($id);
+    $data->apply_changes();
+    do_action("pplcz_{$this->table_name}_new", $id, $data);
+}
     public function read(&$data)
     {
         /**
