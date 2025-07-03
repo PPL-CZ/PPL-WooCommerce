@@ -23,8 +23,12 @@ class PPLDataStore extends \WC_Data_Store_WP implements \WC_Object_Data_Store_In
         return $cache;
     }
 
-public function create(&$data)
-{
+    public function create(&$data)
+    {
+        /**
+         * @var PPLData $data
+         */
+
     global $wpdb;
     $insertData = $data->get_props_for_store("create");
 
