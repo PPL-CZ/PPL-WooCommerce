@@ -1,6 +1,6 @@
 function PplMap (onComplete, data) {
 
-    const { withCard, withCash, lat, lng, parcelShop, parcelBox, address, country, hiddenPoints } = data || {};
+    const { withCard, withCash, lat, lng, parcelShop, parcelBox, address, country, countries, hiddenPoints } = data || {};
 
     var pplMap = document.createElement("div");
     pplMap.id = "pplcz-parcelshop-map-overlay"
@@ -39,6 +39,9 @@ function PplMap (onComplete, data) {
     }
     if (hiddenPoints)
         url.searchParams.set("ppl_hiddenpoints", hiddenPoints);
+
+    if (countries)
+        url.searchParams.set("ppl_countries", countries);
 
 
     var stringurl = '' + url;

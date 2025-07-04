@@ -1,6 +1,8 @@
 <?php
 namespace  PPLCZ\Admin\Assets;
 
+use PPLCZ\Admin\Page\FilePage;
+
 defined("WPINC") or die();
 
 class JsTemplate
@@ -51,7 +53,8 @@ class JsTemplate
             "url" => rtrim(get_rest_url(), '/'),
             "pluginPath" => plugin_dir_url(realpath(__DIR__ . '/../'))  . "Admin/MuiAdmin/build/static",
             "newCollectionUrl" => self::COLLECTIONURL,
-            "ajax_url" => admin_url("admin-ajax.php")
+            "ajax_url" => admin_url("admin-ajax.php"),
+            "file_download_url" => FilePage::createUrl(null)
         ]);
         wp_add_inline_script("pplcz_plugin", "window.PPLczPlugin = window.PPLczPlugin || [];");
     }

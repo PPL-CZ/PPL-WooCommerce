@@ -37,7 +37,7 @@ trait ParcelDataModelTrait {
         $shippingMethods = $order->get_shipping_methods();
 
         foreach ($shippingMethods as $shippingMethod) {
-            if ($shippingMethod->get_method_id() === pplcz_create_name("")) {
+            if (str_contains($shippingMethod->get_method_id(), pplcz_create_name(""))) {
                 $method = new ShipmentMethod($shippingMethod->get_instance_id());
                 if ($method->parcelBoxRequired)
                     $shippingMethod->update_meta_data(pplcz_create_name("parcelshop_data"), $data ? Serializer::getInstance()->normalize($data, "array") : null);

@@ -51,7 +51,7 @@ class HttpClientPoolItem implements HttpClient, HttpAsyncClient
      * @param ClientInterface|HttpAsyncClient $client
      * @param int|null                        $reenableAfter Number of seconds until this client is enabled again after an error
      */
-    public function __construct($client, int $reenableAfter = null)
+    public function __construct($client, ?int $reenableAfter = null)
     {
         if (!$client instanceof ClientInterface && !$client instanceof HttpAsyncClient) {
             throw new \TypeError(\sprintf('%s::__construct(): Argument #1 ($client) must be of type %s|%s, %s given', self::class, ClientInterface::class, HttpAsyncClient::class, \get_debug_type($client)));
@@ -59,9 +59,6 @@ class HttpClientPoolItem implements HttpClient, HttpAsyncClient
         $this->client = new FlexibleHttpClient($client);
         $this->reenableAfter = $reenableAfter;
     }
-    /**
-     * {@inheritdoc}
-     */
     public function sendRequest(RequestInterface $request) : ResponseInterface
     {
         if ($this->isDisabled()) {
@@ -78,9 +75,6 @@ class HttpClientPoolItem implements HttpClient, HttpAsyncClient
         }
         return $response;
     }
-    /**
-     * {@inheritdoc}
-     */
     public function sendAsyncRequest(RequestInterface $request)
     {
         if ($this->isDisabled()) {

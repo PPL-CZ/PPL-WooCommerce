@@ -6,6 +6,8 @@ import QueryContextOverlay from "./components/overlay/QueryContextOverlay";
 import CreateShipmentWidget from "./components/widgets/CreateShipmentWidget";
 import CreateShipmentLabelWidget from "./components/widgets/CreateShipmentLabelWidget";
 import SelectPrintWidget from "./components/widgets/SelectPrintWidget";
+import {components} from "./schema";
+import {WeightsForm} from "./components/forms/WeightsForm/WeightsForm";
 
 const getELement = (element: HTMLElement | string) => {
   if (typeof element === "string") {
@@ -14,21 +16,56 @@ const getELement = (element: HTMLElement | string) => {
   return null;
 };
 
-let styleUpdated = false;
+let oldStyle: HTMLStyleElement|null = null;
+let newStyle: HTMLStyleElement|null = null;
+
+let styleUpdatedFont = false;
 
 const methods = {
   optionsPage: (element: string | HTMLElement) =>
-    ReactDOM.createRoot(getELement(element)!).render(
-      <React.StrictMode>
-        <QueryContextOverlay>
-          <ThemeContextOverlay>
-            <App />
-          </ThemeContextOverlay>
-        </QueryContextOverlay>
-      </React.StrictMode>
-    ),
-  newShipment: (element: string | HTMLElement, args: Record<string, any>) => {
+  {
+    methods["wpUpdateStyle"]();
+    const attachedElement = getELement(element)!
+    const el = attachedElement;
+    const root = ReactDOM.createRoot(el);
+
+
+    return root.render(
+        <React.StrictMode>
+          <QueryContextOverlay>
+            <ThemeContextOverlay >
+              <App/>
+            </ThemeContextOverlay>
+          </QueryContextOverlay>
+        </React.StrictMode>
+    );
+  },
+  shipmentSetting: (element: string, args: Record<string, any>) => {
+
     const root = ReactDOM.createRoot(getELement(element)!);
+    root.render(
+        <QueryContextOverlay>
+            <WeightsForm data={args.setting}/>
+        </QueryContextOverlay>
+    );
+
+    return {
+      rerender: (args: Record<string, any>) => {
+        root.render(<QueryContextOverlay>
+          <WeightsForm  data={args.setting} costByWeight={args.costByWeight}/>
+        </QueryContextOverlay>)
+      },
+      unmount: () => {
+        root.unmount()
+      },
+    };
+  },
+  newShipment: (element: string | HTMLElement, args: Record<string, any>) => {
+    const attachedElement = getELement(element)!
+    const el = attachedElement;
+    const root = ReactDOM.createRoot(el);
+
+
     root.render(
       <QueryContextOverlay>
         <ThemeContextOverlay>
@@ -42,7 +79,13 @@ const methods = {
     };
   },
   newLabel: (element: string | HTMLElement, args: Record<string, any>) => {
-    const root = ReactDOM.createRoot(getELement(element)!);
+    methods["wpUpdateStyle"]();
+
+    const attachedElement = getELement(element)!
+    const el = attachedElement;
+    const root = ReactDOM.createRoot(el);
+
+
     root.render(
         <QueryContextOverlay>
           <ThemeContextOverlay>
@@ -52,12 +95,20 @@ const methods = {
     );
 
     return {
-      unmount: () => root.unmount(),
+      unmount: () => {
+        methods["wpUpdateStyleRevert"]();
+        root.unmount()
+      },
     };
   },
 
   selectLabelPrint: (element: string|HTMLElement, args: Record<string, any>) => {
-    const root = ReactDOM.createRoot(getELement(element)!)
+
+    methods["wpUpdateStyle"]();
+
+    const attachedElement = getELement(element)!
+    const el = attachedElement;
+    const root = ReactDOM.createRoot(el);
 
     const render = (args: Record<string, any>) => {
       root.render(
@@ -72,12 +123,20 @@ const methods = {
     render(args);
 
     return {
-      unmount: () => root.unmount(),
+      unmount: () => {
+        methods["wpUpdateStyleRevert"]();
+        root.unmount()
+      },
       render
     };
   },
   newLabels: (element: string | HTMLElement, args: Record<string, any>) => {
-    const root = ReactDOM.createRoot(getELement(element)!);
+    methods["wpUpdateStyle"]();
+    const attachedElement = getELement(element)!
+    const el = attachedElement;
+    const root = ReactDOM.createRoot(el);
+
+
     root.render(
       <QueryContextOverlay>
         <ThemeContextOverlay>
@@ -86,54 +145,74 @@ const methods = {
       </QueryContextOverlay>
     );
     return {
-      unmount: () => root.unmount(),
+      unmount: () => {
+        methods["wpUpdateStyleRevert"]();
+        root.unmount();
+      }
     };
   },
+  wpUpdateStyleRevert: () => {
+    if (newStyle && newStyle.parentElement && oldStyle) {
+      newStyle.parentElement.insertBefore(oldStyle, newStyle.nextSibling);
+      newStyle.parentElement.removeChild(newStyle);
+    }
+  },
   wpUpdateStyle: () => {
-    if (styleUpdated) return;
 
     const head = document.head;
-    let link = document.createElement("link");
-    link.setAttribute("rel", "preconnect");
-    link.setAttribute("href", "https://fonts.googleapis.com");
-    head.appendChild(link);
-    link.setAttribute("rel", "preconnect");
-    link.setAttribute("href", "https://fonts.gstatic.com");
-    link.setAttribute("crossorigin", "crossorigin");
-    head.appendChild(link);
-    link.setAttribute(
-      "href",
-      "https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-    );
-    link.setAttribute("rel", "stylesheet");
-    head.appendChild(link);
+    if (styleUpdatedFont) {
+      let link = document.createElement("link");
+      link.setAttribute("rel", "preconnect");
+      link.setAttribute("href", "https://fonts.googleapis.com");
+      head.appendChild(link);
+      link.setAttribute("rel", "preconnect");
+      link.setAttribute("href", "https://fonts.gstatic.com");
+      link.setAttribute("crossorigin", "crossorigin");
+      head.appendChild(link);
+      link.setAttribute(
+          "href",
+          "https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      );
+      link.setAttribute("rel", "stylesheet");
+      head.appendChild(link);
+    }
 
-    link = Array.from(document.getElementsByTagName("link")).find(x =>
-      x.getAttribute("href")?.includes("load-styles.php?")
-    ) as HTMLLinkElement;
-    if (link) {
-      styleUpdated = true;
-      fetch(link.getAttribute("href")!)
-        .then(x => x.text())
-        .then(stylesText => {
-          const style = document.createElement("style");
-          style.textContent = stylesText;
-          link.parentElement?.insertBefore(style, link.nextSibling);
-          link.parentElement?.removeChild(link);
-          const sheet = style.sheet;
-          if (sheet) {
-            Array.from(sheet.cssRules).forEach(x => {
-              if ("selectorText" in x && x.selectorText) {
-                const oldText = x.selectorText as string;
-                if (oldText.match(/svg|div|h[0-6]|input|button|(\.|^|\s)p(\.|$|\s)/)) {
-                  if (oldText.includes(":") || oldText.includes("components-button")) return;
-                  x.selectorText = oldText.split(",").map(x => `${x}:not(.wp-reset-div ${x})`);
-                }
+    styleUpdatedFont = true;
+
+    if (!oldStyle || !newStyle) {
+      const link = Array.from(document.getElementsByTagName("link")).find(x =>
+          x.getAttribute("href")?.includes("load-styles.php?")
+      ) as HTMLLinkElement;
+
+      if (link) {
+        oldStyle = link;
+        fetch(link.getAttribute("href")!)
+            .then(x => x.text())
+            .then(stylesText => {
+              newStyle = document.createElement("style");
+              newStyle.textContent = stylesText;
+              link.parentElement?.insertBefore(newStyle, link.nextSibling);
+              link.parentElement?.removeChild(link);
+              const sheet = newStyle.sheet;
+              if (sheet) {
+                Array.from(sheet.cssRules).forEach(x => {
+                  if ("selectorText" in x && x.selectorText) {
+                    const oldText = x.selectorText as string;
+                    if (oldText.match(/svg|div|h[0-6]|input|button|(\.|^|\s)p(\.|$|\s)/)) {
+                      if (oldText.includes(":") || oldText.includes("components-button")) return;
+                      x.selectorText = oldText.split(",").map(x => `${x}:not(.wp-reset-div ${x})`);
+                    }
+                  }
+                  return x;
+                });
               }
-              return x;
             });
-          }
-        });
+      }
+    } else {
+      if (oldStyle.parentElement) {
+        oldStyle.parentElement.insertBefore(newStyle, oldStyle.nextSibling);
+        oldStyle.parentElement.removeChild(oldStyle);
+      }
     }
   },
 };
@@ -176,9 +255,6 @@ type InputType = [
         throw new Error(`element ${element} not found`);
       }
 
-      if (/^pplcz/.test(method)) {
-        methods["wpUpdateStyle"]();
-      }
       if (method in methods) {
         if (element) {
           // @ts-ignore

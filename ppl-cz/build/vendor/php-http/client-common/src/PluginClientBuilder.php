@@ -25,7 +25,7 @@ final class PluginClientBuilder
         return $this;
     }
     /**
-     * @param mixed $value
+     * @param string|int|float|bool|string[] $value
      */
     public function setOption(string $name, $value) : self
     {

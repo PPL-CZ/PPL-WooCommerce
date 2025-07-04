@@ -371,7 +371,7 @@ class CPLOperation
                     "pageSize" => $format,
                     "position" => $position,
                     "orderBy" => "ReferenceId,ShipmentNumber"
-                ], null, "&", PHP_QUERY_RFC3986), [
+                ], "", "&", PHP_QUERY_RFC3986), [
                 "headers" =>[
                     "Authorization" => "Bearer " . $this->getAccessToken(),
                 ],
@@ -447,7 +447,7 @@ class CPLOperation
                     "pageSize" => $format,
                     "position" => $position,
                     "orderBy" => "ReferenceId,ShipmentNumber"
-            ], null, "&", PHP_QUERY_RFC3986), [
+            ], "", "&", PHP_QUERY_RFC3986), [
                 "headers" =>[
                     "Authorization" => "Bearer " . $this->getAccessToken(),
                 ],

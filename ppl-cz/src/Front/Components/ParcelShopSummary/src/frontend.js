@@ -83,7 +83,8 @@ const Block = (props) => {
 		} else {
 			document.body.className = document.body.className.split(/\s+/g).filter(x => x !== className).join(" ");
 		}
-	}, [shipping_rate?.instance_id, parcelShopRequired]);
+
+	}, [shipping_rate?.rate_id, parcelShopRequired]);
 
 
 	if (!shipment || !shipping_rate || !parcelShopRequired ||  !isParcelShopSelected(cart))

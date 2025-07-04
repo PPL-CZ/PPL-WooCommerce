@@ -85,6 +85,7 @@ class BlockOldView
                 "parcelShopEnabled" => $cartModel->getParcelShopEnabled(),
                 "parcelBoxEnabled"=> $cartModel->getParcelBoxEnabled(),
                 "alzaBoxEnabled" => $cartModel->getAlzaBoxEnabled(),
+                "countries" => $cartModel->getEnabledParcelCountries(),
                 "ageOk" => $ageOk,
                 "content" => urlencode(wp_json_encode($parcelshop ? Serializer::getInstance()->normalize($parcelshop) : null)),
                 "image" =>  pplcz_asset_icon("ps_pb.png"),
@@ -161,7 +162,7 @@ class BlockOldView
         /**
          * @var CartModel $cartModel
          */
-        $cartModel = Serializer::getInstance()->denormalize($shippingMethod->get_meta_data(), CartModel::class);
+        $cartModel = pplcz_denormalize($shippingMethod->get_meta_data(), CartModel::class);
         /**
          * @var ParcelDataModel $parcelshop
          */

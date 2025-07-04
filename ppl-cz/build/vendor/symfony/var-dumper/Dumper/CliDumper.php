@@ -518,7 +518,7 @@ class CliDumper extends AbstractDumper
             return \false;
         }
         // Follow https://no-color.org/
-        if ('' !== ($_SERVER['NO_COLOR'] ?? \getenv('NO_COLOR') ?: '')) {
+        if ('' !== (($_SERVER['NO_COLOR'] ?? \getenv('NO_COLOR'))[0] ?? '')) {
             return \false;
         }
         // Detect msysgit/mingw and assume this is a tty because detection

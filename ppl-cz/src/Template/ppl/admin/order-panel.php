@@ -177,7 +177,7 @@ foreach ($shipments as $key => $shipment):
             Všechny zásilky na objednávce
         </td>
         <td style="vertical-align: center">
-            <a id="ppl_reference_<?php echo urlencode($shipment->getReferenceId()); ?>" class="button all-labels pplcz-label-download" target="_blank" href="/index.php?pplcz_download=<?php echo urlencode($shipment->getBatchLabelGroup())?>&ppl_reference=<?php echo urlencode($shipment->getReferenceId())?>&pplcz_print=<?php echo urlencode($shipment->getPrintState() ?: $selectedPrint); ?>" >
+            <a id="ppl_reference_<?php echo urlencode($shipment->getReferenceId()); ?>" class="button all-labels pplcz-label-download" target="_blank" href="<?php echo esc_html(pplcz_get_download_pdf($shipment->getBatchLabelGroup(), $shipment->getReferenceId(), $shipment->getPrintState() ?: $selectedPrint)) ?>" >
                 <span style="position: relative; top: 5px" class="dashicons dashicons-admin-page"></span>
             </a>
             <?php
@@ -218,7 +218,7 @@ foreach ($shipments as $key => $shipment):
         <td style="vertical-align: middle;  line-height: 2.5em">
             <?php if ($package->isInitialized("labelId") && $package->getLabelId()):?>
                 <?php if ($package->getPhase() === "None" || $package->getPhase() === "Order"): ?>
-                <a id="pplcz-order-panel-anchor-href-<?php echo esc_html($addId) ?>"  target="_blank" href="/index.php?pplcz_download=<?php echo esc_html($package->getId())?>&pplcz_print=<?php echo urlencode($shipment->getPrintState() ?: $selectedPrint); ?>" class="button pplcz-label-download">
+                <a id="pplcz-order-panel-anchor-href-<?php echo esc_html($addId) ?>"  target="_blank" href="<?php echo esc_html(pplcz_get_download_pdf($package->getId(), null, $shipment->getPrintState() ?: $selectedPrint)); ?>" class="button pplcz-label-download">
                     <span style="position: relative; top: 5px" class="dashicons dashicons-printer"></span>
                 </a>
                 <button class="button cancel-package"

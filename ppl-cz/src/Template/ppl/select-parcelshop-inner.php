@@ -26,7 +26,9 @@ if (isset($shipping_address) && $shipping_address) {
     $address =  join(', ', array_filter([$shipping_address->getStreet(), join(" ", array_filter([$shipping_address->getZipCode(), $shipping_address->getCity()]))]));
     $country = $shipping_address->getCountry();
 }
+
 $parcels = ["ParcelBox" => "1", "AlzaBox" => "2", "ParcelShop" => 3];
+
 
 if ($parcelBoxEnabled)
 {
@@ -50,14 +52,13 @@ $parcelBoxRequired = 0;
            data-hidden-points="<?php echo esc_html(join(',', array_keys($parcels)));?>"
            <?php if (!$ageOk): ?> data-pplcz-parcelshop="1" <?php endif ?>
            data-address="<?php echo esc_html($address) ?>"
-           data-country="<?php echo esc_html($country) ?>">
+           data-country="<?php echo esc_html($country) ?>"
+           data-countries="<?php echo esc_html(strtolower(join(',', $countries))) ?>">
             <img src="<?php echo esc_url($image) ?>">
         </a>
     </div>
     <div class="pplcz-selected-parcelshop">
     <?php
-
-
     if (isset($shipping_address) && $shipping_address) {
         ?>
         <?php echo esc_html($shipping_address->getAccessPointType()); ?>  <a href="#" class="pplcz-clear-map" data-pplcz-select-parcel-shop="clear">

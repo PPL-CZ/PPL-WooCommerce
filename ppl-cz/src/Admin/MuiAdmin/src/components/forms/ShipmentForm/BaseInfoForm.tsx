@@ -229,7 +229,6 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
                       control={control}
                       name="age"
                       render={({ field: { onChange, value }, fieldState: { error }, formState }) => {
-                        console.log("vek", value);
                         return (
                           <SelectInput
                             optionals={[

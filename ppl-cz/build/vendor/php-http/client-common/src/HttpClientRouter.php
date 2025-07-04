@@ -10,8 +10,6 @@ use PPLCZVendor\Psr\Http\Client\ClientInterface;
 use PPLCZVendor\Psr\Http\Message\RequestInterface;
 use PPLCZVendor\Psr\Http\Message\ResponseInterface;
 /**
- * {@inheritdoc}
- *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  */
 final class HttpClientRouter implements HttpClientRouterInterface
@@ -20,16 +18,10 @@ final class HttpClientRouter implements HttpClientRouterInterface
      * @var (array{matcher: RequestMatcher, client: FlexibleHttpClient})[]
      */
     private $clients = [];
-    /**
-     * {@inheritdoc}
-     */
     public function sendRequest(RequestInterface $request) : ResponseInterface
     {
         return $this->chooseHttpClient($request)->sendRequest($request);
     }
-    /**
-     * {@inheritdoc}
-     */
     public function sendAsyncRequest(RequestInterface $request)
     {
         return $this->chooseHttpClient($request)->sendAsyncRequest($request);

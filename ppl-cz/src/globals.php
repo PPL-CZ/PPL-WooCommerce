@@ -39,6 +39,11 @@ function pplcz_get_batch_print($batchId)
     return get_transient(pplcz_create_name("print_batch_{$batchId}"));
 }
 
+function pplcz_get_download_pdf($download, $reference = null, $print = null)
+{
+    return \PPLCZ\Admin\Page\FilePage::createUrl($download, $reference, $print);
+}
+
 function pplcz_normalize($value)
 {
     return Serializer::getInstance()->normalize($value);
@@ -54,6 +59,20 @@ function pplcz_validate($model, $errors = null,  $path = "") {
         $errors = new WP_Error();
     \PPLCZ\Validator\Validator::getInstance()->validate($model, $errors, $path);
     return $errors;
+}
+
+function pplcz_get_parcel_countries() {
+    $countries_obj = new \WC_Countries();
+
+    $get_countries = $countries_obj->get_allowed_countries();
+    $output = [];
+
+    foreach ($get_countries as $key => $v) {
+        if (!in_array($key, ['PL', "CZ", "SK", "DE"]))
+            unset($get_countries[$key]);
+    }
+
+    return $get_countries;
 }
 
 function pplcz_get_allowed_countries() {
@@ -88,7 +107,7 @@ function pplcz_get_phase_max_sync() {
 
 function pplcz_set_phase($key, $watch) {
     if ($watch)
-        add_option(pplcz_create_name("watch_phases_{$key}"), true) || update_option(pplcz_create_name("_watch_phases_{$key}"), true);
+        add_option(pplcz_create_name("watch_phases_{$key}"), true) || update_option(pplcz_create_name("watch_phases_{$key}"), true);
     else
         delete_option(pplcz_create_name("watch_phases_{$key}"));
 }
@@ -104,7 +123,6 @@ function pplcz_get_phases() {
 
         return $output;
     }, $phases, array_keys($phases));
-
 }
 
 function pplcz_get_version() {
@@ -170,6 +188,7 @@ function pplcz_get_cart_shipping_method()
     foreach ($chosen_shipping_methods as $key => $shipping_method) {
         $method = str_replace(pplcz_create_name(""), "", $chosen_shipping_method);
         $methods = \PPLCZ\ShipmentMethod::methods();
+        $method = preg_replace("~:[0-9]+$~", "", $method);
         if (isset($methods[$method])) {
             $shipping = WC()->session->get("shipping_for_package_{$key}");
             /**
@@ -202,6 +221,12 @@ function pplcz_currency($params)
 function pplcz_tables ($activate = false) {
     $version = get_option(pplcz_create_name("version"));
     if ($version !== pplcz_get_version()) {
+        if (!$version)
+        {
+            foreach (pplcz_get_phases() as $phase) {
+                pplcz_set_phase($phase['code'], true);
+            }
+        }
 
         require_once __DIR__ . '/installdb.php';
         pplcz_installdb();
@@ -209,13 +234,17 @@ function pplcz_tables ($activate = false) {
         add_action("admin_init", function () use ($activate) {
             as_unschedule_action("woocommerceppl_refresh_shipments_cron");
             as_unschedule_action("woocommerceppl_refresh_setting_cron");
+
             as_unschedule_action(pplcz_create_name("refresh_shipments_cron"));
             as_unschedule_action(pplcz_create_name("refresh_setting_cron"));
+            as_unschedule_action(pplcz_create_name("delete_logs"));
+
             as_unschedule_all_actions(pplcz_create_name("refresh_setting_cron"));
             as_unschedule_all_actions(pplcz_create_name("refresh_shipments_cron"));
 
             as_schedule_recurring_action(time(), 60 * 60 * 6, pplcz_create_name("refresh_shipments_cron"));
             as_schedule_recurring_action(time(), 60 * 60 * 24, pplcz_create_name("refresh_setting_cron"));
+            as_schedule_recurring_action(time(), 60 * 60 * 24, pplcz_create_name("delete_logs"));
 
             if (!$activate)
                 add_option(pplcz_create_name("version"), pplcz_get_version()) || update_option(pplcz_create_name("version"), pplcz_get_version());
@@ -243,6 +272,13 @@ function pplcz_tables ($activate = false) {
     }
 }
 
+function pplcz_woocommerce_loaded()
+{
+    if (!WC()->session)
+        WC()->initialize_session();
+}
+
+
 function pplcz_activate () {
     pplcz_tables(true);
 }
@@ -251,5 +287,7 @@ function pplcz_deactivate()
 {
     as_unschedule_action(pplcz_create_name("refresh_shipments_cron"));
     as_unschedule_action(pplcz_create_name("refresh_setting_cron"));
+    as_unschedule_action(pplcz_create_name("delete_logs"));
 }
+
 

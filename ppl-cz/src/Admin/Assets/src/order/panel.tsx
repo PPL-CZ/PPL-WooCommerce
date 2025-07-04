@@ -5,8 +5,8 @@ import {create_labels, create_labels2, test_labels, set_print_setting} from "./l
 export const panel = (element) => {
 
     const orderId =  jQuery(element).data('orderid');
-    const nonce = jQuery(element).data('nonce');
-    const elementId = element.id;
+
+    const elementId = element.id;    const nonce = jQuery(element).data('nonce');
 
     jQuery(window).off(`pplcz-refresh-${orderId}`).on(`pplcz-refresh-${orderId}`, () => {
         panel(jQuery(`#${elementId}`)[0]);

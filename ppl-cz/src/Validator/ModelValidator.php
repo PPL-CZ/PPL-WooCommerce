@@ -69,6 +69,17 @@ abstract class ModelValidator {
         return isset(get_woocommerce_currencies()[$value]);
     }
 
+    public function  isEmail($email)
+    {
+        $email = trim($email);
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
+
+    public function isContact($name){
+        $name = trim($name);
+        return !!preg_match('/^([\p{Latin}\p{Cyrillic}\'’\.\-]+(?:\s+[\p{Latin}\p{Cyrillic}\'’\.\-]+)+)$/u', $name);
+    }
+
 
     public function isPhone($phoneNumber)
     {

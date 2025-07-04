@@ -47,12 +47,12 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
         if (null === $data || false === \is_array($data)) {
             return $object;
         }
-        if (\array_key_exists('priceWithDph', $data) && $data['priceWithDph'] !== null) {
-            $object->setPriceWithDph($data['priceWithDph']);
-            unset($data['priceWithDph']);
+        if (\array_key_exists('isPriceWithDph', $data) && $data['isPriceWithDph'] !== null) {
+            $object->setIsPriceWithDph($data['isPriceWithDph']);
+            unset($data['isPriceWithDph']);
         }
-        elseif (\array_key_exists('priceWithDph', $data) && $data['priceWithDph'] === null) {
-            $object->setPriceWithDph(null);
+        elseif (\array_key_exists('isPriceWithDph', $data) && $data['isPriceWithDph'] === null) {
+            $object->setIsPriceWithDph(null);
         }
         if (\array_key_exists('parcelRequired', $data) && $data['parcelRequired'] !== null) {
             $object->setParcelRequired($data['parcelRequired']);
@@ -89,6 +89,13 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
         elseif (\array_key_exists('mapEnabled', $data) && $data['mapEnabled'] === null) {
             $object->setMapEnabled(null);
         }
+        if (\array_key_exists('disabledByWeight', $data) && $data['disabledByWeight'] !== null) {
+            $object->setDisabledByWeight($data['disabledByWeight']);
+            unset($data['disabledByWeight']);
+        }
+        elseif (\array_key_exists('disabledByWeight', $data) && $data['disabledByWeight'] === null) {
+            $object->setDisabledByWeight(null);
+        }
         if (\array_key_exists('disabledByRules', $data) && $data['disabledByRules'] !== null) {
             $object->setDisabledByRules($data['disabledByRules']);
             unset($data['disabledByRules']);
@@ -99,6 +106,17 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
         if (\array_key_exists('disabledByCountry', $data)) {
             $object->setDisabledByCountry($data['disabledByCountry']);
             unset($data['disabledByCountry']);
+        }
+        if (\array_key_exists('enabledParcelCountries', $data) && $data['enabledParcelCountries'] !== null) {
+            $values = array();
+            foreach ($data['enabledParcelCountries'] as $value) {
+                $values[] = $value;
+            }
+            $object->setEnabledParcelCountries($values);
+            unset($data['enabledParcelCountries']);
+        }
+        elseif (\array_key_exists('enabledParcelCountries', $data) && $data['enabledParcelCountries'] === null) {
+            $object->setEnabledParcelCountries(null);
         }
         if (\array_key_exists('ageRequired', $data) && $data['ageRequired'] !== null) {
             $object->setAgeRequired($data['ageRequired']);
@@ -119,11 +137,11 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
             unset($data['serviceCode']);
         }
         if (\array_key_exists('disablePayments', $data) && $data['disablePayments'] !== null) {
-            $values = array();
-            foreach ($data['disablePayments'] as $value) {
-                $values[] = $value;
+            $values_1 = array();
+            foreach ($data['disablePayments'] as $value_1) {
+                $values_1[] = $value_1;
             }
-            $object->setDisablePayments($values);
+            $object->setDisablePayments($values_1);
             unset($data['disablePayments']);
         }
         elseif (\array_key_exists('disablePayments', $data) && $data['disablePayments'] === null) {
@@ -147,6 +165,10 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
         elseif (\array_key_exists('codFee', $data) && $data['codFee'] === null) {
             $object->setCodFee(null);
         }
+        if (\array_key_exists('codFeeDPH', $data)) {
+            $object->setCodFeeDPH($this->denormalizer->denormalize($data['codFeeDPH'], 'PPLCZ\\Model\\Model\\CalculatedDPH', 'json', $context));
+            unset($data['codFeeDPH']);
+        }
         if (\array_key_exists('cost', $data) && $data['cost'] !== null) {
             $object->setCost($data['cost']);
             unset($data['cost']);
@@ -154,9 +176,20 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
         elseif (\array_key_exists('cost', $data) && $data['cost'] === null) {
             $object->setCost(null);
         }
-        foreach ($data as $key => $value_1) {
+        if (\array_key_exists('costDPH', $data)) {
+            $object->setCostDPH($this->denormalizer->denormalize($data['costDPH'], 'PPLCZ\\Model\\Model\\CalculatedDPH', 'json', $context));
+            unset($data['costDPH']);
+        }
+        if (\array_key_exists('taxableName', $data) && $data['taxableName'] !== null) {
+            $object->setTaxableName($data['taxableName']);
+            unset($data['taxableName']);
+        }
+        elseif (\array_key_exists('taxableName', $data) && $data['taxableName'] === null) {
+            $object->setTaxableName(null);
+        }
+        foreach ($data as $key => $value_2) {
             if (preg_match('/.*/', (string) $key)) {
-                $object[$key] = $value_1;
+                $object[$key] = $value_2;
             }
         }
         return $object;
@@ -167,8 +200,8 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
     public function normalize($object, $format = null, array $context = array())
     {
         $data = array();
-        if ($object->isInitialized('priceWithDph') && null !== $object->getPriceWithDph()) {
-            $data['priceWithDph'] = $object->getPriceWithDph();
+        if ($object->isInitialized('isPriceWithDph') && null !== $object->getIsPriceWithDph()) {
+            $data['isPriceWithDph'] = $object->getIsPriceWithDph();
         }
         if ($object->isInitialized('parcelRequired') && null !== $object->getParcelRequired()) {
             $data['parcelRequired'] = $object->getParcelRequired();
@@ -185,11 +218,21 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
         if ($object->isInitialized('mapEnabled') && null !== $object->getMapEnabled()) {
             $data['mapEnabled'] = $object->getMapEnabled();
         }
+        if ($object->isInitialized('disabledByWeight') && null !== $object->getDisabledByWeight()) {
+            $data['disabledByWeight'] = $object->getDisabledByWeight();
+        }
         if ($object->isInitialized('disabledByRules') && null !== $object->getDisabledByRules()) {
             $data['disabledByRules'] = $object->getDisabledByRules();
         }
         if ($object->isInitialized('disabledByCountry') && null !== $object->getDisabledByCountry()) {
             $data['disabledByCountry'] = $object->getDisabledByCountry();
+        }
+        if ($object->isInitialized('enabledParcelCountries') && null !== $object->getEnabledParcelCountries()) {
+            $values = array();
+            foreach ($object->getEnabledParcelCountries() as $value) {
+                $values[] = $value;
+            }
+            $data['enabledParcelCountries'] = $values;
         }
         if ($object->isInitialized('ageRequired') && null !== $object->getAgeRequired()) {
             $data['ageRequired'] = $object->getAgeRequired();
@@ -201,11 +244,11 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
             $data['serviceCode'] = $object->getServiceCode();
         }
         if ($object->isInitialized('disablePayments') && null !== $object->getDisablePayments()) {
-            $values = array();
-            foreach ($object->getDisablePayments() as $value) {
-                $values[] = $value;
+            $values_1 = array();
+            foreach ($object->getDisablePayments() as $value_1) {
+                $values_1[] = $value_1;
             }
-            $data['disablePayments'] = $values;
+            $data['disablePayments'] = $values_1;
         }
         if ($object->isInitialized('disabledByProduct') && null !== $object->getDisabledByProduct()) {
             $data['disabledByProduct'] = $object->getDisabledByProduct();
@@ -216,12 +259,21 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
         if ($object->isInitialized('codFee') && null !== $object->getCodFee()) {
             $data['codFee'] = $object->getCodFee();
         }
+        if ($object->isInitialized('codFeeDPH') && null !== $object->getCodFeeDPH()) {
+            $data['codFeeDPH'] = $this->normalizer->normalize($object->getCodFeeDPH(), 'json', $context);
+        }
         if ($object->isInitialized('cost') && null !== $object->getCost()) {
             $data['cost'] = $object->getCost();
         }
-        foreach ($object as $key => $value_1) {
+        if ($object->isInitialized('costDPH') && null !== $object->getCostDPH()) {
+            $data['costDPH'] = $this->normalizer->normalize($object->getCostDPH(), 'json', $context);
+        }
+        if ($object->isInitialized('taxableName') && null !== $object->getTaxableName()) {
+            $data['taxableName'] = $object->getTaxableName();
+        }
+        foreach ($object as $key => $value_2) {
             if (preg_match('/.*/', (string) $key)) {
-                $data[$key] = $value_1;
+                $data[$key] = $value_2;
             }
         }
         return $data;

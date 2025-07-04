@@ -28,7 +28,7 @@ final class HttpMethodsClient implements HttpMethodsClientInterface
     /**
      * @param RequestFactory|RequestFactoryInterface $requestFactory
      */
-    public function __construct(ClientInterface $httpClient, $requestFactory, StreamFactoryInterface $streamFactory = null)
+    public function __construct(ClientInterface $httpClient, $requestFactory, ?StreamFactoryInterface $streamFactory = null)
     {
         if (!$requestFactory instanceof RequestFactory && !$requestFactory instanceof RequestFactoryInterface) {
             throw new \TypeError(\sprintf('%s::__construct(): Argument #2 ($requestFactory) must be of type %s|%s, %s given', self::class, RequestFactory::class, RequestFactoryInterface::class, \get_debug_type($requestFactory)));

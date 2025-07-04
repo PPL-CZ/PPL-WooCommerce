@@ -6,14 +6,11 @@ $loader = require_once __DIR__.'/autoload.php';
 
 // Exposed classes. For more information see:
 // https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#exposing-classes
-if (!class_exists('ValidationException', false) && !interface_exists('ValidationException', false) && !trait_exists('ValidationException', false)) {
-    spl_autoload_call('PPLCZVendor\ValidationException');
-}
-if (!class_exists('ReferenceNormalizer', false) && !interface_exists('ReferenceNormalizer', false) && !trait_exists('ReferenceNormalizer', false)) {
-    spl_autoload_call('PPLCZVendor\ReferenceNormalizer');
-}
 if (!class_exists('Client', false) && !interface_exists('Client', false) && !trait_exists('Client', false)) {
     spl_autoload_call('PPLCZVendor\Client');
+}
+if (!class_exists('BaseEndpoint', false) && !interface_exists('BaseEndpoint', false) && !trait_exists('BaseEndpoint', false)) {
+    spl_autoload_call('PPLCZVendor\BaseEndpoint');
 }
 if (!class_exists('Endpoint', false) && !interface_exists('Endpoint', false) && !trait_exists('Endpoint', false)) {
     spl_autoload_call('PPLCZVendor\Endpoint');
@@ -21,20 +18,17 @@ if (!class_exists('Endpoint', false) && !interface_exists('Endpoint', false) && 
 if (!class_exists('CustomQueryResolver', false) && !interface_exists('CustomQueryResolver', false) && !trait_exists('CustomQueryResolver', false)) {
     spl_autoload_call('PPLCZVendor\CustomQueryResolver');
 }
-if (!class_exists('BaseEndpoint', false) && !interface_exists('BaseEndpoint', false) && !trait_exists('BaseEndpoint', false)) {
-    spl_autoload_call('PPLCZVendor\BaseEndpoint');
+if (!class_exists('ValidationException', false) && !interface_exists('ValidationException', false) && !trait_exists('ValidationException', false)) {
+    spl_autoload_call('PPLCZVendor\ValidationException');
 }
-if (!class_exists('ComposerAutoloaderInitb286982f37f0f363c42b4b8dcc4bbf6a', false) && !interface_exists('ComposerAutoloaderInitb286982f37f0f363c42b4b8dcc4bbf6a', false) && !trait_exists('ComposerAutoloaderInitb286982f37f0f363c42b4b8dcc4bbf6a', false)) {
-    spl_autoload_call('PPLCZVendor\ComposerAutoloaderInitb286982f37f0f363c42b4b8dcc4bbf6a');
+if (!class_exists('ReferenceNormalizer', false) && !interface_exists('ReferenceNormalizer', false) && !trait_exists('ReferenceNormalizer', false)) {
+    spl_autoload_call('PPLCZVendor\ReferenceNormalizer');
 }
-if (!class_exists('Salute', false) && !interface_exists('Salute', false) && !trait_exists('Salute', false)) {
-    spl_autoload_call('PPLCZVendor\Salute');
+if (!class_exists('ComposerAutoloaderInitaedbb7a8b05c4d12061c34c570f1a02a', false) && !interface_exists('ComposerAutoloaderInitaedbb7a8b05c4d12061c34c570f1a02a', false) && !trait_exists('ComposerAutoloaderInitaedbb7a8b05c4d12061c34c570f1a02a', false)) {
+    spl_autoload_call('PPLCZVendor\ComposerAutoloaderInitaedbb7a8b05c4d12061c34c570f1a02a');
 }
-if (!class_exists('Foo', false) && !interface_exists('Foo', false) && !trait_exists('Foo', false)) {
-    spl_autoload_call('PPLCZVendor\Foo');
-}
-if (!class_exists('Bar', false) && !interface_exists('Bar', false) && !trait_exists('Bar', false)) {
-    spl_autoload_call('PPLCZVendor\Bar');
+if (!class_exists('HelloWorldCommand', false) && !interface_exists('HelloWorldCommand', false) && !trait_exists('HelloWorldCommand', false)) {
+    spl_autoload_call('PPLCZVendor\HelloWorldCommand');
 }
 if (!class_exists('DatabaseSeeder', false) && !interface_exists('DatabaseSeeder', false) && !trait_exists('DatabaseSeeder', false)) {
     spl_autoload_call('PPLCZVendor\DatabaseSeeder');
@@ -45,55 +39,176 @@ if (!class_exists('CreateUsersTable', false) && !interface_exists('CreateUsersTa
 if (!class_exists('CreatePasswordResetsTable', false) && !interface_exists('CreatePasswordResetsTable', false) && !trait_exists('CreatePasswordResetsTable', false)) {
     spl_autoload_call('PPLCZVendor\CreatePasswordResetsTable');
 }
-if (!class_exists('HelloWorldCommand', false) && !interface_exists('HelloWorldCommand', false) && !trait_exists('HelloWorldCommand', false)) {
-    spl_autoload_call('PPLCZVendor\HelloWorldCommand');
+if (!class_exists('Salute', false) && !interface_exists('Salute', false) && !trait_exists('Salute', false)) {
+    spl_autoload_call('PPLCZVendor\Salute');
+}
+if (!class_exists('Foo', false) && !interface_exists('Foo', false) && !trait_exists('Foo', false)) {
+    spl_autoload_call('PPLCZVendor\Foo');
+}
+if (!class_exists('Bar', false) && !interface_exists('Bar', false) && !trait_exists('Bar', false)) {
+    spl_autoload_call('PPLCZVendor\Bar');
 }
 
 // Exposed functions. For more information see:
 // https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#exposing-functions
-if (!function_exists('yaz_ccl_parse')) {
-    function yaz_ccl_parse() {
-        return \PPLCZVendor\yaz_ccl_parse(...func_get_args());
+if (!function_exists('trigger_deprecation')) {
+    function trigger_deprecation() {
+        return \PPLCZVendor\trigger_deprecation(...func_get_args());
     }
 }
-if (!function_exists('yaz_close')) {
-    function yaz_close() {
-        return \PPLCZVendor\yaz_close(...func_get_args());
+if (!function_exists('mb_str_pad')) {
+    function mb_str_pad() {
+        return \PPLCZVendor\mb_str_pad(...func_get_args());
     }
 }
-if (!function_exists('yaz_connect')) {
-    function yaz_connect() {
-        return \PPLCZVendor\yaz_connect(...func_get_args());
+if (!function_exists('mb_ucfirst')) {
+    function mb_ucfirst() {
+        return \PPLCZVendor\mb_ucfirst(...func_get_args());
     }
 }
-if (!function_exists('yaz_database')) {
-    function yaz_database() {
-        return \PPLCZVendor\yaz_database(...func_get_args());
+if (!function_exists('mb_lcfirst')) {
+    function mb_lcfirst() {
+        return \PPLCZVendor\mb_lcfirst(...func_get_args());
     }
 }
-if (!function_exists('yaz_element')) {
-    function yaz_element() {
-        return \PPLCZVendor\yaz_element(...func_get_args());
+if (!function_exists('mb_trim')) {
+    function mb_trim() {
+        return \PPLCZVendor\mb_trim(...func_get_args());
     }
 }
-if (!function_exists('yaz_present')) {
-    function yaz_present() {
-        return \PPLCZVendor\yaz_present(...func_get_args());
+if (!function_exists('mb_ltrim')) {
+    function mb_ltrim() {
+        return \PPLCZVendor\mb_ltrim(...func_get_args());
     }
 }
-if (!function_exists('yaz_search')) {
-    function yaz_search() {
-        return \PPLCZVendor\yaz_search(...func_get_args());
+if (!function_exists('mb_rtrim')) {
+    function mb_rtrim() {
+        return \PPLCZVendor\mb_rtrim(...func_get_args());
     }
 }
-if (!function_exists('yaz_wait')) {
-    function yaz_wait() {
-        return \PPLCZVendor\yaz_wait(...func_get_args());
+if (!function_exists('setproctitle')) {
+    function setproctitle() {
+        return \PPLCZVendor\setproctitle(...func_get_args());
     }
 }
-if (!function_exists('db2_pclose')) {
-    function db2_pclose() {
-        return \PPLCZVendor\db2_pclose(...func_get_args());
+if (!function_exists('dump')) {
+    function dump() {
+        return \PPLCZVendor\dump(...func_get_args());
+    }
+}
+if (!function_exists('dd')) {
+    function dd() {
+        return \PPLCZVendor\dd(...func_get_args());
+    }
+}
+if (!function_exists('includeIfExists')) {
+    function includeIfExists() {
+        return \PPLCZVendor\includeIfExists(...func_get_args());
+    }
+}
+if (!function_exists('parseArgs')) {
+    function parseArgs() {
+        return \PPLCZVendor\parseArgs(...func_get_args());
+    }
+}
+if (!function_exists('showHelp')) {
+    function showHelp() {
+        return \PPLCZVendor\showHelp(...func_get_args());
+    }
+}
+if (!function_exists('formatErrorMessage')) {
+    function formatErrorMessage() {
+        return \PPLCZVendor\formatErrorMessage(...func_get_args());
+    }
+}
+if (!function_exists('foo')) {
+    function foo() {
+        return \PPLCZVendor\foo(...func_get_args());
+    }
+}
+if (!function_exists('bar')) {
+    function bar() {
+        return \PPLCZVendor\bar(...func_get_args());
+    }
+}
+if (!function_exists('baz')) {
+    function baz() {
+        return \PPLCZVendor\baz(...func_get_args());
+    }
+}
+if (!function_exists('test')) {
+    function test() {
+        return \PPLCZVendor\test(...func_get_args());
+    }
+}
+if (!function_exists('view')) {
+    function view() {
+        return \PPLCZVendor\view(...func_get_args());
+    }
+}
+if (!function_exists('str_random')) {
+    function str_random() {
+        return \PPLCZVendor\str_random(...func_get_args());
+    }
+}
+if (!function_exists('resource_path')) {
+    function resource_path() {
+        return \PPLCZVendor\resource_path(...func_get_args());
+    }
+}
+if (!function_exists('storage_path')) {
+    function storage_path() {
+        return \PPLCZVendor\storage_path(...func_get_args());
+    }
+}
+if (!function_exists('env')) {
+    function env() {
+        return \PPLCZVendor\env(...func_get_args());
+    }
+}
+if (!function_exists('database_path')) {
+    function database_path() {
+        return \PPLCZVendor\database_path(...func_get_args());
+    }
+}
+if (!function_exists('str_slug')) {
+    function str_slug() {
+        return \PPLCZVendor\str_slug(...func_get_args());
+    }
+}
+if (!function_exists('get_composer_root_version')) {
+    function get_composer_root_version() {
+        return \PPLCZVendor\get_composer_root_version(...func_get_args());
+    }
+}
+if (!function_exists('get_last_tag_name')) {
+    function get_last_tag_name() {
+        return \PPLCZVendor\get_last_tag_name(...func_get_args());
+    }
+}
+if (!function_exists('request_tags')) {
+    function request_tags() {
+        return \PPLCZVendor\request_tags(...func_get_args());
+    }
+}
+if (!function_exists('parse_tag')) {
+    function parse_tag() {
+        return \PPLCZVendor\parse_tag(...func_get_args());
+    }
+}
+if (!function_exists('ssdeep_fuzzy_compare')) {
+    function ssdeep_fuzzy_compare() {
+        return \PPLCZVendor\ssdeep_fuzzy_compare(...func_get_args());
+    }
+}
+if (!function_exists('ssdeep_fuzzy_hash_filename')) {
+    function ssdeep_fuzzy_hash_filename() {
+        return \PPLCZVendor\ssdeep_fuzzy_hash_filename(...func_get_args());
+    }
+}
+if (!function_exists('ssdeep_fuzzy_hash')) {
+    function ssdeep_fuzzy_hash() {
+        return \PPLCZVendor\ssdeep_fuzzy_hash(...func_get_args());
     }
 }
 if (!function_exists('msql_affected_rows')) {
@@ -176,34 +291,9 @@ if (!function_exists('msql_select_db')) {
         return \PPLCZVendor\msql_select_db(...func_get_args());
     }
 }
-if (!function_exists('ssdeep_fuzzy_compare')) {
-    function ssdeep_fuzzy_compare() {
-        return \PPLCZVendor\ssdeep_fuzzy_compare(...func_get_args());
-    }
-}
-if (!function_exists('ssdeep_fuzzy_hash_filename')) {
-    function ssdeep_fuzzy_hash_filename() {
-        return \PPLCZVendor\ssdeep_fuzzy_hash_filename(...func_get_args());
-    }
-}
-if (!function_exists('ssdeep_fuzzy_hash')) {
-    function ssdeep_fuzzy_hash() {
-        return \PPLCZVendor\ssdeep_fuzzy_hash(...func_get_args());
-    }
-}
-if (!function_exists('mysqlnd_qc_clear_cache')) {
-    function mysqlnd_qc_clear_cache() {
-        return \PPLCZVendor\mysqlnd_qc_clear_cache(...func_get_args());
-    }
-}
-if (!function_exists('mysqlnd_qc_set_is_select')) {
-    function mysqlnd_qc_set_is_select() {
-        return \PPLCZVendor\mysqlnd_qc_set_is_select(...func_get_args());
-    }
-}
-if (!function_exists('mysqlnd_qc_set_storage_handler')) {
-    function mysqlnd_qc_set_storage_handler() {
-        return \PPLCZVendor\mysqlnd_qc_set_storage_handler(...func_get_args());
+if (!function_exists('rpmaddtag')) {
+    function rpmaddtag() {
+        return \PPLCZVendor\rpmaddtag(...func_get_args());
     }
 }
 if (!function_exists('ps_add_launchlink')) {
@@ -531,19 +621,44 @@ if (!function_exists('ps_translate')) {
         return \PPLCZVendor\ps_translate(...func_get_args());
     }
 }
-if (!function_exists('rpmaddtag')) {
-    function rpmaddtag() {
-        return \PPLCZVendor\rpmaddtag(...func_get_args());
+if (!function_exists('mysqlnd_ms_dump_servers')) {
+    function mysqlnd_ms_dump_servers() {
+        return \PPLCZVendor\mysqlnd_ms_dump_servers(...func_get_args());
     }
 }
-if (!function_exists('swoole_async_write')) {
-    function swoole_async_write() {
-        return \PPLCZVendor\swoole_async_write(...func_get_args());
+if (!function_exists('mysqlnd_ms_fabric_select_global')) {
+    function mysqlnd_ms_fabric_select_global() {
+        return \PPLCZVendor\mysqlnd_ms_fabric_select_global(...func_get_args());
     }
 }
-if (!function_exists('swoole_async_writefile')) {
-    function swoole_async_writefile() {
-        return \PPLCZVendor\swoole_async_writefile(...func_get_args());
+if (!function_exists('mysqlnd_ms_fabric_select_shard')) {
+    function mysqlnd_ms_fabric_select_shard() {
+        return \PPLCZVendor\mysqlnd_ms_fabric_select_shard(...func_get_args());
+    }
+}
+if (!function_exists('mysqlnd_ms_get_last_used_connection')) {
+    function mysqlnd_ms_get_last_used_connection() {
+        return \PPLCZVendor\mysqlnd_ms_get_last_used_connection(...func_get_args());
+    }
+}
+if (!function_exists('mysqlnd_qc_clear_cache')) {
+    function mysqlnd_qc_clear_cache() {
+        return \PPLCZVendor\mysqlnd_qc_clear_cache(...func_get_args());
+    }
+}
+if (!function_exists('mysqlnd_qc_set_is_select')) {
+    function mysqlnd_qc_set_is_select() {
+        return \PPLCZVendor\mysqlnd_qc_set_is_select(...func_get_args());
+    }
+}
+if (!function_exists('mysqlnd_qc_set_storage_handler')) {
+    function mysqlnd_qc_set_storage_handler() {
+        return \PPLCZVendor\mysqlnd_qc_set_storage_handler(...func_get_args());
+    }
+}
+if (!function_exists('db2_pclose')) {
+    function db2_pclose() {
+        return \PPLCZVendor\db2_pclose(...func_get_args());
     }
 }
 if (!function_exists('mysql_create_db')) {
@@ -554,6 +669,16 @@ if (!function_exists('mysql_create_db')) {
 if (!function_exists('mysql_drop_db')) {
     function mysql_drop_db() {
         return \PPLCZVendor\mysql_drop_db(...func_get_args());
+    }
+}
+if (!function_exists('swoole_async_write')) {
+    function swoole_async_write() {
+        return \PPLCZVendor\swoole_async_write(...func_get_args());
+    }
+}
+if (!function_exists('swoole_async_writefile')) {
+    function swoole_async_writefile() {
+        return \PPLCZVendor\swoole_async_writefile(...func_get_args());
     }
 }
 if (!function_exists('ingres_autocommit')) {
@@ -616,24 +741,44 @@ if (!function_exists('ingres_set_environment')) {
         return \PPLCZVendor\ingres_set_environment(...func_get_args());
     }
 }
-if (!function_exists('mysqlnd_ms_dump_servers')) {
-    function mysqlnd_ms_dump_servers() {
-        return \PPLCZVendor\mysqlnd_ms_dump_servers(...func_get_args());
+if (!function_exists('yaz_ccl_parse')) {
+    function yaz_ccl_parse() {
+        return \PPLCZVendor\yaz_ccl_parse(...func_get_args());
     }
 }
-if (!function_exists('mysqlnd_ms_fabric_select_global')) {
-    function mysqlnd_ms_fabric_select_global() {
-        return \PPLCZVendor\mysqlnd_ms_fabric_select_global(...func_get_args());
+if (!function_exists('yaz_close')) {
+    function yaz_close() {
+        return \PPLCZVendor\yaz_close(...func_get_args());
     }
 }
-if (!function_exists('mysqlnd_ms_fabric_select_shard')) {
-    function mysqlnd_ms_fabric_select_shard() {
-        return \PPLCZVendor\mysqlnd_ms_fabric_select_shard(...func_get_args());
+if (!function_exists('yaz_connect')) {
+    function yaz_connect() {
+        return \PPLCZVendor\yaz_connect(...func_get_args());
     }
 }
-if (!function_exists('mysqlnd_ms_get_last_used_connection')) {
-    function mysqlnd_ms_get_last_used_connection() {
-        return \PPLCZVendor\mysqlnd_ms_get_last_used_connection(...func_get_args());
+if (!function_exists('yaz_database')) {
+    function yaz_database() {
+        return \PPLCZVendor\yaz_database(...func_get_args());
+    }
+}
+if (!function_exists('yaz_element')) {
+    function yaz_element() {
+        return \PPLCZVendor\yaz_element(...func_get_args());
+    }
+}
+if (!function_exists('yaz_present')) {
+    function yaz_present() {
+        return \PPLCZVendor\yaz_present(...func_get_args());
+    }
+}
+if (!function_exists('yaz_search')) {
+    function yaz_search() {
+        return \PPLCZVendor\yaz_search(...func_get_args());
+    }
+}
+if (!function_exists('yaz_wait')) {
+    function yaz_wait() {
+        return \PPLCZVendor\yaz_wait(...func_get_args());
     }
 }
 if (!function_exists('event_base_reinit')) {
@@ -644,136 +789,6 @@ if (!function_exists('event_base_reinit')) {
 if (!function_exists('event_priority_set')) {
     function event_priority_set() {
         return \PPLCZVendor\event_priority_set(...func_get_args());
-    }
-}
-if (!function_exists('setproctitle')) {
-    function setproctitle() {
-        return \PPLCZVendor\setproctitle(...func_get_args());
-    }
-}
-if (!function_exists('includeIfExists')) {
-    function includeIfExists() {
-        return \PPLCZVendor\includeIfExists(...func_get_args());
-    }
-}
-if (!function_exists('trigger_deprecation')) {
-    function trigger_deprecation() {
-        return \PPLCZVendor\trigger_deprecation(...func_get_args());
-    }
-}
-if (!function_exists('dump')) {
-    function dump() {
-        return \PPLCZVendor\dump(...func_get_args());
-    }
-}
-if (!function_exists('dd')) {
-    function dd() {
-        return \PPLCZVendor\dd(...func_get_args());
-    }
-}
-if (!function_exists('mb_str_pad')) {
-    function mb_str_pad() {
-        return \PPLCZVendor\mb_str_pad(...func_get_args());
-    }
-}
-if (!function_exists('mb_ucfirst')) {
-    function mb_ucfirst() {
-        return \PPLCZVendor\mb_ucfirst(...func_get_args());
-    }
-}
-if (!function_exists('mb_lcfirst')) {
-    function mb_lcfirst() {
-        return \PPLCZVendor\mb_lcfirst(...func_get_args());
-    }
-}
-if (!function_exists('get_last_tag_name')) {
-    function get_last_tag_name() {
-        return \PPLCZVendor\get_last_tag_name(...func_get_args());
-    }
-}
-if (!function_exists('request_tags')) {
-    function request_tags() {
-        return \PPLCZVendor\request_tags(...func_get_args());
-    }
-}
-if (!function_exists('parse_tag')) {
-    function parse_tag() {
-        return \PPLCZVendor\parse_tag(...func_get_args());
-    }
-}
-if (!function_exists('get_composer_root_version')) {
-    function get_composer_root_version() {
-        return \PPLCZVendor\get_composer_root_version(...func_get_args());
-    }
-}
-if (!function_exists('str_random')) {
-    function str_random() {
-        return \PPLCZVendor\str_random(...func_get_args());
-    }
-}
-if (!function_exists('env')) {
-    function env() {
-        return \PPLCZVendor\env(...func_get_args());
-    }
-}
-if (!function_exists('storage_path')) {
-    function storage_path() {
-        return \PPLCZVendor\storage_path(...func_get_args());
-    }
-}
-if (!function_exists('database_path')) {
-    function database_path() {
-        return \PPLCZVendor\database_path(...func_get_args());
-    }
-}
-if (!function_exists('str_slug')) {
-    function str_slug() {
-        return \PPLCZVendor\str_slug(...func_get_args());
-    }
-}
-if (!function_exists('resource_path')) {
-    function resource_path() {
-        return \PPLCZVendor\resource_path(...func_get_args());
-    }
-}
-if (!function_exists('view')) {
-    function view() {
-        return \PPLCZVendor\view(...func_get_args());
-    }
-}
-if (!function_exists('foo')) {
-    function foo() {
-        return \PPLCZVendor\foo(...func_get_args());
-    }
-}
-if (!function_exists('bar')) {
-    function bar() {
-        return \PPLCZVendor\bar(...func_get_args());
-    }
-}
-if (!function_exists('baz')) {
-    function baz() {
-        return \PPLCZVendor\baz(...func_get_args());
-    }
-}
-if (!function_exists('test')) {
-    function test() {
-        return \PPLCZVendor\test(...func_get_args());
-    }
-}
-if (!function_exists('parseArgs')) {
-    function parseArgs() {
-        return \PPLCZVendor\parseArgs(...func_get_args());
-    }
-}
-if (!function_exists('showHelp')) {
-    function showHelp() {
-        return \PPLCZVendor\showHelp(...func_get_args());
-    }
-}
-if (!function_exists('formatErrorMessage')) {
-    function formatErrorMessage() {
-        return \PPLCZVendor\formatErrorMessage(...func_get_args());
     }
 }
 

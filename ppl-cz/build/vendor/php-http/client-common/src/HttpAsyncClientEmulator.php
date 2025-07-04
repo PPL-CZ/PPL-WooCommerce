@@ -15,14 +15,10 @@ use PPLCZVendor\Psr\Http\Message\ResponseInterface;
 trait HttpAsyncClientEmulator
 {
     /**
-     * {@inheritdoc}
-     *
      * @see HttpClient::sendRequest
      */
     public abstract function sendRequest(RequestInterface $request) : ResponseInterface;
     /**
-     * {@inheritdoc}
-     *
      * @see HttpAsyncClient::sendAsyncRequest
      */
     public function sendAsyncRequest(RequestInterface $request)

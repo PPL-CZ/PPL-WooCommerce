@@ -13,8 +13,6 @@ use PPLCZVendor\Psr\Http\Message\ResponseInterface;
 trait HttpClientEmulator
 {
     /**
-     * {@inheritdoc}
-     *
      * @see HttpClient::sendRequest
      */
     public function sendRequest(RequestInterface $request) : ResponseInterface
@@ -23,8 +21,6 @@ trait HttpClientEmulator
         return $promise->wait();
     }
     /**
-     * {@inheritdoc}
-     *
      * @see HttpAsyncClient::sendAsyncRequest
      */
     public abstract function sendAsyncRequest(RequestInterface $request);

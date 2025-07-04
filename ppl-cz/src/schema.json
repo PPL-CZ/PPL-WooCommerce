@@ -128,6 +128,34 @@
                     }
                 }
             },
+            "ParcelPlacesModel": {
+                "type": "object",
+                "properties": {
+                    "disabledParcelBox": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "disabledAlzaBox": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "disabledParcelShop": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "disabledCountries": {
+                        "type": "array",
+                        "nullable": true,
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "mapLanguage": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
             "MyApi2": {
                 "type": "object",
                 "required": [
@@ -152,6 +180,7 @@
                 ],
                 "properties": {
                     "active": {
+                        "type": "boolean",
                         "type": "boolean",
                         "nullable": true
                     },
@@ -510,14 +539,12 @@
             "CollectionAddressModel": {
                 "type": "object",
                 "required": [
-
                     "street",
                     "city",
                     "zip",
                     "country"
                 ],
                 "properties": {
-
                     "street": {
                         "type": "string",
                         "nullable": true
@@ -535,14 +562,14 @@
                         "nullable": true
                     },
                     "code": {
-                        "type" : "string",
+                        "type": "string",
                         "nullable": true
                     },
                     "name": {
                         "type": "string",
                         "nullable": true
                     },
-                    "default":{
+                    "default": {
                         "type": "boolean",
                         "nullable": true
                     }
@@ -652,7 +679,7 @@
             "CartModel": {
                 "type": "object",
                 "properties": {
-                    "priceWithDph": {
+                    "isPriceWithDph": {
                         "type": "boolean",
                         "nullable": true
                     },
@@ -676,6 +703,10 @@
                         "type": "boolean",
                         "nullable": true
                     },
+                    "disabledByWeight": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
                     "disabledByRules": {
                         "type": "boolean",
                         "nullable": true
@@ -683,6 +714,13 @@
                     "disabledByCountry": {
                         "type": "boolean",
                         "nullable": false
+                    },
+                    "enabledParcelCountries": {
+                        "type": "array",
+                        "items" : {
+                            "type": "string"
+                        },
+                        "nullable": true
                     },
                     "ageRequired": {
                         "type": "boolean",
@@ -715,8 +753,22 @@
                         "type": "number",
                         "nullable": true
                     },
+                    "codFeeDPH": {
+
+                        "$ref": "#/components/schemas/CalculatedDPH"
+
+                    },
                     "cost": {
                         "type": "number",
+                        "nullable": true
+                    },
+
+                    "costDPH": {
+                        "$ref": "#/components/schemas/CalculatedDPH"
+                    },
+
+                    "taxableName": {
+                        "type": "string",
                         "nullable": true
                     }
                 }
@@ -1066,7 +1118,224 @@
                         "nullable": true
                     }
                 }
+            },
+            "ShipmentMethodSettingModel": {
+                "type": "object",
+                "required": ["currencies", "weights", "code"],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "nullable": false
+                    },
+                    "costByWeight": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "parcelBoxes": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "title": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "disablePayments": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "codPayment": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "isPriceWithDph": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "currencies": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ShipmentMethodSettingCurrencyModel"
+                        },
+                        "nullable": false
+                    },
+                    "weights": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ShipmentMethodSettingWeightRuleModel"
+                        },
+                        "nullable": false
+                    },
+                    "disabledParcelCountries": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "nullable": true
+                    },
+                    "disabledParcelBox": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "disabledAlzaBox": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "disabledParcelShop": {
+                        "type": "boolean",
+                        "nullable": true
+                    }
+                }
+            },
+            "ShipmentMethodSettingCurrencyModel": {
+                "type": "object",
+                "required": ["currency"],
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "currency": {
+                        "type": "string",
+                        "nullable": false
+                    },
+                    "costOrderFree": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "costCodFee": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "costCodFeeAlways": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "costOrderFreeCod": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "cost": {
+                        "type": "number",
+                        "nullable": true
+                    }
+                }
+            },
+            "ShipmentMethodSettingPriceRuleModel": {
+                "type": "object",
+                "required": ["currency"],
+                "properties": {
+                    "price": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "currency": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ShipmentMethodSettingWeightRuleModel": {
+                "type" : "object",
+                "required": ["prices"],
+                "properties": {
+                    "from": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "to": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "disabledParcelBox": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "disabledAlzaBox": {
+                        "type": "boolean",
+                        "nullable": false
+                    },
+                    "disabledParcelShop": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "prices": {
+                        "type": "array",
+                        "nullable": false,
+                        "items": {
+                            "$ref": "#/components/schemas/ShipmentMethodSettingPriceRuleModel"
+                        }
+                    }
+                }
+            },
+            "ErrorLogItemModel": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "nullable": false
+                    },
+                    "trace": {
+                        "type": "string",
+                        "nullable": false
+                    }
+                }
+            },
+            "ErrorLogModel": {
+                "type": "object",
+                "properties": {
+                    "mail": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "info": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "errors": {
+                        "type": "array",
+                        "nullable": false,
+                        "items": {
+                            "$ref": "#/components/schemas/ErrorLogItemModel"
+                        }
+                    }
+                }
+            },
+            "SendErrorLogModel": {
+                "allOf": [
+                    {
+                        "$ref" : "#/components/schemas/ErrorLogModel"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "message": {
+                                "type": "string",
+                                "nullable": true
+                            }
+                        }
+                    }
+                ]
+            },
+            "CalculatedDPH": {
+                "type": "object",
+                "properties": {
+                    "dphId": {
+                        "type": "integer",
+                        "nullable": false
+                    },
+                    "value": {
+                        "type": "number",
+                        "nullable": false
+                    }
+                }
             }
+
+
         }
     },
     "info": {

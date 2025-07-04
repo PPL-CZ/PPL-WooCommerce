@@ -95,7 +95,12 @@ class ParcelShop {
         if ($item instanceof \WC_Order_Item_Shipping)
         {
             $order_id = $item->get_order_id();
-            $data = @self::$ppl_parcelshopdata[$order_id][$item_id];
+
+            // https://github.com/PPL-CZ/PPL-WooCommerce/issues/7
+            if (self::$ppl_parcelshopdata && isset(self::$ppl_parcelshopdata[$order_id]) && isset(self::$ppl_parcelshopdata[$order_id][$item_id]))
+                $data = self::$ppl_parcelshopdata[$order_id][$item_id];
+            else
+                $data = null;
             if (str_contains($item->get_method_id(), pplcz_create_name(""))) {
                 if ($data) {
                     try {

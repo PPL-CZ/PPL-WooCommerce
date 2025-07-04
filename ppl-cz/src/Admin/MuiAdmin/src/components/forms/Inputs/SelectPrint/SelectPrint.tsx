@@ -11,7 +11,7 @@ const SelectPrint = (props: {
     const [refreshValue, setRefreshValue] = useState(1);
     const availableValues = useMemo(() =>
         props.optionals.reduce((acc, value) => {
-            const matched = value.code.match(/4\.[2-4]\/PDF/);
+
             acc.push({
                 id: value.code,
                 label: value.title
@@ -39,13 +39,7 @@ const SelectPrint = (props: {
             key={`${JSON.stringify(availableValues)}${refreshValue}`}
             disableClearable
             onChange={e => {
-                if (e !== "4/PDF" || position === 1) {
-                    props.onChange?.(e);
-                }
-                else
-                {
-                    props.onChange?.(e.replace("4", `4.${position}`));
-                }
+                props.onChange?.(e);
             }}
             value={getValue()}
             optionals={availableValues}

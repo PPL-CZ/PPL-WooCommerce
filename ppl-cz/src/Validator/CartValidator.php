@@ -52,6 +52,13 @@ class CartValidator extends ModelValidator {
                 default:
                     $errors->add("parcelshop-disabled-box", "V košíku produkt, který neumožňuje vybrat box pro vyzvednutí zásilky");
             }
+
+            $country = $parcel->getCountry();
+
+            if (!in_array($country, $data->getEnabledParcelCountries(),true))
+            {
+                $errors->add("parcelshop-disabled-country", "Nepovolená země výdejního místa");
+            }
         }
 
         if ($data->getParcelRequired() && !$parcel) {
@@ -72,10 +79,8 @@ class CartValidator extends ModelValidator {
             $errors->add("parcelshop-phone-required", "Nevalidní telefonní číslo");
         }
 
-        if (!$data->getParcelRequired())
-        {
-            if (!self::isZip($model->get_customer()->get_shipping_country(), $model->get_customer()->get_shipping_postcode()))
-                $errors->add("parcelshop-shippingzip-required", "Nevalidní PSČ u doručovací adresy");
+        if (!self::isZip($model->get_customer()->get_shipping_country(), $model->get_customer()->get_shipping_postcode())) {
+            $errors->add("parcelshop-shippingzip-required", "Nevalidní PSČ u doručovací adresy");
         }
 
         if ($data->getParcelRequired() && $model->get_customer()->get_shipping_country() && $parcel)

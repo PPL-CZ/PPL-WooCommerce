@@ -27,7 +27,11 @@ class BlockOrderConfirmation extends ShippingAddress {
     protected $namespace = 'pplcz';
 
     protected function render( $attributes, $content, $block ) {
-        $attributes["className"] = trim((@$attributes["className"] ?: "") . " wc-block-order-confirmation-shipping-address");
+        $className = "";
+        if (isset($attributes['className']))
+            $className = $attributes['className'] ?: "";
+
+        $attributes["className"] = trim(($className) . " wc-block-order-confirmation-shipping-address");
         /**
          * @var \WP_Block $block
          * @var \WP_Block_Type $blockType

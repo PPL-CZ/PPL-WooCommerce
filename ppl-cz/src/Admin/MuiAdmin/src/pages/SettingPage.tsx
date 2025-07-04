@@ -13,6 +13,7 @@ import ShipmentPhaseForm from "../components/forms/ShipmentPhaseForm";
 import SenderAddressesForm from "../components/forms/SenderAddressesForm";
 import imagePath from "../assets/imagePath";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ParcelPlaces from "../components/forms/ParcelPlacesForm";
 
 const SettingPage = () => {
   return (
@@ -59,6 +60,15 @@ const SettingPage = () => {
               >
                 <Typography fontWeight={"bold"} color={"primary"}>
                   Přístupové údaje
+                </Typography>
+              </ListItemButton>
+              <ListItemButton
+                  onClick={e => {
+                    document.getElementById("parcelplaces")?.scrollIntoView();
+                  }}
+              >
+                <Typography fontWeight={"bold"} color={"primary"}>
+                  Blokovaná výdejní místa
                 </Typography>
               </ListItemButton>
               <ListItemButton
@@ -116,6 +126,9 @@ const SettingPage = () => {
           <Grid item xs={9}>
             <Box marginTop={2} marginBottom={2}>
               <MyApi />
+            </Box>
+            <Box marginTop={2} marginBottom={2}>
+              <ParcelPlaces />
             </Box>
             <Box marginTop={2} marginBottom={2}>
               <SenderAddressesForm />

@@ -7,7 +7,8 @@ import  "./reset-styles.scss";
 import InitCategoryTab from "./category/init";
 import InitProductTab from "./product/init";
 import InitOrderTable from "./order/table";
-import InitSettingShipment from "./shipment/shipment";
+import InitSettingShipment from "./shipment/shipmentSetting";
+import InitNotices from "./notices/init";
 
 
 window.PPLczPlugin = window.PPLczPlugin ||  [];
@@ -20,6 +21,8 @@ PPLczPlugin.pplczInitOrderPanel = InitOrderPanel;
 PPLczPlugin.pplczPPLParcelshop = InitParcelShop;
 PPLczPlugin.pplczInitOrderTable = InitOrderTable;
 PPLczPlugin.pplczInitSettingShipment = InitSettingShipment;
+PPLczPlugin.pplczNotices = InitNotices;
+
 
 
 

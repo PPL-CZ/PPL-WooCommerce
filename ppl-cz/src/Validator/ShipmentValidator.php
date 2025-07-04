@@ -60,7 +60,11 @@ class ShipmentValidator extends ModelValidator
             /**
              * @var ShipmentModel $model
              */
-            foreach (["referenceId" => "Je nutné vyplnit referenci zásilky", "serviceCode" => "Je nutné vybrat službu", "sender" => "Je nutné určit odesílatele pro etiketu", "recipient" => "Není určen příjemce zásilky"] as $item => $message) {
+            foreach (["referenceId" => "Je nutné vyplnit referenci zásilky",
+                         "serviceCode" => "Je nutné vybrat službu",
+                         "sender" => "Je nutné určit odesílatele pro etiketu",
+                         "recipient" => "Není určen příjemce zásilky"] as $item => $message)
+            {
                 if (!$this->getValue($model, $item)) {
                     $errors->add("$path.{$item}", $message);
                 }

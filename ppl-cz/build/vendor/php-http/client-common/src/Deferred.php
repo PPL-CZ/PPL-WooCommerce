@@ -42,10 +42,7 @@ final class Deferred implements Promise
         $this->onFulfilledCallbacks = [];
         $this->onRejectedCallbacks = [];
     }
-    /**
-     * {@inheritdoc}
-     */
-    public function then(callable $onFulfilled = null, callable $onRejected = null) : Promise
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null) : Promise
     {
         $deferred = new self($this->waitCallback);
         $this->onFulfilledCallbacks[] = function (ResponseInterface $response) use($onFulfilled, $deferred) {
@@ -72,9 +69,6 @@ final class Deferred implements Promise
         };
         return $deferred;
     }
-    /**
-     * {@inheritdoc}
-     */
     public function getState() : string
     {
         return $this->state;
@@ -107,9 +101,6 @@ final class Deferred implements Promise
             $onRejectedCallback($exception);
         }
     }
-    /**
-     * {@inheritdoc}
-     */
     public function wait($unwrap = \true)
     {
         if (Promise::PENDING === $this->state) {

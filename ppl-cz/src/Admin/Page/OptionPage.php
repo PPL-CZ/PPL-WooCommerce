@@ -37,6 +37,38 @@ class OptionPage {
         add_action("load-{$hook}", [self::class, "page_hook"]);
     }
 
+    public static function news()
+    {
+        $version = get_option(pplcz_create_name("version"));
+        $version_news = get_option(pplcz_create_name("version_news"));
+
+        if ($version != $version_news)
+        {
+            ob_start();
+            $url = menu_page_url(self::SLUG) . '#/news';
+            ob_clean();
+
+            $nonce = wp_create_nonce("hide_notice");
+            JsTemplate::add_inline_script("pplczNotices");
+            echo "<div data-nonce='". esc_html($nonce)  ."' class=\"pplcz-news-notice notice notice-info is-dismissible\">
+                <p>Byla nainstalována nová verze ppl plugin. Prosím, podívejte se na <a href='". esc_html($url). "'>novinky</a>, které jsou s aktualizací spojené.</p>
+            </div>";
+        }
+    }
+
+    public static function hide_new_notices() {
+        $version = get_option(pplcz_create_name("version"));
+        $code = pplcz_create_name("version_news");
+        add_option($code, $version) || update_option($code, $version);
+        if (!wp_verify_nonce(sanitize_key($_POST['pplNonce']), 'hide_notice'))
+        {
+            http_response_code(403);
+            wp_die();
+        }
+        http_response_code(204);
+        wp_die();
+    }
+
     public static function  validate_cpl() {
         $validated = get_transient(pplcz_create_name("validate_cpl_connect"));
         $validateCallApi = get_transient(pplcz_create_name("validate_cpl_connect_api"));
@@ -95,5 +127,8 @@ class OptionPage {
     {
         add_action("admin_menu", [self::class, "add_menu"]);
         add_action("admin_notices", [self::class, "validate_cpl"]);
+
+        add_action("admin_notices", [self::class, "news"]);
+        add_action('wp_ajax_pplcz_hide_new_notice', [self::class, "hide_new_notices"]);
     }
 }

@@ -13,9 +13,6 @@ use PPLCZVendor\Psr\Http\Message\RequestInterface;
  */
 final class RequestSeekableBodyPlugin extends SeekableBodyPlugin
 {
-    /**
-     * {@inheritdoc}
-     */
     public function handleRequest(RequestInterface $request, callable $next, callable $first) : Promise
     {
         if (!$request->getBody()->isSeekable()) {
