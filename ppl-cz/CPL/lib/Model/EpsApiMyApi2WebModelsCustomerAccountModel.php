@@ -196,7 +196,7 @@ class EpsApiMyApi2WebModelsCustomerAccountModel implements ModelInterface, Array
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['bank_code'] = $data['bank_code'] ?? null;
         $this->container['country'] = $data['country'] ?? null;
