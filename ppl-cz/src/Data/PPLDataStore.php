@@ -31,11 +31,26 @@ class PPLDataStore extends \WC_Data_Store_WP implements \WC_Object_Data_Store_In
 
         global $wpdb;
         $insertData = $data->get_props_for_store("create");
-        $wpdb->insert($wpdb->prefix . "pplcz_". $this->table_name, $insertData); // WPCS: DB call ok.
-        $id = $wpdb->insert_id;
-        $data->set_id($id);
-        $data->apply_changes();
-        do_action("pplcz_{$this->table_name}_new", $id, $data);
+
+        // If there is an errorhash in the data, check if the same record already exists in the DB
+        if (isset($insertData['errorhash'])) {
+            $exists = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}pplcz_{$this->table_name} WHERE errorhash = %s",
+                $insertData['errorhash']
+            )
+        );
+        if ($exists > 0) {
+            // Do not add duplicate entries.
+            return;
+        }
+    }
+
+    $wpdb->insert($wpdb->prefix . "pplcz_". $this->table_name, $insertData);
+    $id = $wpdb->insert_id;
+    $data->set_id($id);
+    $data->apply_changes();
+    do_action("pplcz_{$this->table_name}_new", $id, $data);
     }
 
     public function read(&$data)
