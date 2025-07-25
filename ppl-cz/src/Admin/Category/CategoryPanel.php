@@ -72,6 +72,7 @@ class CategoryPanel {
 
         $category = get_term($term_id);
         pplcz_denormalize($model, \WP_Term::class, [ "category" => $category]);
+        pplcz_set_update_setting();
     }
 
     private static function renderForm($categoryModel, $asTd)

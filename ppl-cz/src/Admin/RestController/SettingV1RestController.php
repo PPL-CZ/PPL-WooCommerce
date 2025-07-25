@@ -323,6 +323,8 @@ class SettingV1RestController extends  PPLRestController
 
         $response = new \WP_REST_Response();
         $response->set_data($places);
+
+
         return $response;
     }
 
@@ -345,6 +347,8 @@ class SettingV1RestController extends  PPLRestController
         add_option($alzabox, $setting->getDisabledAlzaBox()) || update_option($alzabox, $setting->getDisabledAlzaBox());
         add_option($disabledCountries, $setting->getDisabledCountries()) || update_option($disabledCountries, $setting->getDisabledCountries());
         add_option($languageMap, $setting->getMapLanguage()) || update_option($languageMap, $setting->getMapLanguage());
+
+        pplcz_set_update_setting();
 
         $response = new \WP_REST_Response();
         $response->set_status(204);

@@ -631,6 +631,7 @@ class ShipmentMethod extends \WC_Shipping_Method {
 
         parent::process_admin_options();
         wp_cache_delete(pplcz_create_name("zones_shipment"));
+        pplcz_set_update_setting();
     }
 
     public function get_instance_option_weight_key()

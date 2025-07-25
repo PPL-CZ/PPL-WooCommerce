@@ -108,6 +108,7 @@ class Tab {
 
         $product = new \WC_Product($post_id);
         pplcz_denormalize($model, \WC_Product::class, [ "product" => $product]);
+        pplcz_set_update_setting();
         $product->save_meta_data();
     }
 
