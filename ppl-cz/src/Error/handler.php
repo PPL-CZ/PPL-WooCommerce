@@ -14,7 +14,7 @@ function pplcz_format_args($args) {
         } elseif (is_bool($arg)) {
             $formatted[] = $arg ? 'true' : 'false';
         } elseif (is_string($arg)) {
-            $formatted[] = "'" . (mb_strlen($arg) > 20 ? mb_substr($arg, 0, 20) . '...' : $arg) . "'";
+            $formatted[] = "'" . (mb_strlen($arg) > 70 ? mb_substr($arg, 0, 70) . '...' : $arg) . "'";
         } else {
             $formatted[] = (string) $arg;
         }
@@ -22,7 +22,39 @@ function pplcz_format_args($args) {
     return join(', ', $formatted);
 }
 
+function pplcz_add_log_to_options($addtotable, $hash)
+{
+    global $wpdb;
+    if ($addtotable) {
+        $prepare = $wpdb->prepare(
+            "UPDATE {$wpdb->prefix}options
+SET option_value = CAST((
+    CASE
+        WHEN option_value REGEXP '^[0-9]+$'
+        THEN CAST(option_value AS UNSIGNED) + 1
+        ELSE 1
+    END
+) AS CHAR)
+WHERE option_name = %s", pplcz_create_name("error_log"));
+        $wpdb->query($prepare);
+    }
+
+    $prepare = $wpdb->prepare(
+        "UPDATE {$wpdb->prefix}options
+SET option_value = trim(concat(ifnull(option_value, ''), '\n', %s))
+WHERE option_name = %s and option_value not like %s", $hash, pplcz_create_name("error_log_hashes"), '%' . $hash .'%');
+
+    $wpdb->query($prepare);
+
+}
+
+
 function pplcz_error_handler ($errno, $errstr, $errfile, $errline) {
+    static $resolve;
+    if ($resolve)
+        return;
+    $resolve = true;
+
     $backtrace = debug_backtrace();
     $path = realpath(__DIR__ . '/../..');
     $inplugin = strpos($errfile, $path) !== false;
@@ -34,7 +66,11 @@ function pplcz_error_handler ($errno, $errstr, $errfile, $errline) {
 
     foreach ($backtrace as $key => $frame)
     {
-        $inplugin = $inplugin || strpos($frame['file'], $path) !== false;
+        $file = "emptyfile";
+        if (isset($frame['file']))
+            $file = $frame['file'];
+        
+        $inplugin = $inplugin || strpos($file, $path) !== false;
         $file = isset($frame['file']) ? $frame['file'] : '[internal function]';
         $line = isset($frame['line']) ? $frame['line'] : '';
         $function = isset($frame['function']) ? $frame['function'] : '';
@@ -44,27 +80,38 @@ function pplcz_error_handler ($errno, $errstr, $errfile, $errline) {
 
     if ($inplugin)
     {
-        global $wpdb;
-        $show_errors = $wpdb->show_errors;
-        $wpdb->hide_errors();
+        $max = get_option(pplcz_create_name("error_log"));
+        $hashes = get_option(pplcz_create_name("error_log_hashes"));
         $error = $errstr . "\n" . join("\n", $out);
-        try {
-            $logdata = new \PPLCZ\Data\LogData();
-            $logdata->set_message($error);
-            $logdata->set_errorhash(sha1($error));
-            $logdata->set_timestamp(date('Y-m-d H:i:s'));
-            $logdata->save();
-        }
-        catch (\Throwable $ex)
-        {
+        $hash = sha1($error);
+        if (intval($max) < 100 && strpos("$hashes" ?: '', $hash) === false) {
+            global $wpdb;
+            $show_errors = $wpdb->show_errors;
+            $wpdb->hide_errors();
+            try {
+                $logdata = new \PPLCZ\Data\LogData();
+                $logdata->set_message($error);
+                $logdata->set_errorhash($hash);
+                $logdata->set_timestamp(date('Y-m-d H:i:s'));
+                $logdata->save();
+                pplcz_add_log_to_options($logdata->get_id(), $logdata->get_errorhash());
+            } catch (\Throwable $ex) {
+
+            }
+            $wpdb->show_errors = $show_errors;
 
         }
-        $wpdb->show_errors = $show_errors;
     }
+    $resolve = false;
 }
 
 function pplcz_shutdown_handler()
 {
+    static $resolve;
+    if ($resolve)
+        return;
+    $resolve = true;
+
     $error = error_get_last();
     if ($error)
     {
@@ -74,24 +121,30 @@ function pplcz_shutdown_handler()
             return strpos($item, $path) !== false;
         }))
         {
-            global $wpdb;
-            $show_errors = $wpdb->show_errors;
-            $wpdb->hide_errors();
-            try {
-                $logdata = new \PPLCZ\Data\LogData();
-                $logdata->set_message($error['message']);
-                $logdata->set_errorhash(sha1($error['message']));
-                $logdata->set_timestamp(date('Y-m-d H:i:s'));
-                $logdata->save();
-            }
-            catch (\Throwable $ex)
-            {
+            $max = get_option(pplcz_create_name("error_log"));
+            $hashes = get_option(pplcz_create_name("error_log_hashes"));
+            $hash = sha1($error['message']);
 
+            if (intval($max) < 100  && strpos("$hashes" ?: '', $hash) === false) {
+                global $wpdb;
+                $show_errors = $wpdb->show_errors;
+                $wpdb->hide_errors();
+                try {
+                    $logdata = new \PPLCZ\Data\LogData();
+                    $logdata->set_message($error['message']);
+                    $logdata->set_errorhash(sha1($error['message']));
+                    $logdata->set_timestamp(date('Y-m-d H:i:s'));
+                    $logdata->save();
+                    pplcz_add_log_to_options($logdata->get_id(), $logdata->get_errorhash());
+                } catch (\Throwable $ex) {
+
+                }
+                $wpdb->show_errors = $show_errors;
             }
-            $wpdb->show_errors = $show_errors;
         }
-        return;
     }
+
+    $resolve = false;
 
 }
 set_error_handler("pplcz_error_handler");

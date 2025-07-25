@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography"
 const SelectPrint = (props: {
     onChange?: (val?: string) => void,
     value?: string,
+    name?: string
     optionals: { title: string, code: string }[]
 }) => {
     const [refreshValue, setRefreshValue] = useState(1);
@@ -41,6 +42,7 @@ const SelectPrint = (props: {
             onChange={e => {
                 props.onChange?.(e);
             }}
+            name={props.name}
             value={getValue()}
             optionals={availableValues}
         />

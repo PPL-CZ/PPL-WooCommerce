@@ -4,8 +4,6 @@
 
 function pplcz_installdb()
 {
-
-
     global $wpdb;
 
     $suppress = $wpdb->suppress_errors(true);
@@ -27,7 +25,7 @@ function pplcz_installdb()
     $table = $wpdb->prefix . 'pplcz_log';
     $sql = "CREATE TABLE `$table` (
   `ppl_log_id` int(11) NOT NULL AUTO_INCREMENT,
-  `timestamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
+  `timestamp` datetime,
   `message` text NOT NULL,
   `errorhash` varchar(128) NOT NULL,
   PRIMARY KEY (`ppl_log_id`),
@@ -270,4 +268,8 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
     $wpdb->query("update {$wpdb->prefix}options set option_name = replace(option_name, 'pplcz_pplcz_SMEU', 'woocommerce_pplcz_SMEU') where option_name like 'pplcz_pplcz_SMEU%' ");
     $wpdb->query("update {$wpdb->prefix}options set option_name = replace(option_name, 'pplcz_pplcz_CONN', 'woocommerce_pplcz_CONN') where option_name like 'pplcz_pplcz_CONN%' ");
 
+    $wpdb->query("truncate {$wpdb->prefix}pplcz_log");
+
+    add_option(pplcz_create_name("error_log"), 0, null, 'yes') || update_option(pplcz_create_name("error_log"), 0, 'yes');
+    add_option(pplcz_create_name("error_log_hashes"), "", null, 'yes') || update_option(pplcz_create_name("error_log_hashes"), "", 'yes');
 }

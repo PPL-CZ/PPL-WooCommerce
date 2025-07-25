@@ -252,6 +252,15 @@ class SettingV1RestController extends  PPLRestController
          */
         $setting = pplcz_denormalize($data, MyApi2::class);
 
+        $wp_error = new Errors();
+
+        pplcz_validate($setting, $wp_error);
+
+        if ($wp_error->errors)
+        {
+            return new RestResponse400($wp_error);
+        }
+
         add_option($apiKey, $setting->getClientId()) || update_option($apiKey, $setting->getClientId());
         add_option($apiSecret, $setting->getClientSecret()) || update_option($apiSecret, $setting->getClientSecret());
 
@@ -261,9 +270,10 @@ class SettingV1RestController extends  PPLRestController
 
         if (!$accessToken) {
             $response = new \WP_REST_Response();
-            $response->set_status(400);
-            $response->set_data("PPL Plugin nebude fungovat, protože přihlašovací údaje nejsou správně nastaveny! Ujistěte se, že jsou zadány správně. Pokud je nemáte, prosím kontaktujte ithelp@ppl.cz");
-            return $response;
+
+            $wp_error = new Errors();
+            $wp_error->add("", "PPL Plugin nebude fungovat, protože přihlašovací údaje nejsou správně nastaveny! Ujistěte se, že jsou zadány správně. Pokud je nemáte, prosím kontaktujte ithelp@ppl.cz");
+            return new RestResponse400($wp_error);
         }
 
         $response = new \WP_REST_Response();

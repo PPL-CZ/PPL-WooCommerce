@@ -1,7 +1,7 @@
 import { useQueryCountries } from "../../../queries/codelists";
 import SelectInput from "../Inputs/SelectInput";
 
-const CountriesInput = (props: { value: string; onChange: (e: string) => void; error?: string }) => {
+const CountriesInput = (props: { value: string; onChange: (e: string) => void; error?: string, name?:string }) => {
   const currencies = useQueryCountries();
 
   return (
@@ -11,6 +11,7 @@ const CountriesInput = (props: { value: string; onChange: (e: string) => void; e
         props.onChange(e || "");
       }}
       value={props.value}
+      name={props.name}
       optionals={(currencies ?? [])?.map(x => {
         return {
           label: x.title,

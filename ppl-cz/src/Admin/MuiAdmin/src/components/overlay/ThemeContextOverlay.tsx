@@ -3,10 +3,11 @@ import createCache from "@emotion/cache";
 import Theme, {shadowTheme} from "../../theme";
 import {useMemo} from "react";
 import {TssCacheProvider} from "tss-react";
+import {CacheProvider} from "@emotion/react";
 
 
 
-const ThemeContextOverlay = (props: { children: React.ReactNode, shadowContainer?: ShadowRoot }) => {
+const ThemeContextOverlay = (props: { children: React.ReactNode, shadowContainer?: ShadowRoot, shadowRootElement?: HTMLElement }) => {
     const cssCache = useMemo(() => {
         if (props.shadowContainer) {
             return createCache({
@@ -16,21 +17,21 @@ const ThemeContextOverlay = (props: { children: React.ReactNode, shadowContainer
             })
         }
         return  null;
-    }, []);
+    }, [props.shadowContainer]);
 
     const theme = useMemo(() => {
-        if (props.shadowContainer) {
-            return shadowTheme(props.shadowContainer);
+        if (props.shadowRootElement) {
+            return shadowTheme(props.shadowRootElement);
         }
 
         return Theme;
 
-    }, []);
+    }, [props.shadowRootElement]);
 
     if (cssCache)
-        return <TssCacheProvider value={cssCache}>
+        return <CacheProvider value={cssCache}>
             <ThemeProvider theme={theme}>{props.children}</ThemeProvider>
-        </TssCacheProvider>;
+        </CacheProvider>;
     return <ThemeProvider theme={theme}>{props.children}</ThemeProvider>
 };
 

@@ -10,6 +10,9 @@ export const useHeaderStyle = makeStyles()(theme => {
       borderWidth: "0",
       boxShadow: "none",
     },
+    rootBox: {
+      backgroundColor: "white"
+    },
     button: {
       [`& p`]: { fontWeight: "bold" },
       ["&:hover"]: { backgroundColor: "transparent" },

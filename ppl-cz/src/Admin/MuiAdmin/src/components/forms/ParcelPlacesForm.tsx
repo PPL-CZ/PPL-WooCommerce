@@ -51,6 +51,8 @@ const LanguageCheck = (props: { label: string, language: string; otherLanguage:s
             <FormControlLabel
                 control={
                     <Checkbox
+                        id={props.language}
+                        name={`language_${props.language}`}
                         checked={checked}
                         onChange={e => {
                             if (field.value === props.language)
@@ -74,7 +76,9 @@ const CountryCheck = (props: { label: string, country: string; control:  Control
             <FormControlLabel
                 control={
                     <Checkbox
+                        id={`checkBox-${props.country}`}
                         checked={checked}
+                        name={`disabledCountries_${props.country}`}
                         onChange={e => {
                             if (checked)
                                 field.onChange((field.value || []).filter(x => x !== props.country) );

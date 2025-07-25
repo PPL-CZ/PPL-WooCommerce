@@ -206,7 +206,7 @@ class EpsApiMyApi2WebModelsShipmentBatchDormantShipmentModel implements ModelInt
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['shipment_number'] = $data['shipment_number'] ?? null;
         $this->container['note'] = $data['note'] ?? null;

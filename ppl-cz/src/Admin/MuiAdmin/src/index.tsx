@@ -6,8 +6,8 @@ import QueryContextOverlay from "./components/overlay/QueryContextOverlay";
 import CreateShipmentWidget from "./components/widgets/CreateShipmentWidget";
 import CreateShipmentLabelWidget from "./components/widgets/CreateShipmentLabelWidget";
 import SelectPrintWidget from "./components/widgets/SelectPrintWidget";
-import {components} from "./schema";
 import {WeightsForm} from "./components/forms/WeightsForm/WeightsForm";
+import {CacheProvider} from "@emotion/react";
 
 const getELement = (element: HTMLElement | string) => {
   if (typeof element === "string") {
@@ -16,35 +16,47 @@ const getELement = (element: HTMLElement | string) => {
   return null;
 };
 
-let oldStyle: HTMLStyleElement|null = null;
-let newStyle: HTMLStyleElement|null = null;
+const getShadowElement = (element: HTMLElement | string) => {
+  const attachedElement = getELement(element)!
 
-let styleUpdatedFont = false;
+  attachedElement!.classList.add("ppl-cz-shadow-dom");
+
+  const shadowContainer = attachedElement.attachShadow({ mode: 'open'});
+  const shadowRootElement = document.createElement('div');
+
+  shadowContainer.appendChild(shadowRootElement);
+
+  return {
+    shadowContainer,
+    shadowRootElement
+  }
+}
+
 
 const methods = {
   optionsPage: (element: string | HTMLElement) =>
   {
-    methods["wpUpdateStyle"]();
-    const attachedElement = getELement(element)!
-    const el = attachedElement;
-    const root = ReactDOM.createRoot(el);
+    const { shadowRootElement, shadowContainer } = getShadowElement(element)!
 
+    const root = ReactDOM.createRoot(shadowRootElement);
 
     return root.render(
-        <React.StrictMode>
+      <React.StrictMode>
           <QueryContextOverlay>
-            <ThemeContextOverlay >
+            <ThemeContextOverlay shadowContainer={shadowContainer} shadowRootElement={shadowRootElement}>
               <App/>
             </ThemeContextOverlay>
           </QueryContextOverlay>
-        </React.StrictMode>
+
+      </React.StrictMode>
     );
   },
   shipmentSetting: (element: string, args: Record<string, any>) => {
+    const rootElement = getELement(element)!
 
-    const root = ReactDOM.createRoot(getELement(element)!);
+    const root = ReactDOM.createRoot(rootElement);
     root.render(
-        <QueryContextOverlay>
+        <QueryContextOverlay >
             <WeightsForm data={args.setting}/>
         </QueryContextOverlay>
     );
@@ -52,70 +64,69 @@ const methods = {
     return {
       rerender: (args: Record<string, any>) => {
         root.render(<QueryContextOverlay>
-          <WeightsForm  data={args.setting} costByWeight={args.costByWeight}/>
+            <WeightsForm  data={args.setting} costByWeight={args.costByWeight}/>
         </QueryContextOverlay>)
       },
-      unmount: () => {
-        root.unmount()
-      },
+      unmount: () => root.unmount()
     };
   },
   newShipment: (element: string | HTMLElement, args: Record<string, any>) => {
-    const attachedElement = getELement(element)!
-    const el = attachedElement;
-    const root = ReactDOM.createRoot(el);
+    const { shadowRootElement, shadowContainer } = getShadowElement(element)!
 
+    const root = ReactDOM.createRoot(getELement(shadowRootElement)!);
 
     root.render(
       <QueryContextOverlay>
-        <ThemeContextOverlay>
-          <CreateShipmentWidget shipment={args.shipment} onFinish={args.onFinish} onChange={args.onChange}/>
-        </ThemeContextOverlay>
+          <ThemeContextOverlay shadowContainer={shadowContainer} shadowRootElement={shadowRootElement}>
+            <CreateShipmentWidget shipment={args.shipment} onFinish={args.onFinish} onChange={args.onChange}/>
+          </ThemeContextOverlay>
       </QueryContextOverlay>
     );
 
     return {
-      unmount: () => root.unmount(),
+      unmount: () => {
+        root.unmount();
+        setTimeout(() => {
+          shadowContainer.parentElement?.removeChild(shadowContainer);
+        }, 500)
+      }
     };
   },
   newLabel: (element: string | HTMLElement, args: Record<string, any>) => {
-    methods["wpUpdateStyle"]();
+    const { shadowRootElement, shadowContainer } = getShadowElement(element)!
 
-    const attachedElement = getELement(element)!
-    const el = attachedElement;
-    const root = ReactDOM.createRoot(el);
-
+    const root = ReactDOM.createRoot(getELement(shadowRootElement)!);
 
     root.render(
         <QueryContextOverlay>
-          <ThemeContextOverlay>
-            <CreateShipmentLabelWidget hideOrderAnchor={args.hideOrderAnchor} shipments={[{ shipment: args.shipment, errors: {} }]} onFinish={args.onFinish} onRefresh={args.onRefresh} />
-          </ThemeContextOverlay>
+            <ThemeContextOverlay shadowContainer={shadowContainer} shadowRootElement={shadowRootElement}>
+              <CreateShipmentLabelWidget hideOrderAnchor={args.hideOrderAnchor} shipments={[{ shipment: args.shipment, errors: {} }]} onFinish={args.onFinish} onRefresh={args.onRefresh} />
+            </ThemeContextOverlay>
         </QueryContextOverlay>
     );
 
     return {
       unmount: () => {
-        methods["wpUpdateStyleRevert"]();
         root.unmount()
+        setTimeout(() => {
+          shadowContainer.parentElement?.removeChild(shadowContainer);
+        }, 500)
       },
     };
   },
 
   selectLabelPrint: (element: string|HTMLElement, args: Record<string, any>) => {
 
-    methods["wpUpdateStyle"]();
+    const { shadowRootElement, shadowContainer } = getShadowElement(element)!
 
-    const attachedElement = getELement(element)!
-    const el = attachedElement;
-    const root = ReactDOM.createRoot(el);
+    const root = ReactDOM.createRoot(getELement(shadowRootElement)!);
 
     const render = (args: Record<string, any>) => {
       root.render(
           <QueryContextOverlay>
-            <ThemeContextOverlay>
-              <SelectPrintWidget onChange={args.onChange} optionals={args.optionals} value={args.value} onFinish={args.onFinish}/>
-            </ThemeContextOverlay>
+              <ThemeContextOverlay shadowContainer={shadowContainer} shadowRootElement={shadowRootElement}>
+                <SelectPrintWidget onChange={args.onChange} optionals={args.optionals} value={args.value} onFinish={args.onFinish}/>
+              </ThemeContextOverlay>
           </QueryContextOverlay>
       );
     }
@@ -124,96 +135,35 @@ const methods = {
 
     return {
       unmount: () => {
-        methods["wpUpdateStyleRevert"]();
-        root.unmount()
+        root.unmount();
+        setTimeout(() => {
+          shadowContainer.parentElement?.removeChild(shadowContainer);
+        }, 500)
       },
       render
     };
   },
   newLabels: (element: string | HTMLElement, args: Record<string, any>) => {
-    methods["wpUpdateStyle"]();
-    const attachedElement = getELement(element)!
-    const el = attachedElement;
-    const root = ReactDOM.createRoot(el);
 
+    const { shadowRootElement, shadowContainer } = getShadowElement(element)!
+
+    const root = ReactDOM.createRoot(getELement(shadowRootElement)!);
 
     root.render(
       <QueryContextOverlay>
-        <ThemeContextOverlay>
-          <CreateShipmentLabelWidget shipments={args.shipments} onFinish={args.onFinish} onRefresh={args.onRefresh} />
-        </ThemeContextOverlay>
+          <ThemeContextOverlay shadowContainer={shadowContainer} shadowRootElement={shadowRootElement}>
+            <CreateShipmentLabelWidget shipments={args.shipments} onFinish={args.onFinish} onRefresh={args.onRefresh} />
+          </ThemeContextOverlay>
       </QueryContextOverlay>
     );
     return {
       unmount: () => {
-        methods["wpUpdateStyleRevert"]();
         root.unmount();
+        setTimeout(() => {
+          shadowContainer.parentElement?.removeChild(shadowContainer);
+        }, 500);
       }
     };
-  },
-  wpUpdateStyleRevert: () => {
-    if (newStyle && newStyle.parentElement && oldStyle) {
-      newStyle.parentElement.insertBefore(oldStyle, newStyle.nextSibling);
-      newStyle.parentElement.removeChild(newStyle);
-    }
-  },
-  wpUpdateStyle: () => {
-
-    const head = document.head;
-    if (styleUpdatedFont) {
-      let link = document.createElement("link");
-      link.setAttribute("rel", "preconnect");
-      link.setAttribute("href", "https://fonts.googleapis.com");
-      head.appendChild(link);
-      link.setAttribute("rel", "preconnect");
-      link.setAttribute("href", "https://fonts.gstatic.com");
-      link.setAttribute("crossorigin", "crossorigin");
-      head.appendChild(link);
-      link.setAttribute(
-          "href",
-          "https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-      );
-      link.setAttribute("rel", "stylesheet");
-      head.appendChild(link);
-    }
-
-    styleUpdatedFont = true;
-
-    if (!oldStyle || !newStyle) {
-      const link = Array.from(document.getElementsByTagName("link")).find(x =>
-          x.getAttribute("href")?.includes("load-styles.php?")
-      ) as HTMLLinkElement;
-
-      if (link) {
-        oldStyle = link;
-        fetch(link.getAttribute("href")!)
-            .then(x => x.text())
-            .then(stylesText => {
-              newStyle = document.createElement("style");
-              newStyle.textContent = stylesText;
-              link.parentElement?.insertBefore(newStyle, link.nextSibling);
-              link.parentElement?.removeChild(link);
-              const sheet = newStyle.sheet;
-              if (sheet) {
-                Array.from(sheet.cssRules).forEach(x => {
-                  if ("selectorText" in x && x.selectorText) {
-                    const oldText = x.selectorText as string;
-                    if (oldText.match(/svg|div|h[0-6]|input|button|(\.|^|\s)p(\.|$|\s)/)) {
-                      if (oldText.includes(":") || oldText.includes("components-button")) return;
-                      x.selectorText = oldText.split(",").map(x => `${x}:not(.wp-reset-div ${x})`);
-                    }
-                  }
-                  return x;
-                });
-              }
-            });
-      }
-    } else {
-      if (oldStyle.parentElement) {
-        oldStyle.parentElement.insertBefore(newStyle, oldStyle.nextSibling);
-        oldStyle.parentElement.removeChild(oldStyle);
-      }
-    }
   },
 };
 

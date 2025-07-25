@@ -18,7 +18,6 @@ class OptionPage {
             <div id="pplcz_options" ></div>
         </div>
         <?php
-        JsTemplate::add_inline_script("wpUpdateStyle", "pplcz_options");
         JsTemplate::add_inline_script("optionsPage", "pplcz_options");
     }
 
@@ -51,7 +50,7 @@ class OptionPage {
             $nonce = wp_create_nonce("hide_notice");
             JsTemplate::add_inline_script("pplczNotices");
             echo "<div data-nonce='". esc_html($nonce)  ."' class=\"pplcz-news-notice notice notice-info is-dismissible\">
-                <p>Byla nainstalována nová verze ppl plugin. Prosím, podívejte se na <a href='". esc_html($url). "'>novinky</a>, které jsou s aktualizací spojené.</p>
+                <p>Byla nainstalována nová verze PPL pluginu. Prosím, podívejte se na <a href='". esc_html($url). "'>novinky</a>, které jsou s aktualizací spojené.</p>
             </div>";
         }
     }
@@ -60,7 +59,7 @@ class OptionPage {
         $version = get_option(pplcz_create_name("version"));
         $code = pplcz_create_name("version_news");
         add_option($code, $version) || update_option($code, $version);
-        if (!wp_verify_nonce(sanitize_key($_POST['pplNonce']), 'hide_notice'))
+        if (!isset($_POST['hide_notice']) || !wp_verify_nonce(sanitize_key($_POST['hide_notice']), 'hide_notice'))
         {
             http_response_code(403);
             wp_die();
@@ -80,7 +79,7 @@ class OptionPage {
             $cpl->clearAccessToken();
             $newToken = $cpl->getAccessToken();
             $validated = !$newToken ? -1: 1;
-            set_transient(pplcz_create_name("validate_cpl_connect"), $validated, 3600);
+            set_transient(pplcz_create_name("validate_cpl_connect"), $validated, 3600 * 3);
         }
         self::add_menu();
         ob_start();

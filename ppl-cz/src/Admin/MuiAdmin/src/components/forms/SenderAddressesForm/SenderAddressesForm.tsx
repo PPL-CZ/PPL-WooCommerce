@@ -64,6 +64,7 @@ const SenderAddressesForm = (props: { data: SenderAddressModel[] }) => {
       onChange={id => {
         setPosition(parseInt(id!));
       }}
+      // Doplnit kontrolu chyb o výpis konkrétní chyby
       error={!!formState.errors?.data?.length ? "Adresa/y obsahují chyby" : undefined}
       disableClearable
       endAdornment={
@@ -117,7 +118,7 @@ const SenderAddressesForm = (props: { data: SenderAddressModel[] }) => {
               return <SenderAddressForm key={field.id} index={index} />;
             }
             return null;
-          })}
+          }).filter(x => x)[0] || null}
 
           <Grid item xs={4}/>
           <Grid item xs={8}>

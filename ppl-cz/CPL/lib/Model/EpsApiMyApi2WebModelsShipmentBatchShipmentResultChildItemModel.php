@@ -216,7 +216,7 @@ class EpsApiMyApi2WebModelsShipmentBatchShipmentResultChildItemModel implements 
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['shipment_number'] = $data['shipment_number'] ?? null;
         $this->container['insurance_currency'] = $data['insurance_currency'] ?? null;

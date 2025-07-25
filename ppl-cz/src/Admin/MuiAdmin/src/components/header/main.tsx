@@ -17,7 +17,7 @@ const pages = [
   { key: "/", label: "Svozy" },
   {
     key: "/setting",
-    label: "Nastaveni",
+    label: "Nastavení",
   },
   { key: "/news", label: "Novinky"},
   { key: "/links", label: "Odkazy" },
@@ -42,101 +42,105 @@ const HeaderMain = () => {
   };
 
   return (
-    <AppBar component={"div"} className={classes.appBar}>
-      <Toolbar>
-        <Typography
-          variant="h6"
-          noWrap
-          component="a"
-          href="#app-bar-with-responsive-menu"
-          sx={{
-            mr: 10,
-            display: { xs: "none", md: "flex" },
-          }}
-        >
-          <img alt={"logo"} src={imagePath(logo)} />
-        </Typography>
+      <Box className={classes.rootBox} marginTop={2}>
+        <Box maxWidth={'xl'} marginLeft={'auto'} marginRight={'auto'} >
+        <AppBar component={"div"} className={classes.appBar}>
+          <Toolbar>
+            <Typography
+              variant="h6"
+              noWrap
+              component="a"
+              href="#app-bar-with-responsive-menu"
+              sx={{
+                mr: 10,
+                display: { xs: "none", md: "flex" },
+              }}
+            >
+              <img alt={"logo"} src={imagePath(logo)} />
+            </Typography>
 
-        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-          <IconButton
-            size="large"
-            aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleOpenNavMenu}
-            color="primary"
-          >
-            <MenuIcon />
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorElNav}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-            open={Boolean(anchorElNav)}
-            onClose={e => {
-              handleCloseNavMenu();
-            }}
-            sx={{
-              display: { xs: "block", md: "none" },
-            }}
-          >
-            {pages.map((page, index) => (
-              <MenuItem
-                key={index}
-                onClick={e => {
-                  handleCloseNavMenu(page.key);
+            <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleOpenNavMenu}
+                color="primary"
+              >
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorElNav}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+                open={Boolean(anchorElNav)}
+                onClose={e => {
+                  handleCloseNavMenu();
+                }}
+                sx={{
+                  display: { xs: "block", md: "none" },
                 }}
               >
-                <Typography textAlign="center">{page.label}</Typography>
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
-        <Typography
-          variant="h6"
-          noWrap
-          component="a"
-          href="#app-bar-with-responsive-menu"
-          sx={{
-            display: { xs: "flex", md: "none" },
-            alignSelf: "end",
-          }}
-        >
-          <img alt="logo" src={imagePath(logo)} />
-        </Typography>
+                {pages.map((page, index) => (
+                  <MenuItem
+                    key={index}
+                    onClick={e => {
+                      handleCloseNavMenu(page.key);
+                    }}
+                  >
+                    <Typography textAlign="center">{page.label}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+            <Typography
+              variant="h6"
+              noWrap
+              component="a"
+              href="#app-bar-with-responsive-menu"
+              sx={{
+                display: { xs: "flex", md: "none" },
+                alignSelf: "end",
+              }}
+            >
+              <img alt="logo" src={imagePath(logo)} />
+            </Typography>
 
-        <Box sx={{ display: { xs: "none", md: "flex", gap: "2em", alignSelf: "center" } }}>
-          {pages.map((page, index) => {
-            const has = location.pathname || "/";
-            let selected = "";
-            if ((has === "/" && page.key === "/") || (has !== "/" && page.key.startsWith(has))) {
-              selected = "selected";
-            }
+            <Box sx={{ display: { xs: "none", md: "flex", gap: "2em", alignSelf: "center" } }}>
+              {pages.map((page, index) => {
+                const has = location.pathname || "/";
+                let selected = "";
+                if ((has === "/" && page.key === "/") || (has !== "/" && page.key.startsWith(has))) {
+                  selected = "selected";
+                }
 
-            return (
-              <Button
-                key={index}
-                className={`${classes.button} available ${selected}`}
-                variant="text"
-                onClick={e => {
-                  handleCloseNavMenu(page.key);
-                }}
-              >
-                <Typography>{page.label}</Typography>
-              </Button>
-            );
-          })}
+                return (
+                  <Button
+                    key={index}
+                    className={`${classes.button} available ${selected}`}
+                    variant="text"
+                    onClick={e => {
+                      handleCloseNavMenu(page.key);
+                    }}
+                  >
+                    <Typography>{page.label}</Typography>
+                  </Button>
+                );
+              })}
+            </Box>
+          </Toolbar>
+        </AppBar>
         </Box>
-      </Toolbar>
-    </AppBar>
+      </Box>
   );
 };
 

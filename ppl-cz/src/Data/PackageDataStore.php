@@ -49,7 +49,7 @@ class PackageDataStore extends PPLDataStore
         }
         $shipmentNumbers = join(',', $shipmentNumbers);
 
-        foreach ($wpdb->get_results($wpdb->prepare("select * from {$wpdb->prefix}pplcz_package where shipment_number in ($shipmentNumbers)"), ARRAY_A) as $item) {
+        foreach ($wpdb->get_results("select * from {$wpdb->prefix}pplcz_package where shipment_number in ($shipmentNumbers)", ARRAY_A) as $item) {
             wp_cache_add($item["ppl_package_id"], $item, "pplcz_package");
             $output[] = new PackageData($item["ppl_package_id"]);
         }

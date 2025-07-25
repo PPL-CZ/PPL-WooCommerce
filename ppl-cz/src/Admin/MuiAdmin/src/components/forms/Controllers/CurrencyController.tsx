@@ -14,7 +14,7 @@ const CurrencyController = <
       control={props.control}
       render={({ field: { onChange, value }, fieldState: { error }, formState }) => {
         return (
-          <CurrenciesInput version={props.version} value={value} onChange={onChange} error={error?.message || ""} />
+          <CurrenciesInput name={props.name} version={props.version} value={value} onChange={onChange} error={error?.message || ""} />
         );
       }}
     />

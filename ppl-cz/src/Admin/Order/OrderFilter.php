@@ -182,8 +182,10 @@ class OrderFilter {
         </div>
         <# (function()  {
         setTimeout(function() {
-        const item = jQuery("#formatted_parcel_shop").closest("article").find(".wc-order-preview-address:nth-child(2)")
-        item.append("<br/><br/>" +data.formatted_parcel_shop)
+        if(data.formatted_parcel_shop){
+            const item = jQuery("#formatted_parcel_shop").closest("article").find(".wc-order-preview-address:nth-child(2)")
+            item.append("<br/><br/>" +data.formatted_parcel_shop)
+        }
         });
         })()
         #>

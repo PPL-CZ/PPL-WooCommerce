@@ -6,6 +6,7 @@ import { useState } from "react";
 import { baseConnectionUrl } from "../../../connection";
 import MapIcon from "@mui/icons-material/Map";
 import SavingProgress from "../../SavingProgress";
+import SaveInfo from "./SaveInfo";
 
 type ParcelAddressModel = components["schemas"]["ParcelAddressModel"];
 type UpdateShipmentParcelModel = components["schemas"]["UpdateShipmentParcelModel"];
@@ -20,7 +21,7 @@ const ParcelSelect = (props: {
   onFinish?: () => void;
 }) => {
   const [loading, setLoading] = useState(false);
-
+  const [error, setError] = useState(0);
   const fetcher = (accessPoint: any) => {
     const nonce = baseConnectionUrl();
     return fetch(`${nonce.url}/ppl-cz/v1/shipment/${props.shipment.id}/parcel`, {
@@ -47,7 +48,11 @@ const ParcelSelect = (props: {
       if (accessPoint) {
         setLoading(true);
         fetcher(accessPoint)
-          .then(() => {
+          .then((resp) => {
+            if (resp.status === 404)
+            {
+              setError(e => e + 1);
+            }
             props.onChange(props.shipment.id!);
             setLoading(false);
           })
@@ -61,6 +66,7 @@ const ParcelSelect = (props: {
   return (
     <>
       {loading ? <SavingProgress /> : null}
+      {error? <SaveInfo key={error} timeout={5000} color={"error"}>Box/obchod nebyl nalezen</SaveInfo>: null}
       <Box className="modalBox" p={2}>
         {!props.parcelshop ? (
           <>

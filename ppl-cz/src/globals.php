@@ -194,7 +194,10 @@ function pplcz_get_cart_shipping_method()
             /**
              * @var \WC_Shipping_Rate $rate
              */
-            $rate = @$shipping["rates"][$chosen_shipping_method];
+            $rate = null;
+            if ($shipping && isset($shipping['rates']) && isset($shipping['rates'][$chosen_shipping_method]))
+                $rate = $shipping["rates"][$chosen_shipping_method];
+
             if ($rate)
                 return $rate;
             // problem se zasilkovnou, proste to bez diskuzi vycisti
@@ -247,7 +250,7 @@ function pplcz_tables ($activate = false) {
             as_schedule_recurring_action(time(), 60 * 60 * 24, pplcz_create_name("delete_logs"));
 
             if (!$activate)
-                add_option(pplcz_create_name("version"), pplcz_get_version()) || update_option(pplcz_create_name("version"), pplcz_get_version());
+                add_option(pplcz_create_name("version"), pplcz_get_version(),null, 'yes') || update_option(pplcz_create_name("version"), pplcz_get_version(),'yes');
 
         });
     }
@@ -260,7 +263,7 @@ function pplcz_tables ($activate = false) {
         add_action("wp_loaded", function() use ($activate) {
             flush_rewrite_rules();
             if (!$activate) {
-                add_option(pplcz_create_name("rules_version"), pplcz_get_version()) || update_option(pplcz_create_name("rules_version"), pplcz_get_version());
+                add_option(pplcz_create_name("rules_version"), pplcz_get_version(), null, 'yes') || update_option(pplcz_create_name("rules_version"), pplcz_get_version(), 'yes');
             }
         });
     }

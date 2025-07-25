@@ -191,7 +191,7 @@ class EpsApiMyApi2WebModelsShipmentBatchCompleteLabelSettingsModel implements Mo
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['is_complete_label_requested'] = $data['is_complete_label_requested'] ?? null;
         $this->container['page_size'] = $data['page_size'] ?? null;

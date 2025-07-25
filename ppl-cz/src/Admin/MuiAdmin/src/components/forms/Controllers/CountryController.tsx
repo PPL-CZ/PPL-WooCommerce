@@ -14,7 +14,7 @@ const CountryController = <
       name={props.name}
       control={props.control}
       render={({ field: { onChange, value }, fieldState: { error }, formState }) => {
-        return <CountriesInput value={value} onChange={onChange} error={error?.message || ""} />;
+        return <CountriesInput name={props.name} value={value} onChange={onChange} error={error?.message || ""} />;
       }}
     />
   );

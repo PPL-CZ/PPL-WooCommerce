@@ -99,9 +99,15 @@ class CollectionV1Controller extends PPLRestController
     {
         $param = new CollectionData($request->get_param("id"));
         $cpl = new CPLOperation();
-        $cpl->cancelCollection($param->get_id());
-        $rest = new \WP_REST_Response();
-        $rest->set_status(204);
+        try {
+            $cpl->cancelCollection($param->get_id());
+            $rest = new \WP_REST_Response();
+            $rest->set_status(204);
+        }
+        catch (\Exception $ex) {
+            $rest = new \WP_REST_Response();
+            $rest->set_status(400);
+        }
         return $rest;
     }
 

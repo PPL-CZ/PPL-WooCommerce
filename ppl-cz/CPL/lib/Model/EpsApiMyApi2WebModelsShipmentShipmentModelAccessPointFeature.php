@@ -180,7 +180,7 @@ class EpsApiMyApi2WebModelsShipmentShipmentModelAccessPointFeature implements Mo
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['access_point_days_in_storage'] = $data['access_point_days_in_storage'] ?? null;
     }

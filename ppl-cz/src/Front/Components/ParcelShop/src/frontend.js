@@ -1,83 +1,57 @@
 import metadata from './block.json';
 import { ValidatedTextInput, registerCheckoutBlock, extensionCartUpdate, getRegisteredBlock, ExperimentalOrderShippingPackages  } from '@woocommerce/blocks-checkout';
 import { useSelect } from "@wordpress/data";
-import {Fragment, useEffect, useRef, useState} from "react";
+
+import {Fragment, useEffect, useRef, useState, useMemo, Component} from "react";
 const { registerPlugin } = window.wp.plugins;
 
 
-const mapAllowed = (shipment) => {
-
-	const shipping_rate = shipment?.shipping_rates?.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
-	const mapEnabled = shipping_rate?.meta_data?.find(x => x.key === "mapEnabled");
-
-	if (!parseInt(mapEnabled?.value))
-		return false;
-
-	return true;
+const getShippingRate = (cart) =>
+{
+	return cart?.shipping_rates?.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
 }
 
-const isParcelRequired = (shipment) => {
-
-	const shipping_rate = shipment?.shipping_rates?.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
-	const parcelRequired = shipping_rate?.meta_data.find(x => x.key === "parcelRequired");
-
-	if (!parcelRequired)
-		return false;
-	if (!parseInt(parcelRequired.value))
-		return false;
-
-	return true;
+const metaData = (cart) => {
+	return getShippingRate(cart)?.meta_data;
 }
 
-const getHiddenPoints = (shipment) => {
+const getMetaValue = (cart, key) => {
+	return metaData(cart)?.find(x => x.key === key)?.value;
+}
 
-	const shipping_rate = shipment.shipping_rates?.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
-	const meta_data = shipping_rate?.meta_data;
+const isMapAllowed = (cart) => !!parseInt(getMetaValue(cart, "mapEnabled"));
 
-	const allowedParcels = {
-		ParcelBox: true,
-		ParcelShop: true,
-		AlzaBox: true
-	};
+const isParcelRequired = (cart) => !!parseInt(getMetaValue(cart, "parcelRequired"));
 
+const getHiddenPoints = (cart) => {
 
-	if (!meta_data?.find(x => x.key === "parcelBoxEnabled" && x.value) )
-	{
-		allowedParcels.ParcelBox = false;
+	const allowParcels = {
+		ParcelBox: "parcelBoxEnabled" ,
+		ParcelShop: "parcelShopEnabled" ,
+		AlzaBox: "alzaBoxEnabled"
 	}
 
-	if (!meta_data?.find(x =>  x.key === "parcelShopEnabled" && x.value) )
-	{
-		allowedParcels.ParcelShop = false;
-	}
+	const meta = metaData(cart) || [];
 
-	if (!meta_data?.find(x =>  x.key === "alzaBoxEnabled" && x.value) )
-	{
-		allowedParcels.AlzaBox = false;
-	}
-
-	return Object.keys(allowedParcels).filter(x => !allowedParcels[x]);
-}
-
-const getAllowedCountries = (shipment) => {
-
-	const shipping_rate = shipment.shipping_rates?.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
-	const meta_data = shipping_rate?.meta_data;
-
-	const allowedCountries = meta_data?.find(x => x.key === "enabledParcelCountries" && x.value)?.value;
-	return allowedCountries ?? [];
+	return Object.entries(allowParcels).filter(([key, metaKey]) => {
+		return !meta.some((x) => x.key === metaKey && x.value);
+	}).map(([key]) => key);
 
 }
 
-const isParcelShopSelected = (cart) => {
-	return cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
 
+
+const getAllowedCountries = (cart) => getMetaValue(cart, "enabledParcelCountries") ?? [];
+
+
+const parcelShopSelected = (cart) => {
+	return cart?.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
 }
 
 const ParcelShop = (props) => {
-	const { cart, parcelRequired } = props;
 
-	const parcelShop = cart?.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
+	const { cart, parcelRequired } = props;
+	const parcelShop = parcelShopSelected(cart);
 	return (
 		<div>
 			{parcelShop ?
@@ -86,17 +60,17 @@ const ParcelShop = (props) => {
 					<span>{parcelShop.name}</span>,&nbsp;
 					<span>{parcelShop.street}</span>,&nbsp;
 					<span>{parcelShop.zipCode}</span>,&nbsp;
-					<span>{parcelShop.city}</span> <a  href={"#"} onClick={e=>{
-					e.preventDefault();
-					PplMap(()=>{}, { lat: parcelShop?.gps.latitude, lng: parcelShop?.gps.longitude});
-				}}>[na mapě]</a></> : (parcelRequired ? <>Vyberte výdejní místo pro doručení zásilky</> : <>Zboží bude dodáno na doručovací adresu</>)}
+					<span>{parcelShop.city}</span>
+					<a href={"#"} onClick={e=>{e.preventDefault();PplMap(()=>{}, { lat: parcelShop?.gps.latitude, lng: parcelShop?.gps.longitude});}}>[na mapě]</a>
+				</> : (parcelRequired ? <>Vyberte výdejní místo pro doručení zásilky</> : <>Zboží bude dodáno na doručovací adresu</>)}
 		</div>
 	)
 }
 
-const restyle = (idsValues, shippingRates, parcelShopBoxSelected)=> {
+const restyle = (idsValues, cart, parcelShopBoxSelected)=> {
+
 	const text = idsValues.map(x => {
-		const finded = shippingRates.shipping_rates.find(y => y.rate_id === x);
+		const finded = cart?.shipping_rates?.find(y => y.rate_id === x);
 
 		if (!finded.rate_id.startsWith("pplcz_")) {
 			return "";
@@ -129,8 +103,8 @@ const restyle = (idsValues, shippingRates, parcelShopBoxSelected)=> {
 
 		classNameSet["width"] = s + "em";
 
-		const className =  shippingRates.shipping_rates.length !== 1 ? `.wc-block-components-shipping-rates-control  input[value=${x}]+div:before`: `.wc-block-components-shipping-rates-control  .wc-block-components-radio-control__label:before`;
-		if (shippingRates.shipping_rates.length === 1)
+		const className =  cart.shipping_rates.length !== 1 ? `.wc-block-components-shipping-rates-control  input[value=${x}]+div:before`: `.wc-block-components-shipping-rates-control  .wc-block-components-radio-control__label:before`;
+		if (cart.shipping_rates.length === 1)
 		{
 			classNameSet.display = "block";
 		}
@@ -151,113 +125,125 @@ const restyle = (idsValues, shippingRates, parcelShopBoxSelected)=> {
 
 const Block = (props) => {
 
-	const { checkoutExtensionData } = props;
+	//const { checkoutExtensionData } = props;
 
-	const { cart, payment } = useSelect((select)=> ({
-		cart: select("wc/store/cart").getCartData(),
+	const { cart : storeCard, payment } = useSelect((select)=> ({
+		cart: select("wc/store/cart").getCartData(), // kde najdu konkrétní metody?
 		payment: select("wc/store/payment").getActivePaymentMethod()
 	}));
 
-	const idsValues = [...new Set(cart?.shippingRates?.reduce((acc, x) => {
+	const idsValues = [...new Set(storeCard?.shippingRates?.reduce((acc, x) => {
 		return acc.concat(x.shipping_rates?.map(y => y.rate_id) || []);
 	}, []).sort() || [])].sort();
 
-	const shippingRates = cart?.shippingRates?.[0];
-
-
-	const parcelRequired = isParcelRequired(shippingRates)
-
-	const parcelShopBoxSelected = isParcelShopSelected(cart);
-
+	const firstShippingMethod = storeCard?.shippingRates?.[0];
+	const rateId = firstShippingMethod.shipping_rates.find(x => x.selected === true && x.method_id.indexOf("pplcz_") > -1);
+	const shippingAddress = firstShippingMethod.destination;
+	const parcelShopBoxSelected = parcelShopSelected(storeCard);
 	const onUpdateComponent = useRef(false);
 
-	let mapSetting = null;
+	const { parcelRequired, mapAllowed, hiddenPoints, allowedCountries, mapSetting} = useMemo(() => {
+
+			const parcelRequired = isParcelRequired(firstShippingMethod);
+			const mapAllowed = isMapAllowed(firstShippingMethod);
+
+			const hiddenPoints = getHiddenPoints(firstShippingMethod);
+			const allowedCountries = getAllowedCountries(firstShippingMethod);
+
+			let address = '';
+			let country = '';
+
+			if(shippingAddress){
+				address = [
+					[shippingAddress.address_1, shippingAddress.address_2].filter(x=>x).join(' '),
+					[shippingAddress.postcode, shippingAddress.city].filter(x=>x).join(' ')
+				].filter(x => x).join(', ');
+				country = shippingAddress.country?.toLowerCase() || '';
+			}
+			if (parcelShopBoxSelected) {
+				address = [
+					parcelShopBoxSelected.street,
+					[parcelShopBoxSelected.zipCode, parcelShopBoxSelected.city].filter(x => x).join(' ')
+				].filter(x => x).join(', ');
+				country = parcelShopBoxSelected.country || '';
+			}
+			const mapSetting = {
+				address,
+				country,
+				hiddenPoints: hiddenPoints.length ? hiddenPoints.join(',') : null,
+				countries: allowedCountries.map(c => c.toLowerCase()).join(',')
+			};
+
+
+
+			return { parcelRequired, mapAllowed, hiddenPoints, allowedCountries, mapSetting };
+	}, [rateId]);
+
+	window.pplczLastPplMapData = mapSetting;
+
+
 
 	const isCart =Array.from(document.getElementsByTagName("meta")).some(x => {
 		return x.property === 'pplcz:cart' && x.content === "1";
 	});
 
-	const hideComponent = !parcelRequired || !mapAllowed(shippingRates) || isCart;
+	const hideComponent = !parcelRequired || !mapAllowed || isCart;
 
 	useEffect(() => {
-		if (!onUpdateComponent.current) {
-			onUpdateComponent.current = true;
-			return;
-		}
-		if (parcelRequired && !parcelShopBoxSelected && !hideComponent)
-		{
-			PplMap(savingData, {...mapSetting } );
-		}
+
+			if (!onUpdateComponent.current) {
+				onUpdateComponent.current = true;
+				return;
+			}
+			if (parcelRequired && !parcelShopBoxSelected && !hideComponent) {
+				PplMap(savingData, {...mapSetting});
+			}
+
 	}, [parcelRequired, parcelShopBoxSelected]);
 
 	useEffect( () => {
-		if (shippingRates)
-			restyle(idsValues, shippingRates, parcelShopBoxSelected);
-	}, idsValues.concat((parcelShopBoxSelected || {}).accessPointType))
+			if (firstShippingMethod)
+				restyle(idsValues, firstShippingMethod, parcelShopBoxSelected);
 
+	}, [...idsValues, parcelShopBoxSelected?.accessPointType])
 
 	if (hideComponent)
 		return null;
 
-	const  shippingAddress = cart.shippingAddress;
-	let mapaddress = '';
-
-	if (shippingAddress) {
-		mapaddress  = [
-			[shippingAddress.address_1, shippingAddress.address_2].filter(x => x).join(' '),
-			[shippingAddress.postcode, shippingAddress.city].filter(x => x).join(' ')
-		].filter(x => !!x).join(', ');
-	}
-
 	const savingData = (parcelShop) => {
-		extensionCartUpdate({
-			namespace: 'pplcz_parcelshop',
-			data: {
-				"parcel-shop": parcelShop
-			}
-		});
-	}
+
+                extensionCartUpdate({
+                    namespace: 'pplcz_parcelshop',
+                    data: {
+                        "parcel-shop": parcelShop
+                    }
+                });
+
+            }
+
+
 
 	let messages = [];
 
-	const parcelShop = cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
-	mapSetting = {
-		address: mapaddress,
-	};
-
-	if (shippingAddress?.country) {
-		mapSetting.country = shippingAddress.country.toLowerCase();
-	}
-
-	if (parcelShop)
-	{
-		mapSetting.address = [parcelShop.street, [parcelShop.zip, parcelShop.city].join(' ')].join(', ');
-		mapSetting.country = parcelShop.country;
-	}
-
-	const hiddenPoints = getHiddenPoints(shippingRates);
-	const allowedCountries = getAllowedCountries(shippingRates);
-
-	mapSetting.hiddenPoints = hiddenPoints.length ? hiddenPoints.join(",") : null;
-	mapSetting.countries = allowedCountries.join(",").toLowerCase();
-
-	if (parcelRequired && !parcelShop)
+console.log(parcelRequired, mapSetting, savingData)
+	if (parcelRequired && !parcelShopBoxSelected)
 		messages.push(<li key={"ageControl"}>Pro dodání zboží je nutno vybrat jedno z výdejních míst</li>);
 
 	return (
 		<>
 			<div>
-				<ParcelShop  cart={cart} parcelRequired={parcelRequired}/> <a href="#withCard" onClick={e => {
+				<ParcelShop  cart={storeCard} parcelRequired={parcelRequired}/> <a href="#withCard" className={"pplcz-select-parcelshop"} onClick={e => {
 				e.preventDefault();
 				PplMap(savingData, {...mapSetting } );
-			}}>Výběr výdejního místa</a> {parcelShop ? <> / <a href={"#"} onClick={e=>{
+			}}>Výběr výdejního místa</a> {parcelShopBoxSelected ? <> / <a href={"#"} className={"pplcz-clear-map"} onClick={e=>{
 				e.preventDefault();
 				onUpdateComponent.current = false;
 				savingData(null);
+
 			}}>Zrušit výběr</a></> : null} <br/>
 				{messages ? <ul>{messages}</ul>:null}
 			</div>
-		</>);
+		</>)
 }
 
 const options = {

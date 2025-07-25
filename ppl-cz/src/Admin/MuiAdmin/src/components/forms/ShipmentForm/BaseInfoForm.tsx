@@ -13,6 +13,8 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+
 
 import ShipmentMethodController from "../Controllers/ShipmentMethodController";
 import TextFieldController from "../Controllers/TextFieldController";
@@ -217,6 +219,7 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
                             onChange(parseInt(e || "") || undefined);
                           }}
                           error={error?.message}
+                          name={"senderId"}
                         />
                       );
                     }}
@@ -236,6 +239,7 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
                               { id: "15", label: "15+" },
                               { id: "18", label: "18+" },
                             ]}
+                            name={"age"}
                             value={`${value || ""}`}
                             onChange={e => {
                               onChange(parseInt(e || "") || "");
@@ -259,6 +263,7 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
                               readOnly={true}
                               checked={!!value}
                               value={value}
+                              name={"hasParcel"}
                               onChange={e => {
                                 if (isParcel) onChange(isParcel);
                               }}
@@ -300,9 +305,11 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
                   <TableContainer sx={{ p: 0 }}>
                     <Table>
                       <TableHead>
-                        <TableCell width={150}>Reference</TableCell>
-                        <TableCell width={150}>Pojištění</TableCell>
-                        <TableCell />
+                        <TableRow>
+                          <TableCell width={150}>Reference</TableCell>
+                          <TableCell width={150}>Pojištění</TableCell>
+                          <TableCell />
+                        </TableRow>
                       </TableHead>
                       <TableBody>
                         {fields.map((field, index) => {

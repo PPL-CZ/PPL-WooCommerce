@@ -5,41 +5,22 @@ import {useEffect} from "@wordpress/element";
 
 
 import "./fontend.css";
+const getShippingRate = (shipment) => {
+	return shipment?.shipping_rates?.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected); }
 
-
-const mapAllowed = (shipment) => {
-	const shipping_rate = shipment?.shipping_rates?.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
-	const mapEnabled = shipping_rate?.meta_data?.find(x => x.key === "mapEnabled");
-
-	if (!parseInt(mapEnabled?.value))
-		return false;
-
-	return shipping_rate;
-
+const getMetaValue = (shipment, key) => {
+	return getShippingRate(shipment)?.meta_data?.find(x => x.key === key).value;
 }
 
-const isParcelShopRequired = (shipment) => {
+const getParcelShop = (cart) => cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"]
 
+const isMapAllowed = (shipment) => !!parseInt(getMetaValue(shipment, "mapEnabled"))
 
-	const shipping_rate = shipment?.shipping_rates.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
-	const parcelRequired = shipping_rate?.meta_data?.find(x => x.key === "parcelRequired");
+const isParcelShopRequired = (shipment) => !!parseInt(getMetaValue(shipment, "parcelRequired"))
 
-	if (!parcelRequired)
-		return false;
-	if (!parseInt(parcelRequired.value))
-		return false;
+const ParcelShop = ({parcelShop}) => {
+	if (!parcelShop) return null;
 
-	return true;
-}
-
-const isParcelShopSelected = (cart) => {
-	const parcelShop = cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
-	return !!parcelShop;
-}
-
-const ParcelShop = (props) => {
-	const { cart } = props;
-	const parcelShop = cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
 	return  (
 		<small>
 			<strong>Výdejní místo</strong><br/>
@@ -53,9 +34,8 @@ const ParcelShop = (props) => {
 	)
 }
 
-const Block = (props) => {
+const Block = () => {
 
-	const { checkoutExtensionData } = props;
 
 	const { cart, payment } = useSelect((select)=> ({
 		cart: select("wc/store/cart").getCartData(),
@@ -64,20 +44,18 @@ const Block = (props) => {
 
 	const shipment = cart?.shippingRates?.[0];
 
-	const shipping_rate = (() => {
-		if (shipment)
-			return mapAllowed(shipment);
-		return undefined;
-	})();
+	const shipping_rate = shipment && isMapAllowed(shipment)? getShippingRate(shipment) : undefined;
 
-	const parcelShopRequired = isParcelShopRequired(shipment)
+	const parcelShopRequired = isParcelShopRequired(shipment);
+
+	const parcelShop = getParcelShop(cart);
 
 	useEffect(() => {
 		if (!shipment)
 			return;
 
 		const className = "wc-block-components-shipping-address-hide-send-address";
-		if (shipping_rate && parcelShopRequired && isParcelShopSelected(cart))
+		if (shipping_rate && parcelShopRequired && parcelShop)
 		{
 			document.body.className += " " + className;
 		} else {
@@ -87,12 +65,12 @@ const Block = (props) => {
 	}, [shipping_rate?.rate_id, parcelShopRequired]);
 
 
-	if (!shipment || !shipping_rate || !parcelShopRequired ||  !isParcelShopSelected(cart))
+	if (!shipment || !shipping_rate || !parcelShopRequired || !parcelShop)
 		return null;
 
 	return <div className={'wp-block-woocommerce-checkout-order-summary-shipping-block wc-block-components-totals-wrapper'}>
 		<div className={"wc-block-components-totals-item"}>
-			<ParcelShop cart={cart}/>
+			<ParcelShop parcelShop={parcelShop}/>
 		</div>
 	</div>
 }

@@ -6,12 +6,14 @@ const CurrenciesInput = (props: {
   onChange: (e: string) => void;
   error?: string;
   version?: "small";
+  name?: string
 }) => {
   const currencies = useQueryCurrencies();
 
   return (
     <SelectInput
       key={currencies?.length}
+      name={props.name}
       onChange={e => {
         props.onChange(e || "");
       }}

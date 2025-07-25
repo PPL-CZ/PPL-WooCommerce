@@ -120,8 +120,15 @@ class CPLOperation
                 }
             }
         }
+
         $client_secret = get_option(pplcz_create_name("client_secret")) ?: get_option(pplcz_create_name("secret"));
         $client_id = get_option(pplcz_create_name("client_id"));
+
+        if (strlen($client_id) < 5 || strlen($client_secret) < 10)
+        {
+            return null;
+        }
+
         $auth = "Basic " . base64_encode("$client_id:$client_secret");
 
         $headers = ["Content-Type: application/x-www-form-urlencoded"];
@@ -190,7 +197,14 @@ class CPLOperation
         ]);
 
         $configuration = new Configuration();
-        $configuration->setAccessToken($this->getAccessToken());
+
+        $accessToken = $this->getAccessToken();
+        if (!$accessToken)
+        {
+             throw new ApiException("Nelze získat přístup do CPL");
+        }
+
+        $configuration->setAccessToken($accessToken);
         $url = self::BASE_URL;
         $configuration->setHost($url);
 
@@ -233,10 +247,11 @@ class CPLOperation
             throw $exception;
         }
 
-        list($client, $configuration) = $this->createClientAndConfiguration();
-        $shipmentBatchApi = new ShipmentBatchApi($client, $configuration);
 
         try {
+            list($client, $configuration) = $this->createClientAndConfiguration();
+            $shipmentBatchApi = new ShipmentBatchApi($client, $configuration);
+
             $output = $shipmentBatchApi->createShipmentsWithHttpInfo($send, "cs-CZ");
             $location = reset($output[2]["Location"]);
             $location = explode("/", $location);
@@ -472,39 +487,6 @@ class CPLOperation
     }
 
     /**
-     * @param $packageId
-     * @return void
-     * @throws ApiException
-     *
-     * Stažení etikety pro zásilku
-     */
-    public function getLabelContent($packageId)
-    {
-        $packageId = new PackageData($packageId);
-
-        list($client, $configuration) = $this->createClientAndConfiguration();
-        $labelApi = new DataApi($client, $configuration);
-
-        $httpData = $labelApi->getDataWithHttpInfo($packageId->get_label_id());
-        if (!$httpData) {
-            return;
-        }
-
-        header("Content-Type: " .$httpData[2]["Content-Type"][0]);
-        /**
-         * @var \SplFileInfo $file
-         */
-        $file = $httpData[0];
-        $path = $file->getPathname();
-        $filesystem = new \WP_Filesystem_Direct( true );
-        $content = $filesystem->get_contents($path);
-
-        // pdf file
-        exit($content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-    }
-
-
-    /**
      * @param $batchIds
      * @return void
      * @throws ApiException
@@ -686,6 +668,12 @@ class CPLOperation
 
     public function testPackageStates(array $shipments)
     {
+
+        $accessToken = $this->getAccessToken();
+        if (!$accessToken)
+            return [];
+
+
         if (!$shipments) {
             return [];
         }
@@ -811,12 +799,15 @@ class CPLOperation
 
     public function findParcel($code)
     {
+        $accessToken = $this->getAccessToken();
+        if (!$accessToken)
+            return null;
 
         list($client, $configuration) = $this->createClientAndConfiguration();
 
         $accessPointApi = new AccessPointApi($client, $configuration);
         $founded = $accessPointApi->accessPointGet(100,0, $code);
-        if (is_array($founded)) {
+        if (is_array($founded) && isset($founded[0])) {
             return $founded[0];
         }
         return null;

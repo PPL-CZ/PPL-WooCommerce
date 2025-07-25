@@ -186,7 +186,7 @@ class EpsApiMyApi2WebModelsShipmentBatchShipmentSetFeatureModel implements Model
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['number_of_shipments'] = $data['number_of_shipments'] ?? null;
         $this->container['shipment_set_items'] = $data['shipment_set_items'] ?? null;

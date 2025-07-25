@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
@@ -84,6 +85,7 @@ const ShipmentPhaseForm = () => {
                 <TextField
                   value={value}
                   size="medium"
+                  name={'maxSync'}
                   onChange={onChange}
                   onBlur={e => {
                     const maxSync = getValues("maxSync");
@@ -122,10 +124,10 @@ const ShipmentPhaseForm = () => {
           <>
             {(data.phases || []).map(x => {
               return (
-                <>
-                  <Check checked={x.watch} key={x.code} label={x.title} name={x.code} />
+                <Fragment key={x.code} >
+                  <Check checked={x.watch} label={x.title} name={x.code} />
                   <br />
-                </>
+                </Fragment>
               );
             })}
           </>

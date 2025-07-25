@@ -27,6 +27,30 @@ class ErrorLogModel extends \ArrayObject
     /**
      * 
      *
+     * @var ErrorLogShipmentSettingModel[]|null
+     */
+    protected $shipmentsSetting;
+    /**
+     * 
+     *
+     * @var ErrorLogCategorySettingModel[]
+     */
+    protected $categorySetting;
+    /**
+     * 
+     *
+     * @var ErrorLogProductSettingModel[]
+     */
+    protected $productsSetting;
+    /**
+     * 
+     *
+     * @var mixed[]
+     */
+    protected $orders;
+    /**
+     * 
+     *
      * @var ErrorLogItemModel[]
      */
     protected $errors;
@@ -72,6 +96,94 @@ class ErrorLogModel extends \ArrayObject
     {
         $this->initialized['info'] = true;
         $this->info = $info;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return ErrorLogShipmentSettingModel[]|null
+     */
+    public function getShipmentsSetting() : ?array
+    {
+        return $this->shipmentsSetting;
+    }
+    /**
+     * 
+     *
+     * @param ErrorLogShipmentSettingModel[]|null $shipmentsSetting
+     *
+     * @return self
+     */
+    public function setShipmentsSetting(?array $shipmentsSetting) : self
+    {
+        $this->initialized['shipmentsSetting'] = true;
+        $this->shipmentsSetting = $shipmentsSetting;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return ErrorLogCategorySettingModel[]
+     */
+    public function getCategorySetting() : ?array
+    {
+        return $this->categorySetting;
+    }
+    /**
+     * 
+     *
+     * @param ErrorLogCategorySettingModel[] $categorySetting
+     *
+     * @return self
+     */
+    public function setCategorySetting(array $categorySetting) : self
+    {
+        $this->initialized['categorySetting'] = true;
+        $this->categorySetting = $categorySetting;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return ErrorLogProductSettingModel[]
+     */
+    public function getProductsSetting() : ?array
+    {
+        return $this->productsSetting;
+    }
+    /**
+     * 
+     *
+     * @param ErrorLogProductSettingModel[] $productsSetting
+     *
+     * @return self
+     */
+    public function setProductsSetting(array $productsSetting) : self
+    {
+        $this->initialized['productsSetting'] = true;
+        $this->productsSetting = $productsSetting;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return mixed[]
+     */
+    public function getOrders() : ?array
+    {
+        return $this->orders;
+    }
+    /**
+     * 
+     *
+     * @param mixed[] $orders
+     *
+     * @return self
+     */
+    public function setOrders(array $orders) : self
+    {
+        $this->initialized['orders'] = true;
+        $this->orders = $orders;
         return $this;
     }
     /**

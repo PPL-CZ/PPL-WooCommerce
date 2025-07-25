@@ -5,6 +5,7 @@ import React from "react";
 type Optional = { id: string; label: string };
 
 type BaseProps = {
+    name?: string;
     optionals: Optional[];
     disableClearable?: boolean;
 
@@ -66,10 +67,9 @@ const SelectInput = (props:Props)=> {
       }}
       renderOption={(props, options, valueIndex) => {
         return (
-          <li {...props}>
+          <li {...props} key={options.id || valueIndex.index} >
             <div>
               <span
-                key={valueIndex.index}
                 style={{
                   fontWeight: isSelected(options) ? 700 : "inherit",
                 }}
@@ -92,7 +92,7 @@ const SelectInput = (props:Props)=> {
           return (
             <TextField
               {...params}
-              InputProps={{ ...params.InputProps, endAdornment }}
+              InputProps={{ ...params.InputProps, endAdornment, name: props.name }}
               size={props.size}
               error={!!props.error}
               helperText={props.error}

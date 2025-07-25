@@ -19,16 +19,6 @@ class LogData  extends PPLData
         "draft" => false,
     ];
 
-    public function set_ppl_log_id($value)
-    {
-        $this->set_prop("ppl_log_id", $value);
-    }
-
-    public function get_ppl_log_id($context = 'view')
-    {
-        return $this->get_prop("ppl_log_id", $context);
-    }
-
 
     public function get_message($context = 'view')
     {

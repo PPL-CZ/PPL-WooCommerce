@@ -191,7 +191,7 @@ class EpsApiMyApi2WebModelsCodelistCountryModel implements ModelInterface, Array
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['cash_on_delivery'] = $data['cash_on_delivery'] ?? null;
         $this->container['code'] = $data['code'] ?? null;

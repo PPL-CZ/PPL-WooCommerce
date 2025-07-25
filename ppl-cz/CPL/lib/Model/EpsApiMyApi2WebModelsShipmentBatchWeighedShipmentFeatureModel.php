@@ -181,7 +181,7 @@ class EpsApiMyApi2WebModelsShipmentBatchWeighedShipmentFeatureModel implements M
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['weight'] = $data['weight'] ?? null;
     }

@@ -37,15 +37,26 @@ export const sendLog = (data: SendErrorLogModel) => {
     });
 }
 
-export const useLogs = () => {
+export const useLogs = (product_ids: string[], order_ids: string[]) => {
+
+    const ids = product_ids.join(',');
+    const ids2 = order_ids.join(',')
     return useQuery({
-        queryKey: ["logs"],
+        queryKey: ["logs", ids, ids2 ],
         retry: (count, error) => {
             return count < 3;
         },
         queryFn: async () => {
             const baseUrl = baseConnectionUrl();
-            const data = await fetch(`${baseUrl.url}/ppl-cz/v1/logs`, {
+
+            const url = new URL(`${baseUrl.url}/ppl-cz/v1/logs`);
+            if (ids) {
+                url.searchParams.set("product_ids", ids);
+            }
+            if (ids2)
+                url.searchParams.set("order_ids", ids2);
+
+            const data = await fetch(url, {
                 headers: {
                     "X-WP-Nonce": baseUrl.nonce,
                 },

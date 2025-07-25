@@ -196,7 +196,7 @@ class EpsApiMyApi2WebModelsAccessPointAccessPointWorkHourModel implements ModelI
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['week_day'] = $data['week_day'] ?? null;
         $this->container['day_part'] = $data['day_part'] ?? null;

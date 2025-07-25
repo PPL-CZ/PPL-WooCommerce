@@ -54,8 +54,11 @@ const SettingPage = () => {
           <Grid item xs>
             <List component="nav">
               <ListItemButton
-                onClick={e => {
-                  document.getElementById("api")?.scrollIntoView();
+                onClick={event => {
+                    const doc = event.currentTarget.getRootNode();
+                    if (doc instanceof ShadowRoot) {
+                        doc.getElementById("api")?.scrollIntoView();
+                    }
                 }}
               >
                 <Typography fontWeight={"bold"} color={"primary"}>
@@ -63,8 +66,11 @@ const SettingPage = () => {
                 </Typography>
               </ListItemButton>
               <ListItemButton
-                  onClick={e => {
-                    document.getElementById("parcelplaces")?.scrollIntoView();
+                  onClick={event => {
+                      const doc = event.currentTarget.getRootNode();
+                      if (doc instanceof ShadowRoot) {
+                          doc.getElementById("parcelplaces")?.scrollIntoView();
+                      }
                   }}
               >
                 <Typography fontWeight={"bold"} color={"primary"}>
@@ -72,8 +78,11 @@ const SettingPage = () => {
                 </Typography>
               </ListItemButton>
               <ListItemButton
-                onClick={e => {
-                  document.getElementById("etiquete")?.scrollIntoView();
+                onClick={event => {
+                    const doc = event.currentTarget.getRootNode();
+                    if (doc instanceof ShadowRoot) {
+                        doc.getElementById("etiquete")?.scrollIntoView();
+                    }
                 }}
               >
                 <Box display={"flex"} alignContent={"center"}>
@@ -82,18 +91,16 @@ const SettingPage = () => {
                       Etiketa
                     </Typography>
                   </Box>
-                  {/*
-                                <Box alignSelf={"end"} width={1}>
-                                    <ExpandLess color={"primary"} />
-                                </Box>
-                                */}
                 </Box>
               </ListItemButton>
               <Collapse in={true}>
                 <Box marginLeft={2}>
                   <ListItemButton
-                    onClick={e => {
-                      document.getElementById("etiquete")?.scrollIntoView();
+                    onClick={event => {
+                        const doc = event.currentTarget.getRootNode();
+                        if (doc instanceof ShadowRoot) {
+                            doc.getElementById("etiquete")?.scrollIntoView();
+                        }
                     }}
                   >
                     <Typography color={"primary"} component="span">
@@ -102,8 +109,11 @@ const SettingPage = () => {
                   </ListItemButton>
 
                   <ListItemButton
-                    onClick={e => {
-                      document.getElementById("print")?.scrollIntoView();
+                    onClick={event => {
+                        const doc = event.currentTarget.getRootNode();
+                        if (doc instanceof ShadowRoot) {
+                            doc.getElementById("print")?.scrollIntoView();
+                        }
                     }}
                   >
                     <Typography color={"primary"} component="span">
@@ -113,8 +123,11 @@ const SettingPage = () => {
                 </Box>
               </Collapse>
               <ListItemButton
-                onClick={e => {
-                  document.getElementById("sync")?.scrollIntoView();
+                onClick={event => {
+                    const doc = event.currentTarget.getRootNode();
+                    if (doc instanceof ShadowRoot) {
+                        doc.getElementById("sync")?.scrollIntoView();
+                    }
                 }}
               >
                 <Typography fontWeight={"bold"} color={"primary"}>

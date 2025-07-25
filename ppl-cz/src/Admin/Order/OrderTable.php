@@ -165,11 +165,29 @@ class OrderTable {
 
             self::$jsInitTab = true;
 
+            global $submenu;
+
+            $uri = sanitize_url($_SERVER['REQUEST_URI']);
+
+            if ($submenu && !$uri || (strpos($uri, 'shop_order') === false && strpos($uri, 'wc-orders') === false))
+            {
+                $uri = admin_url('edit.php?post_type=shop_order');
+                if (isset($submenu['woocommerce']) && is_array($submenu['woocommerce']))
+                {
+                    if(array_filter($submenu['woocommerce'], function($item) {
+                        return isset($item[2]) && $item[2] === 'wc-orders';
+                    })) {
+                        $uri = admin_url('admin.php?page=wc-orders');
+                    }
+                }
+            }
+
             wc_get_template("ppl/admin/order-table-column.php", [
                 "order"=> $order,
                 "shipments" => $shipments,
                 "jsShipments" => $jsShipments,
-                "jsShipmentsOk" => $jsShipmentsOk
+                "jsShipmentsOk" => $jsShipmentsOk,
+                "wcOrderUrl" => $uri,
             ]);
         }
     }
