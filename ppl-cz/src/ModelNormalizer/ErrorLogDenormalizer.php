@@ -295,7 +295,7 @@ class ErrorLogDenormalizer implements DenormalizerInterface
         $summary = [
             "### Přístup",
             "Client ID: $client_id",
-            "Získa accessToken: {$accessToken}",
+            "Získá accessToken: {$accessToken}",
             "***",
             "### Verze",
             "Wordpress: $wordpress",
