@@ -52,7 +52,15 @@ const MyApi = () => {
       })
         .then(async x => {
           if (x.status === 400) {
-            setError("client_secret", { message: await x.json() });
+            const message = await x.json();
+
+            if (message.data.errors[""])
+              setError("client_secret", { message: message.data.errors[""] });
+            else {
+              setError("client_id", { message: message.data.errors['clientId']})
+              setError("client_secret", { message: message.data.errors["clientSecret"] });
+            }
+
           }
           else if (x.status === 204)
           {
@@ -97,7 +105,7 @@ const MyApi = () => {
               })}
             >
               <Typography component={"p"} mt={2} mb={2} color={"secondary"}>
-                Pro získání přístupových údajů, kontaktujte{" "}
+                Pro získání přístupových údajů kontaktujte{" "}
                 <a href="mailto:ithelp@ppl.cz">
                   ithelp@ppl.cz{" "}
                   <ContentCopyIcon
@@ -110,7 +118,7 @@ const MyApi = () => {
                 </a>{" "}
                 prosím.
               </Typography>
-              {success ? <Box pb={2}><Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
+              {success ? <Box pb={2}><Alert icon={<CheckIcon fontSize="inherit" />} severity="success" id="alert-success">
                 Zadané údaje jsou v pořádku
               </Alert></Box> : null}
               <Grid container alignItems={"center"}>
@@ -123,11 +131,13 @@ const MyApi = () => {
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
                       <TextField
-                        value={value}
-                        size="medium"
-                        onChange={onChange}
-                        error={!!error && error.type !== "sucess"}
-                        helperText={error?.message}
+                          id="client-id"
+                          name={"client_id"}
+                          value={value ?? ""}
+                          size="medium"
+                          onChange={onChange}
+                          error={!!error && error.type !== "sucess"}
+                          helperText={error?.message}
                       />
                     )}
                   />
@@ -141,11 +151,13 @@ const MyApi = () => {
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
                       <TextField
-                        value={value}
-                        size="medium"
-                        onChange={onChange}
-                        error={!!error}
-                        helperText={error?.message}
+                          id="client-secret"
+                          name={"client_secret"}
+                          value={value ?? ""}
+                          size="medium"
+                          onChange={onChange}
+                          error={!!error}
+                          helperText={error?.message}
                       />
                     )}
                   />

@@ -6,9 +6,9 @@ const renderForm = (nonce: string, orderId: number, shipment: ShipmentModel) => 
     const id = `#pplcz-order-panel-shipment-div-${orderId}-overlay`;
     // @ts-ignore
     const PPLczPlugin = window.PPLczPlugin = window.PPLczPlugin || [];
-    PPLczPlugin.push(["wpUpdateStyle", `pplcz-order-panel-shipment-div-${orderId}-overlay`]);
     let unmount:any = null;
     const item = jQuery("<div>").prependTo("body")[0];
+
     PPLczPlugin.push(["newShipment", item, {
         "shipment": shipment,
         "returnFunc": function(data) {
@@ -42,8 +42,9 @@ const renderForm = (nonce: string, orderId: number, shipment: ShipmentModel) => 
 
 export const form = (nonce: string, orderId:number, shipment:ShipmentModel) => {
     const id = `#pplcz-order-panel-shipment-div-${orderId}-overlay`;
-    if (shipment)
+    if (shipment) {
         renderForm(nonce, orderId, shipment);
+    }
     else {
         // @ts-ignore
         wp.ajax.post({

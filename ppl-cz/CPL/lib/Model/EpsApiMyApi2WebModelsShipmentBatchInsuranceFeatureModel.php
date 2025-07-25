@@ -186,7 +186,7 @@ class EpsApiMyApi2WebModelsShipmentBatchInsuranceFeatureModel implements ModelIn
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['insurance_price'] = $data['insurance_price'] ?? null;
         $this->container['insurance_currency'] = $data['insurance_currency'] ?? null;

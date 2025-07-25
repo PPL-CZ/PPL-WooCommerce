@@ -46,13 +46,18 @@ foreach ($shipments as $key => $shipment) {
             $batchLabelGroup = $shipment->getBatchLabelGroup();
         }
 
-        $uri = sanitize_url($_SERVER['REQUEST_URI']);
-        if ($batchLabelGroup) {
+        $uri = $wcOrderUrl ?: '';
+
+        if ($uri && $batchLabelGroup) {
             if (strpos($uri, '?') !== false) {
                 $uri .= "&pplcz_batch=" . urlencode($batchLabelGroup);
             } else {
                 $uri .= "?pplcz_batch=" . urlencode($batchLabelGroup);
             }
+        }
+        else
+        {
+            $uri .= '#';
         }
 
 

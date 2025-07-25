@@ -40,6 +40,7 @@ const SettingPrintForm = () => {
             <>
                 <SelectPrint optionals={variants ?? []}
                              value={format}
+                             name={'print'}
                              onChange={e => {
                                  setFormat(e!);
                                  const conn = baseConnectionUrl();

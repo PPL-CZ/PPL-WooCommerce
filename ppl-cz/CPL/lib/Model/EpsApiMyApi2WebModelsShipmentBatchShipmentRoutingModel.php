@@ -181,7 +181,7 @@ class EpsApiMyApi2WebModelsShipmentBatchShipmentRoutingModel implements ModelInt
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['input_route_code'] = $data['input_route_code'] ?? null;
     }

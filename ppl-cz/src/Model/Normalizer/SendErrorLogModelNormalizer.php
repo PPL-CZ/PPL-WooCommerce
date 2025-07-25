@@ -55,12 +55,47 @@ class SendErrorLogModelNormalizer implements DenormalizerInterface, NormalizerIn
         elseif (\array_key_exists('info', $data) && $data['info'] === null) {
             $object->setInfo(null);
         }
-        if (\array_key_exists('errors', $data)) {
+        if (\array_key_exists('shipmentsSetting', $data) && $data['shipmentsSetting'] !== null) {
             $values = array();
-            foreach ($data['errors'] as $value) {
-                $values[] = $this->denormalizer->denormalize($value, 'PPLCZ\\Model\\Model\\ErrorLogItemModel', 'json', $context);
+            foreach ($data['shipmentsSetting'] as $value) {
+                $values[] = $this->denormalizer->denormalize($value, 'PPLCZ\\Model\\Model\\ErrorLogShipmentSettingModel', 'json', $context);
             }
-            $object->setErrors($values);
+            $object->setShipmentsSetting($values);
+            unset($data['shipmentsSetting']);
+        }
+        elseif (\array_key_exists('shipmentsSetting', $data) && $data['shipmentsSetting'] === null) {
+            $object->setShipmentsSetting(null);
+        }
+        if (\array_key_exists('categorySetting', $data)) {
+            $values_1 = array();
+            foreach ($data['categorySetting'] as $value_1) {
+                $values_1[] = $this->denormalizer->denormalize($value_1, 'PPLCZ\\Model\\Model\\ErrorLogCategorySettingModel', 'json', $context);
+            }
+            $object->setCategorySetting($values_1);
+            unset($data['categorySetting']);
+        }
+        if (\array_key_exists('productsSetting', $data)) {
+            $values_2 = array();
+            foreach ($data['productsSetting'] as $value_2) {
+                $values_2[] = $this->denormalizer->denormalize($value_2, 'PPLCZ\\Model\\Model\\ErrorLogProductSettingModel', 'json', $context);
+            }
+            $object->setProductsSetting($values_2);
+            unset($data['productsSetting']);
+        }
+        if (\array_key_exists('orders', $data)) {
+            $values_3 = array();
+            foreach ($data['orders'] as $value_3) {
+                $values_3[] = $value_3;
+            }
+            $object->setOrders($values_3);
+            unset($data['orders']);
+        }
+        if (\array_key_exists('errors', $data)) {
+            $values_4 = array();
+            foreach ($data['errors'] as $value_4) {
+                $values_4[] = $this->denormalizer->denormalize($value_4, 'PPLCZ\\Model\\Model\\ErrorLogItemModel', 'json', $context);
+            }
+            $object->setErrors($values_4);
             unset($data['errors']);
         }
         if (\array_key_exists('message', $data) && $data['message'] !== null) {
@@ -70,9 +105,9 @@ class SendErrorLogModelNormalizer implements DenormalizerInterface, NormalizerIn
         elseif (\array_key_exists('message', $data) && $data['message'] === null) {
             $object->setMessage(null);
         }
-        foreach ($data as $key => $value_1) {
+        foreach ($data as $key => $value_5) {
             if (preg_match('/.*/', (string) $key)) {
-                $object[$key] = $value_1;
+                $object[$key] = $value_5;
             }
         }
         return $object;
@@ -89,19 +124,47 @@ class SendErrorLogModelNormalizer implements DenormalizerInterface, NormalizerIn
         if ($object->isInitialized('info') && null !== $object->getInfo()) {
             $data['info'] = $object->getInfo();
         }
-        if ($object->isInitialized('errors') && null !== $object->getErrors()) {
+        if ($object->isInitialized('shipmentsSetting') && null !== $object->getShipmentsSetting()) {
             $values = array();
-            foreach ($object->getErrors() as $value) {
+            foreach ($object->getShipmentsSetting() as $value) {
                 $values[] = $this->normalizer->normalize($value, 'json', $context);
             }
-            $data['errors'] = $values;
+            $data['shipmentsSetting'] = $values;
+        }
+        if ($object->isInitialized('categorySetting') && null !== $object->getCategorySetting()) {
+            $values_1 = array();
+            foreach ($object->getCategorySetting() as $value_1) {
+                $values_1[] = $this->normalizer->normalize($value_1, 'json', $context);
+            }
+            $data['categorySetting'] = $values_1;
+        }
+        if ($object->isInitialized('productsSetting') && null !== $object->getProductsSetting()) {
+            $values_2 = array();
+            foreach ($object->getProductsSetting() as $value_2) {
+                $values_2[] = $this->normalizer->normalize($value_2, 'json', $context);
+            }
+            $data['productsSetting'] = $values_2;
+        }
+        if ($object->isInitialized('orders') && null !== $object->getOrders()) {
+            $values_3 = array();
+            foreach ($object->getOrders() as $value_3) {
+                $values_3[] = $value_3;
+            }
+            $data['orders'] = $values_3;
+        }
+        if ($object->isInitialized('errors') && null !== $object->getErrors()) {
+            $values_4 = array();
+            foreach ($object->getErrors() as $value_4) {
+                $values_4[] = $this->normalizer->normalize($value_4, 'json', $context);
+            }
+            $data['errors'] = $values_4;
         }
         if ($object->isInitialized('message') && null !== $object->getMessage()) {
             $data['message'] = $object->getMessage();
         }
-        foreach ($object as $key => $value_1) {
+        foreach ($object as $key => $value_5) {
             if (preg_match('/.*/', (string) $key)) {
-                $data[$key] = $value_1;
+                $data[$key] = $value_5;
             }
         }
         return $data;

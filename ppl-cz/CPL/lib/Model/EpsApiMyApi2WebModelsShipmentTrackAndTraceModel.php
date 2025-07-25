@@ -191,7 +191,7 @@ class EpsApiMyApi2WebModelsShipmentTrackAndTraceModel implements ModelInterface,
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['external_shipment_id'] = $data['external_shipment_id'] ?? null;
         $this->container['partner_url'] = $data['partner_url'] ?? null;

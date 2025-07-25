@@ -81,12 +81,7 @@ class ShipmentEventApi
      * @param HeaderSelector  $selector
      * @param int             $hostIndex (Optional) host index to select the list of hosts if defined in the OpenAPI spec
      */
-    public function __construct(
-        ClientInterface $client = null,
-        Configuration $config = null,
-        HeaderSelector $selector = null,
-        $hostIndex = 0
-    ) {
+    public function __construct(?ClientInterface $client = null, ?Configuration $config = null, ?HeaderSelector $selector = null, $hostIndex = 0) {
         $this->client = $client ?: new Client();
         $this->config = $config ?: new Configuration();
         $this->headerSelector = $selector ?: new HeaderSelector();

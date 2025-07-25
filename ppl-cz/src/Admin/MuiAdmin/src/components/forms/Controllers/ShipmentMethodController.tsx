@@ -16,7 +16,7 @@ const ShipmentMethodController = <
           let message = '';
           if (typeof formState.errors?.[props.name]?.message === "string")
               message = formState.errors?.[props.name]?.message as string;
-        return <ShipmentMethodInput value={value} onChange={onChange} errors={message} />;
+        return <ShipmentMethodInput name={props.name} value={value} onChange={onChange} errors={message} />;
       }}
     />
   );

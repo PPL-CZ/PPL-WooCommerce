@@ -62,9 +62,17 @@ class LogV1RestController extends PPLRestController
         return $resp;
     }
 
-    public function get_log ()
+    public function get_log (\WP_REST_Request $request)
     {
-        $logModel = pplcz_denormalize(new ErrorLogModel(), ErrorLogModel::class);
+        $product_ids = [];
+        $order_ids = [];
+
+        if ($request->get_param("product_ids"))
+            $product_ids =array_map('intval', explode(',', $request->get_param('product_ids')));
+        if ($request->get_param('order_ids'))
+            $order_ids =array_map('intval', explode(',', $request->get_param('order_ids')));
+
+        $logModel = pplcz_denormalize(new ErrorLogModel(), ErrorLogModel::class, ["product_ids" => $product_ids, 'order_ids' => $order_ids ]);
         $logModel = pplcz_normalize($logModel);
         $respose = new \WP_REST_Response();
         $respose->header("Content-Type", "application/json");
@@ -114,9 +122,17 @@ class LogV1RestController extends PPLRestController
             return 'multipart/alternative';
         });
 
-        add_action('phpmailer_init', function($phpmailer) use ($textMessage, $logErrors) {
+        add_action('phpmailer_init', function($phpmailer) use ($textMessage, $logErrors, $inputError) {
             $phpmailer->AltBody = $textMessage;
-            $phpmailer->addStringAttachment($logErrors, "logs.txt", "base64", "text/plain");
+            $phpmailer->addStringAttachment($logErrors, "zprava_a_logy.txt", "base64", "text/plain");
+            if ($inputError->getCategorySetting())
+                $phpmailer->addStringAttachment(wp_json_encode($inputError->getCategorySetting(), JSON_PRETTY_PRINT), "nastaveni_kategorii.json", "base64", "application/json");
+            if ($inputError->getProductsSetting())
+                $phpmailer->addStringAttachment(wp_json_encode($inputError->getProductsSetting(), JSON_PRETTY_PRINT), "nastaveni_produktu.json", "base64", "application/json");
+            if ($inputError->getShipmentsSetting())
+                $phpmailer->addStringAttachment(wp_json_encode($inputError->getShipmentsSetting(), JSON_PRETTY_PRINT), "nastaveni_dopravy.json", "base64", "application/json");
+            if ($inputError->getOrders())
+                $phpmailer->addStringAttachment(wp_json_encode($inputError->getOrders(), JSON_PRETTY_PRINT), "orders.json", "base64", "application/json");
         });
 
         wp_mail("cisteam@ppl.cz", "WooCommerce plugin - nahlášení problému", $htmlMessage, $headers);

@@ -196,7 +196,7 @@ class EpsApiMyApi2WebModelsShipmentBatchCreateShipmentBatchModel implements Mode
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['return_channel'] = $data['return_channel'] ?? null;
         $this->container['label_settings'] = $data['label_settings'] ?? null;

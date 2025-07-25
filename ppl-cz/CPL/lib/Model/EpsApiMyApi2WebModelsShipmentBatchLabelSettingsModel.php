@@ -191,7 +191,7 @@ class EpsApiMyApi2WebModelsShipmentBatchLabelSettingsModel implements ModelInter
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['format'] = $data['format'] ?? null;
         $this->container['dpi'] = $data['dpi'] ?? null;

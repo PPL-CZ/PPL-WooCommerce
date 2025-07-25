@@ -22,6 +22,7 @@ if (wc()->cart && wc()->cart->get_customer()) {
 /**
  * @var \PPLCZ\Model\Model\ParcelDataModel $shipping_address
  */
+
 if (isset($shipping_address) && $shipping_address) {
     $address =  join(', ', array_filter([$shipping_address->getStreet(), join(" ", array_filter([$shipping_address->getZipCode(), $shipping_address->getCity()]))]));
     $country = $shipping_address->getCountry();
@@ -45,18 +46,21 @@ $parcelShopRequired = 0;
 $parcelBoxRequired = 0;
 ?>
 <div class="pplcz-parcelshop-inner" <?php echo ((isset($showMap) && $showMap) ? "data-pplcz-showmap='1'" : "") ?> >
-    <div class="pplcz-select-parcelshop">
-        <a href="#"
-           class="pplcz-select-parcelshop"
-           data-pplcz-select-parcel-shop=""
-           data-hidden-points="<?php echo esc_html(join(',', array_keys($parcels)));?>"
-           <?php if (!$ageOk): ?> data-pplcz-parcelshop="1" <?php endif ?>
-           data-address="<?php echo esc_html($address) ?>"
-           data-country="<?php echo esc_html($country) ?>"
-           data-countries="<?php echo esc_html(strtolower(join(',', $countries))) ?>">
-            <img src="<?php echo esc_url($image) ?>">
-        </a>
-    </div>
+            <div class="pplcz-select-parcelshop">
+                <a href="#"
+                   class="pplcz-select-parcelshop"
+                   data-pplcz-select-parcel-shop=""
+                   data-hidden-points="<?php echo esc_html(join(',', array_keys($parcels)));?>"
+                    <?php if (!$ageOk): ?> data-pplcz-parcelshop="1" <?php endif ?>
+                   data-address="<?php echo esc_html($address) ?>"
+                   data-country="<?php echo esc_html($country) ?>"
+                   data-countries="<?php echo esc_html(strtolower(join(',', $countries))) ?>"
+                   data-cod-method="<?php echo esc_html($codMethod) ?>"
+                >
+
+                    <img src="<?php echo esc_url($image) ?>">
+                </a>
+            </div>
     <div class="pplcz-selected-parcelshop">
     <?php
     if (isset($shipping_address) && $shipping_address) {
@@ -78,5 +82,6 @@ $parcelBoxRequired = 0;
         <?php endif; ?>
 
     <?php } ?>
+    </div>
     <input type="hidden" name="pplcz_parcelshop" value='<?php echo esc_html($content) ?>'>
 </div>

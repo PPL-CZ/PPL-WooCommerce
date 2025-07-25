@@ -320,9 +320,34 @@ export interface components {
       id?: number;
       trace?: string;
     };
+    ErrorLogProductSettingModel: {
+      id?: number;
+      categoryIds?: number[];
+      name?: string;
+      weight?: number | null;
+      setting?: components["schemas"]["ProductModel"];
+      parent?: number | null;
+    };
+    ErrorLogCategorySettingModel: {
+      name?: string | null;
+      id?: number;
+      setting?: components["schemas"]["CategoryModel"];
+      parent?: number | null;
+    };
+    ErrorLogShipmentSettingModel: {
+      name?: string;
+      shipmentSetting?: components["schemas"]["ShipmentMethodSettingModel"];
+      rawBasicData?: string | null;
+      rawWeightData?: string | null;
+      zones?: string;
+    };
     ErrorLogModel: {
       mail?: string | null;
       info?: string | null;
+      shipmentsSetting?: components["schemas"]["ErrorLogShipmentSettingModel"][] | null;
+      categorySetting?: components["schemas"]["ErrorLogCategorySettingModel"][];
+      productsSetting?: components["schemas"]["ErrorLogProductSettingModel"][];
+      orders?: unknown[];
       errors?: components["schemas"]["ErrorLogItemModel"][];
     };
     SendErrorLogModel: components["schemas"]["ErrorLogModel"] & ({

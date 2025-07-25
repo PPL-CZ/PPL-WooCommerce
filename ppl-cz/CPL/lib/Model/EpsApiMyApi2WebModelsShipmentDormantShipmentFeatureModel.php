@@ -186,7 +186,7 @@ class EpsApiMyApi2WebModelsShipmentDormantShipmentFeatureModel implements ModelI
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['dormant_shipment_number'] = $data['dormant_shipment_number'] ?? null;
         $this->container['dormant_shipment_number_active'] = $data['dormant_shipment_number_active'] ?? null;

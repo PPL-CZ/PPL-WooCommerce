@@ -1285,6 +1285,75 @@
                     }
                 }
             },
+            "ErrorLogProductSettingModel": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number"
+                    },
+                    "categoryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "weight":{
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "setting": {
+                        "$ref": "#/components/schemas/ProductModel"
+                    },
+                    "parent": {
+                        "nullable": true,
+                        "type": "number"
+                    }
+                }
+            },
+            "ErrorLogCategorySettingModel": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "id": {
+                        "type": "number"
+                    },
+                    "setting": {
+                        "$ref": "#/components/schemas/CategoryModel"
+                    },
+                    "parent": {
+                        "nullable": true,
+                        "type": "number"
+                    }
+                }
+            },
+            "ErrorLogShipmentSettingModel": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "shipmentSetting": {
+                        "$ref": "#/components/schemas/ShipmentMethodSettingModel"
+                    },
+                    "rawBasicData": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "rawWeightData": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "zones": {
+                        "type": "string"
+                    }
+                }
+            },
             "ErrorLogModel": {
                 "type": "object",
                 "properties": {
@@ -1295,6 +1364,29 @@
                     "info": {
                         "type": "string",
                         "nullable": true
+                    },
+                    "shipmentsSetting": {
+                        "type": "array",
+                        "nullable": true,
+                        "items": {
+                            "$ref": "#/components/schemas/ErrorLogShipmentSettingModel"
+                        }
+                    },
+                    "categorySetting": {
+                        "type": "array",
+                        "items" : {
+                            "$ref": "#/components/schemas/ErrorLogCategorySettingModel"
+                        }
+                    },
+                    "productsSetting": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ErrorLogProductSettingModel"
+                        }
+                    },
+                    "orders": {
+                        "type": "array",
+                        "additionalProperties": true
                     },
                     "errors": {
                         "type": "array",

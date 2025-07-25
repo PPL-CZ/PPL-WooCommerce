@@ -30,6 +30,7 @@ const TextFieldController = <
               type: props.type ?? "text",
             }}
             size={props.size}
+            name={props.name}
             onChange={e => {
               if (e.target.value === "") {
 

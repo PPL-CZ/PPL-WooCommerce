@@ -55,7 +55,6 @@ export const set_print_setting = (nonce: string, orderId: number, shipmentId: nu
     jQuery(id).find('button').attr("disabled", "disabled");
     // @ts-ignore
     const PPLczPlugin = window.PPLczPlugin = window.PPLczPlugin || [];
-    PPLczPlugin.push(["wpUpdateStyle", `pplcz-order-panel-shipment-div-${orderId}-overlay`]);
     let unmount:any = null;
     let render: any= null;
 
@@ -122,7 +121,6 @@ export const create_labels2 = (nonce: string, orderId: number, shipment: any) =>
     jQuery(id).find('button').attr("disabled", "disabled");
     // @ts-ignore
     const PPLczPlugin = window.PPLczPlugin = window.PPLczPlugin || [];
-    PPLczPlugin.push(["wpUpdateStyle", `pplcz-order-panel-shipment-div-${orderId}-overlay`]);
     let unmount:any = null;
     const item = jQuery("<div>").prependTo("body")[0];
 

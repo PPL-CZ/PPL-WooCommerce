@@ -30,15 +30,16 @@ class BlockOldView
 
     public static function woocommerce_checkout_update_order_review($postdata)
     {
-        self::$beforeUpdateOrderShipment = pplcz_get_cart_shipping_method();
-
         wp_parse_str($postdata, $content);
+
+        self::$beforeUpdateOrderShipment = pplcz_get_cart_shipping_method();
 
         if (self::$beforeUpdateOrderShipment) {
             self::$beforeUpdateOrderShipment = self::$beforeUpdateOrderShipment->get_method_id();
-            if (isset($content['shipping_method']) && is_array($content['shipping_method']))
-                self::$afterUpdateOrderShipment = reset($content['shipping_method']);
         }
+
+        if (isset($content['shipping_method']) && is_array($content['shipping_method']))
+            self::$afterUpdateOrderShipment = reset($content['shipping_method']);
     }
 
 
@@ -53,7 +54,9 @@ class BlockOldView
         }
     }
 
-    public static function after_shipping($inner = false)
+
+
+    public static function after_shipping($shipmentMethod = false)
     {
 
         $shippingMethod = pplcz_get_cart_shipping_method();
@@ -61,7 +64,7 @@ class BlockOldView
             return;
         }
 
-        if ($shippingMethod->get_method_id() !== $inner->get_method_id())
+        if (!$shipmentMethod || $shippingMethod->get_method_id() !== $shipmentMethod->get_method_id())
             return;
 
         /**
@@ -79,6 +82,7 @@ class BlockOldView
             wc_get_template("ppl/select-parcelshop-inner.php", [
                 "shipping_address" => $parcelshop,
                 "cod" => $cartModel->getCost() > 0 ? true: false,
+                "codMethod" => $cartModel->getCodPayment(),
                 "parcelRequired" => $cartModel->getParcelRequired(),
                 "ageRequired" => $cartModel->getAgeRequired(),
                 "mapEnabled" => $cartModel->getParcelRequired(),
@@ -92,7 +96,10 @@ class BlockOldView
                 "nonce" =>  wp_create_nonce("selectparcelshop"),
                 "showMap" => is_ajax() && !$parcelshop && self::$updateOrderReview
             ]);
+
+
         }
+
 
     }
 
@@ -115,6 +122,19 @@ class BlockOldView
                 "pplcz_label_safe" => $label,
                 "free_shipping" => floatval($method->get_cost()) == 0
             ]);
+
+
+            $activeShipment = pplcz_get_cart_shipping_method();
+            $activeId = $method->get_id();
+
+            if($activeShipment && $activeShipment->get_id() === $activeId){
+                printf("<input type='hidden' id='pplcz_cod_method' value='%s'>", esc_attr($metadata->getCodPayment()));
+            }
+
+
+
+
+
             return ob_get_clean();
 
         }

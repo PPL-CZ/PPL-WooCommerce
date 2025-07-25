@@ -167,7 +167,7 @@ class CollectionDataStore extends \WC_Data_Store_WP implements CollectionDataSto
         $filter[] = $wpdb->prepare(" send_date > %s ", $d->format("Y-m-d"));
 
         $collection = [];
-        foreach ($wpdb->get_results($wpdb->prepare("select * from {$wpdb->prefix}pplcz_collections where " . join(" AND ", $filter ). " order by send_date desc"), ARRAY_A) as $result)
+        foreach ($wpdb->get_results("select * from {$wpdb->prefix}pplcz_collections where " . join(" AND ", $filter ). " order by send_date desc", ARRAY_A) as $result)
         {
             wp_cache_add($result["ppl_collection_id"], $result, "pplcz_collection");
             $collection[] = new CollectionData($result["ppl_collection_id"]);
@@ -181,7 +181,7 @@ class CollectionDataStore extends \WC_Data_Store_WP implements CollectionDataSto
         global $wpdb;
 
         $collection = [];
-        foreach ($wpdb->get_results($wpdb->prepare("select * from {$wpdb->prefix}pplcz_collections where state is null or state = '' order by created_date"), ARRAY_A) as $result)
+        foreach ($wpdb->get_results("select * from {$wpdb->prefix}pplcz_collections where state is null or state = '' order by created_date", ARRAY_A) as $result)
         {
             wp_cache_add($result["ppl_collection_id"], $result, "pplcz_collection");
             $collection[] = new CollectionData($result["ppl_collection_id"]);
@@ -195,7 +195,7 @@ class CollectionDataStore extends \WC_Data_Store_WP implements CollectionDataSto
         global $wpdb;
         $result = null;
 
-        foreach ($wpdb->get_results($wpdb->prepare("select * from {$wpdb->prefix}pplcz_collections order by created_date desc limit 1"), ARRAY_A) as $result)
+        foreach ($wpdb->get_results("select * from {$wpdb->prefix}pplcz_collections order by created_date desc limit 1", ARRAY_A) as $result)
         {
             wp_cache_add($result["ppl_collection_id"], $result, "pplcz_collection");
 

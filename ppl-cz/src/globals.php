@@ -194,17 +194,31 @@ function pplcz_get_cart_shipping_method()
             /**
              * @var \WC_Shipping_Rate $rate
              */
-            $rate = @$shipping["rates"][$chosen_shipping_method];
+            $rate = null;
+            if ($shipping && isset($shipping['rates']) && isset($shipping['rates'][$chosen_shipping_method]))
+                $rate = $shipping["rates"][$chosen_shipping_method];
+
             if ($rate)
                 return $rate;
             // problem se zasilkovnou, proste to bez diskuzi vycisti
             $cart->calculate_shipping();
             $shipping = WC()->session->get("shipping_for_package_{$key}");
-            $rate = $shipping["rates"][$chosen_shipping_method];
+            if ($shipping && isset($shipping["rates"]) && isset($shipping["rates"][$chosen_shipping_method]))
+                $rate = $shipping["rates"][$chosen_shipping_method];
             return $rate;
         }
     }
     return null;
+}
+
+function pplcz_get_update_setting()
+{
+    return get_option(pplcz_create_name("update_setting")) ?: "";
+}
+
+function pplcz_set_update_setting()
+{
+    add_option(pplcz_create_name("update_setting"), "". time(), null, "yes") || update_option(pplcz_create_name("update_setting"), "" . time(), "yes");
 }
 
 
@@ -214,6 +228,7 @@ function pplcz_currency($params)
     {
         $params[$key]['pplcz_currency'] = get_woocommerce_currency();
         $params[$key]['pplcz_version'] = pplcz_get_version();
+        $params[$key]['pplcz_update_setting'] = pplcz_get_update_setting();
     }
     return $params;
 }
@@ -247,7 +262,7 @@ function pplcz_tables ($activate = false) {
             as_schedule_recurring_action(time(), 60 * 60 * 24, pplcz_create_name("delete_logs"));
 
             if (!$activate)
-                add_option(pplcz_create_name("version"), pplcz_get_version()) || update_option(pplcz_create_name("version"), pplcz_get_version());
+                add_option(pplcz_create_name("version"), pplcz_get_version(),null, 'yes') || update_option(pplcz_create_name("version"), pplcz_get_version(),'yes');
 
         });
     }
@@ -260,7 +275,7 @@ function pplcz_tables ($activate = false) {
         add_action("wp_loaded", function() use ($activate) {
             flush_rewrite_rules();
             if (!$activate) {
-                add_option(pplcz_create_name("rules_version"), pplcz_get_version()) || update_option(pplcz_create_name("rules_version"), pplcz_get_version());
+                add_option(pplcz_create_name("rules_version"), pplcz_get_version(), null, 'yes') || update_option(pplcz_create_name("rules_version"), pplcz_get_version(), 'yes');
             }
         });
     }

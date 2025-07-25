@@ -195,7 +195,7 @@ class EpsApiMyApi2WebModelsShipmentBatchShipmentModelDirectInjection implements 
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['direct_addressing'] = $data['direct_addressing'] ?? null;
         $this->container['gateway_zip_code'] = $data['gateway_zip_code'] ?? null;

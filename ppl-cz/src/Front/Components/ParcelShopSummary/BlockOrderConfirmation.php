@@ -95,4 +95,10 @@ class BlockOrderConfirmation extends ShippingAddress {
     public static function register() {
         add_action("wp", [self::class, "test_order"]);
     }
+
+    protected  function get_block_type_style()
+    {
+        $this->asset_api->register_style( 'wc-blocks-style-order-confirmation-shipping-address', $this->asset_api->get_block_asset_build_path( 'order-confirmation-shipping-address', 'css' ), [], 'all', true );
+        return [ 'wc-blocks-style', 'wc-blocks-style-order-confirmation-shipping-address' ];
+    }
 }

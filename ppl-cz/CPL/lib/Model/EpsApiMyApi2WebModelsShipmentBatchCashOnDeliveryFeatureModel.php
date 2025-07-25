@@ -221,7 +221,7 @@ class EpsApiMyApi2WebModelsShipmentBatchCashOnDeliveryFeatureModel implements Mo
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['iban'] = $data['iban'] ?? null;
         $this->container['swift'] = $data['swift'] ?? null;

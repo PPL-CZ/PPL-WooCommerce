@@ -21,7 +21,7 @@ class ParcelShopOperation {
     public static function old_posted_data($data)
     {
         if (!isset($_POST['pplcz_parcelshop']) ||
-            !isset($_POST['pplcz_nonce']) || !wp_verify_nonce(sanitize_key($_POST['ppl_nonce']), 'selectparcelshop'))
+            !isset($_POST['pplcz_nonce']) || !wp_verify_nonce(sanitize_key($_POST['pplcz_nonce']), 'selectparcelshop'))
             return $data;
 
         if (isset($_POST["pplcz_parcelshop"])) {

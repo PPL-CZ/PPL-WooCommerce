@@ -201,7 +201,7 @@ class EpsApiMyApi2WebModelsShipmentBatchSpecificDeliveryFeatureModel implements 
      * @param mixed[] $data Associated array of property values
      *                      initializing the model
      */
-    public function __construct(array $data = null)
+    public function __construct(?array $data = null)
     {
         $this->container['specific_delivery_date'] = $data['specific_delivery_date'] ?? null;
         $this->container['specific_delivery_time_from'] = $data['specific_delivery_time_from'] ?? null;

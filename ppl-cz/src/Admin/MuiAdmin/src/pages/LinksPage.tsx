@@ -27,7 +27,7 @@ const LinksPage = () => {
                     </Box>
                 }
             />
-            <Box justifyContent="center">
+            <Box justifyContent="center"  maxWidth={"xl"}  marginLeft={"auto"} marginRight={"auto"}>
 
                 <Card >
                     <Box m={4} maxWidth={'700px'} className={markdownClasses.markdown}>
