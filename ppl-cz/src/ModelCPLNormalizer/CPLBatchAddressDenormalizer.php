@@ -27,6 +27,7 @@ class CPLBatchAddressDenormalizer implements DenormalizerInterface
         if ($data instanceof AddressData && $type === EpsApiMyApi2WebModelsShipmentBatchRecipientAddressModel::class) {
             $recepient = new EpsApiMyApi2WebModelsShipmentBatchRecipientAddressModel();
             $recepient->setName($data->get_name());
+            $recepient->setContact($data->get_contact());
             $recepient->setPhone($data->get_phone());
             $recepient->setEmail($data->get_mail());
             $recepient->setCity($data->get_city());
