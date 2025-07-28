@@ -33,3 +33,7 @@
 - oprava uložení výdejního místa v novém košíku
 # 1.0.24
 - oprava inicializace pluginu
+# 1.0.25
+- úprava logování
+# 1.0.26
+- chybějící kontakt ve vytištěném labelu
