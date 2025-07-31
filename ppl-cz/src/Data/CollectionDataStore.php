@@ -131,17 +131,7 @@ class CollectionDataStore extends \WC_Data_Store_WP implements CollectionDataSto
             'estimated_shipment_count' => $collection->get_estimated_shipment_count()
         );
 
-        $references = $this->find_reference_for_date($data['send_date']);
-        $baseReference = date($data['send_date']);
-        $reference = $baseReference;
-        $counter = 1;
-        while (in_array($reference, $references, true))
-        {
-            $reference = "$baseReference#$counter";
-            $counter++;
-        }
-
-        $data["reference_id"] = $reference;
+        $data["reference_id"] = pplcz_simple_guid();
 
         $wpdb->insert( $wpdb->prefix . 'pplcz_collections', $data ); // WPCS: DB call ok.
 

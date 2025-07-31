@@ -6,22 +6,25 @@ use PPLCZ\Serializer;
 
 defined("WPINC") or die();
 
-function pplcz_create_name($name) {
+function pplcz_create_name($name)
+{
     return "pplcz_" . $name;
 }
 
-function pplcz_map_args() {
+function pplcz_map_args()
+{
     return PPLCZ\Front\Components\Map\Map::args();
 }
 
-function pplcz_asset_icon($name) {
+function pplcz_asset_icon($name)
+{
 
     return plugins_url("src/Admin/Assets/Images/$name", realpath(__DIR__));
 }
 
 function pplcz_set_shipment_print($shipmentId, $print)
 {
-    set_transient(pplcz_create_name("print_shipment_{$shipmentId}"),  $print, time() + 60 * 60 * 48);
+    set_transient(pplcz_create_name("print_shipment_{$shipmentId}"), $print, time() + 60 * 60 * 48);
 }
 
 function pplcz_get_shipment_print($shipmentId)
@@ -31,7 +34,7 @@ function pplcz_get_shipment_print($shipmentId)
 
 function pplcz_set_batch_print($batchId, $print)
 {
-    set_transient(pplcz_create_name("print_batch_{$batchId}"),  $print, time() + 60 * 60 * 48);
+    set_transient(pplcz_create_name("print_batch_{$batchId}"), $print, time() + 60 * 60 * 48);
 }
 
 function pplcz_get_batch_print($batchId)
@@ -54,14 +57,16 @@ function pplcz_denormalize($value, $type, $context = [])
     return Serializer::getInstance()->denormalize($value, $type, null, $context);
 }
 
-function pplcz_validate($model, $errors = null,  $path = "") {
+function pplcz_validate($model, $errors = null, $path = "")
+{
     if (!$errors)
         $errors = new WP_Error();
     \PPLCZ\Validator\Validator::getInstance()->validate($model, $errors, $path);
     return $errors;
 }
 
-function pplcz_get_parcel_countries() {
+function pplcz_get_parcel_countries()
+{
     $countries_obj = new \WC_Countries();
 
     $get_countries = $countries_obj->get_allowed_countries();
@@ -75,7 +80,8 @@ function pplcz_get_parcel_countries() {
     return $get_countries;
 }
 
-function pplcz_get_allowed_countries() {
+function pplcz_get_allowed_countries()
+{
     $countries_obj = new \WC_Countries();
 
     $get_countries = $countries_obj->get_allowed_countries();
@@ -90,7 +96,8 @@ function pplcz_get_allowed_countries() {
     return $get_countries;
 }
 
-function pplcz_get_cod_currencies() {
+function pplcz_get_cod_currencies()
+{
     $currencies = include __DIR__ . '/config/cod_currencies.php';
     return $currencies;
 }
@@ -100,43 +107,48 @@ function pplcz_set_phase_max_sync($value)
     add_option(pplcz_create_name("watch_phases_max_sync"), intval($value) ?: 200) || update_option(pplcz_create_name("watch_phases_max_sync"), intval($value) ?: 200);
 }
 
-function pplcz_get_phase_max_sync() {
+function pplcz_get_phase_max_sync()
+{
     $value = get_option(pplcz_create_name("watch_phases_max_sync"));
     return intval($value) ?: 200;
 }
 
-function pplcz_set_phase($key, $watch) {
+function pplcz_set_phase($key, $watch)
+{
     if ($watch)
         add_option(pplcz_create_name("watch_phases_{$key}"), true) || update_option(pplcz_create_name("watch_phases_{$key}"), true);
     else
         delete_option(pplcz_create_name("watch_phases_{$key}"));
 }
 
-function pplcz_get_phases() {
-    $phases = include  __DIR__ . '/config/shipment_phases.php';
-    return array_map(function ($item, $key)  {
+function pplcz_get_phases()
+{
+    $phases = include __DIR__ . '/config/shipment_phases.php';
+    return array_map(function ($item, $key) {
         $output = [
             'code' => $key,
             'title' => $item,
-            'watch' =>  !!get_option(pplcz_create_name("watch_phases_{$key}"))
+            'watch' => !!get_option(pplcz_create_name("watch_phases_{$key}"))
         ];
 
         return $output;
     }, $phases, array_keys($phases));
 }
 
-function pplcz_get_version() {
-    if( !function_exists('get_plugin_data') ){
-        require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+function pplcz_get_version()
+{
+    if (!function_exists('get_plugin_data')) {
+        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
     }
-    $pluginData = get_plugin_data( __DIR__ . '/../ppl-cz.php' );
+    $pluginData = get_plugin_data(__DIR__ . '/../ppl-cz.php');
     return $pluginData['Version'];
 }
 
 /**
  * @return ParcelDataModel|null
  */
-function pplcz_get_cart_parceldata() {
+function pplcz_get_cart_parceldata()
+{
     $rate = pplcz_get_cart_shipping_method();
     if (!$rate)
         return null;
@@ -178,12 +190,12 @@ function pplcz_get_cart_shipping_method()
         WC()->initialize_cart();
     $cart = WC()->cart;
 
-    $chosen_shipping_methods = $session->get( 'chosen_shipping_methods' );
+    $chosen_shipping_methods = $session->get('chosen_shipping_methods');
     if (!$chosen_shipping_methods)
         return null;
 
 
-    $chosen_shipping_method  = $chosen_shipping_methods[0];
+    $chosen_shipping_method = $chosen_shipping_methods[0];
 
     foreach ($chosen_shipping_methods as $key => $shipping_method) {
         $method = str_replace(pplcz_create_name(""), "", $chosen_shipping_method);
@@ -218,14 +230,13 @@ function pplcz_get_update_setting()
 
 function pplcz_set_update_setting()
 {
-    add_option(pplcz_create_name("update_setting"), "". time(), null, "yes") || update_option(pplcz_create_name("update_setting"), "" . time(), "yes");
+    add_option(pplcz_create_name("update_setting"), "" . time(), null, "yes") || update_option(pplcz_create_name("update_setting"), "" . time(), "yes");
 }
 
 
 function pplcz_currency($params)
 {
-    foreach ($params as $key => $value)
-    {
+    foreach ($params as $key => $value) {
         $params[$key]['pplcz_currency'] = get_woocommerce_currency();
         $params[$key]['pplcz_version'] = pplcz_get_version();
         $params[$key]['pplcz_update_setting'] = pplcz_get_update_setting();
@@ -233,11 +244,11 @@ function pplcz_currency($params)
     return $params;
 }
 
-function pplcz_tables ($activate = false) {
+function pplcz_tables($activate = false)
+{
     $version = get_option(pplcz_create_name("version"));
     if ($version !== pplcz_get_version()) {
-        if (!$version)
-        {
+        if (!$version) {
             foreach (pplcz_get_phases() as $phase) {
                 pplcz_set_phase($phase['code'], true);
             }
@@ -262,7 +273,7 @@ function pplcz_tables ($activate = false) {
             as_schedule_recurring_action(time(), 60 * 60 * 24, pplcz_create_name("delete_logs"));
 
             if (!$activate)
-                add_option(pplcz_create_name("version"), pplcz_get_version(),null, 'yes') || update_option(pplcz_create_name("version"), pplcz_get_version(),'yes');
+                add_option(pplcz_create_name("version"), pplcz_get_version(), null, 'yes') || update_option(pplcz_create_name("version"), pplcz_get_version(), 'yes');
 
         });
     }
@@ -270,9 +281,8 @@ function pplcz_tables ($activate = false) {
 
     $rules = get_option(pplcz_create_name("rules_version"));
 
-    if ($rules !== pplcz_get_version() || $activate)
-    {
-        add_action("wp_loaded", function() use ($activate) {
+    if ($rules !== pplcz_get_version() || $activate) {
+        add_action("wp_loaded", function () use ($activate) {
             flush_rewrite_rules();
             if (!$activate) {
                 add_option(pplcz_create_name("rules_version"), pplcz_get_version(), null, 'yes') || update_option(pplcz_create_name("rules_version"), pplcz_get_version(), 'yes');
@@ -280,8 +290,7 @@ function pplcz_tables ($activate = false) {
         });
     }
 
-    if ($activate)
-    {
+    if ($activate) {
         delete_option(pplcz_create_name("rules_version"));
         delete_option(pplcz_create_name("version"));
     }
@@ -293,8 +302,30 @@ function pplcz_woocommerce_loaded()
         WC()->initialize_session();
 }
 
+function pplcz_simple_guid()
+{
+    $site_url = get_site_url();
+    $timestamp = current_time('timestamp');
 
-function pplcz_activate () {
+    $raw_string = $site_url . '-' . $timestamp;
+
+    $hash = hash('sha256', $raw_string);
+    $time = (new \DateTime())->format("YmdHis");
+    $guid = sprintf('%s-%08s-%04s-%04s-%04s-%12s',
+        substr($time, 2),
+        substr($hash, 0, 8),
+        substr($hash, 8, 4),
+        substr($hash, 12, 4),
+        substr($hash, 16, 4),
+        substr($hash, 20, 12)
+    );
+
+    return $guid;
+}
+
+
+function pplcz_activate()
+{
     pplcz_tables(true);
 }
 
