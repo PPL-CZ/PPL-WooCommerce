@@ -289,6 +289,9 @@ class CPLOperation
                      */
                     $errors = [];
                     $responseErrors = $ex->getResponseObject()->getErrors();
+                    if ($responseErrors === null)
+                        $responseErrors = [];
+
                     foreach ($responseErrors as $errorKey =>$error )
                     {
                         $arguments = [];
@@ -301,6 +304,8 @@ class CPLOperation
 
                         }
                     }
+                    if (!$responseErrors)
+                        $errors[] = $ex->getMessage();
                     if ($errors) {
                         $errors = join("\n", $errors);
                         $shipment->set_import_errors($errors);
@@ -605,8 +610,7 @@ class CPLOperation
         $ev = new EpsApiMyApi2WebModelsOrderEventCancelOrderEventModel();
         $ev->setNote("Zrušeno na vyžádání");
         try {
-            $remoteId = $collection->get_remote_collection_id();
-            $order->orderCancelPost(null, $remoteId, null, null, null, $ev);
+            $order->orderCancelPost(null, $collection->get_reference_id(), null, null, null, $ev);
             $collection->set_state("Canceled");
             $collection->save();
         }

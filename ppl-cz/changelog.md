@@ -37,3 +37,5 @@
 - úprava logování
 # 1.0.26
 - chybějící kontakt ve vytištěném labelu
+# 1.0.27
+- zrušení svozu
