@@ -39,3 +39,6 @@
 - chybějící kontakt ve vytištěném labelu
 # 1.0.27
 - zrušení svozu
+# 1.0.28
+- uhlazení logování
+- chování smart v případě, že zona je nastavená na "všude"

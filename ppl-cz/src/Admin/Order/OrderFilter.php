@@ -85,7 +85,11 @@ class OrderFilter {
                 $q = str_replace("likeMaker", "%", $wpdb->prepare(" OR {$wpdb->prefix}posts.id in (select pplczfilter_a.wc_order_id from {$wpdb->prefix}pplcz_shipment pplczfilter_a join {$wpdb->prefix}pplcz_package pplczfilter_b on pplczfilter_b.ppl_shipment_id = pplczfilter_a.ppl_shipment_id where pplczfilter_b.shipment_number like %s )", $s . "likeMaker"));
                 $sql["where"] .= $q;
             }
-            $s = @$item->query['pplcz_batch'];
+
+            $s = null;
+            if (isset($item->query['pplcz_batch']))
+                $s = $item->query['pplcz_batch'];
+
             if ($s)
             {
                 $q = $wpdb->prepare(" AND {$wpdb->prefix}posts.id in (select pplczfilter_a.wc_order_id from {$wpdb->prefix}pplcz_shipment pplczfilter_a where pplczfilter_a.batch_label_group = %s )", $s);

@@ -65,7 +65,7 @@ const LogPage = () => {
             if (sendData?.orders)
                 data.file("objednavky.json", JSON.stringify(sendData!.orders, null, 3));
 
-            let content = message;
+            let content = note ? ("\n\n===Poznámka===\n" + note) : "";
             if (sendData)
             {
                 content += "\n\n===Info===\n" + sendData!.info;
@@ -76,6 +76,7 @@ const LogPage = () => {
                     }).join("\n\n")
                 }
             }
+
             data.file("zprava_a_logy.txt", content);
             data.generateAsync({ type: "blob"}).then((content) => {
                 const url = URL.createObjectURL(content);
@@ -102,8 +103,11 @@ const LogPage = () => {
         temporarySending = true;
 
         setSending(true);
+        const sendData2 = JSON.parse(JSON.stringify(sendData)) as SendErrorLogModel;
 
-        sendLog(sendData as SendErrorLogModel).then(x => {
+        sendData2.info = "### Poznámka\n" + note +"\n\n" + (sendData2.info || "");
+
+        sendLog(sendData2 as SendErrorLogModel).then(x => {
             if (x === null) {
                 setNote("");
                 setMessage("Úspěšný pokus o odeslání");

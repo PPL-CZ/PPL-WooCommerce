@@ -108,14 +108,25 @@ class CartModelDernomalizer implements DenormalizerInterface
              */
             $zones = \WC_Shipping_Zones::get_zones();
             $data_countries = [];
+            $data_countries_is_set = false;
             foreach ($zones as $zone)
             {
                 foreach ($zone["shipping_methods"] as $method) {
                     if ($method->instance_id == $data->instance_id)
                     {
-                        $data_countries = array_map(function ($item) { return $item->code; }, $zone["zone_locations"]);
+                        $data_countries_is_set = true;
+                        if (!$zone['zone_locations'])
+                            $data_countries = $countriesWithParcelshop;
+                        else
+                            $data_countries = array_map(function ($item) { return $item->code; }, $zone["zone_locations"]);
+                        break;
                     }
                 }
+            }
+            // není v žádné zóně
+            if (!$data_countries_is_set)
+            {
+                $data_countries = $countriesWithParcelshop;
             }
 
 
