@@ -126,16 +126,24 @@ class LogV1RestController extends PPLRestController
             $phpmailer->AltBody = $textMessage;
             $phpmailer->addStringAttachment($logErrors, "zprava_a_logy.txt", "base64", "text/plain");
             if ($inputError->getCategorySetting())
-                $phpmailer->addStringAttachment(wp_json_encode($inputError->getCategorySetting(), JSON_PRETTY_PRINT), "nastaveni_kategorii.json", "base64", "application/json");
+                $phpmailer->addStringAttachment(wp_json_encode(pplcz_normalize($inputError->getCategorySetting()), JSON_PRETTY_PRINT), "nastaveni_kategorii.json", "base64", "application/json");
             if ($inputError->getProductsSetting())
-                $phpmailer->addStringAttachment(wp_json_encode($inputError->getProductsSetting(), JSON_PRETTY_PRINT), "nastaveni_produktu.json", "base64", "application/json");
+                $phpmailer->addStringAttachment(wp_json_encode(pplcz_normalize($inputError->getProductsSetting()), JSON_PRETTY_PRINT), "nastaveni_produktu.json", "base64", "application/json");
             if ($inputError->getShipmentsSetting())
-                $phpmailer->addStringAttachment(wp_json_encode($inputError->getShipmentsSetting(), JSON_PRETTY_PRINT), "nastaveni_dopravy.json", "base64", "application/json");
+                $phpmailer->addStringAttachment(wp_json_encode(pplcz_normalize($inputError->getShipmentsSetting()), JSON_PRETTY_PRINT), "nastaveni_dopravy.json", "base64", "application/json");
             if ($inputError->getOrders())
-                $phpmailer->addStringAttachment(wp_json_encode($inputError->getOrders(), JSON_PRETTY_PRINT), "orders.json", "base64", "application/json");
+                $phpmailer->addStringAttachment(wp_json_encode(pplcz_normalize($inputError->getOrders()), JSON_PRETTY_PRINT), "orders.json", "base64", "application/json");
         });
 
-        wp_mail("cisteam@ppl.cz", "WooCommerce plugin - nahlášení problému", $htmlMessage, $headers);
+        if (!wp_mail("cisteam@ppl.cz", "WooCommerce plugin - nahlášení problému", $htmlMessage, $headers))
+        {
+            $wp_error = new \WP_Error();
+            $wp_error->errors["email"] = ["Cannot send mail to cisteam@ppl.cz"];
+
+            return new RestResponse400($wp_error);
+        }
+
+        
 
         $response = new \WP_REST_Response();
         $response->set_status(204);
