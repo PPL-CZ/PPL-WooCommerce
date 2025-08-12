@@ -115,7 +115,7 @@ class CPLOperation
             list($a, $b, $c) = explode(".", $content);
             if ($b) {
                 $b = json_decode(base64_decode($b), true);
-                if ($b["exp"] > time() - 20) {
+                if ($b["exp"] > time() - 40) {
                     return $content;
                 }
             }

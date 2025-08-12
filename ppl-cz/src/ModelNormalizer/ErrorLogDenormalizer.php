@@ -3,6 +3,8 @@ namespace PPLCZ\ModelNormalizer;
 
 use PPLCZ\Admin\CPLOperation;
 use PPLCZ\Data\LogDataStore;
+use PPLCZ\Data\ShipmentData;
+use PPLCZ\Data\ShipmentDataStore;
 use PPLCZ\Model\Model\CategoryModel;
 use PPLCZ\Model\Model\ErrorLogCategorySettingModel;
 use PPLCZ\Model\Model\ErrorLogItemModel;
@@ -11,6 +13,7 @@ use PPLCZ\Model\Model\ErrorLogProductSettingModel;
 use PPLCZ\Model\Model\ErrorLogShipmentSettingModel;
 use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingModel;
+use PPLCZ\Model\Model\ShipmentModel;
 use PPLCZ\ShipmentMethod;
 use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -112,6 +115,38 @@ class ErrorLogDenormalizer implements DenormalizerInterface
         foreach ($order->get_meta_data() as $meta) {
             $export['meta_data'][$meta->key] = $meta->value;
         }
+
+        $shipments = null;
+        try {
+            $shipments = ShipmentData::read_order_shipments($order->get_id());
+            foreach ($shipments as $k => $shipment) {
+                $shipments[$k] = pplcz_normalize(pplcz_denormalize($shipment, ShipmentModel::class));
+            }
+        } catch (\Throwable $ex)
+        {
+            $shipments = "Error with getting existing ppl shipments\n"
+                . $ex->getMessage() . "\n"
+                . $ex->getFile() . "\n"
+                . $ex->getLine();
+        }
+
+        $orderShipments = null;
+
+        try {
+            $orderShipments = pplcz_normalize(pplcz_denormalize($order, ShipmentModel::class));
+        }
+        catch (\Throwable $ex)
+        {
+            $orderShipments = "Error with creating ppl shipment from order \n"
+                . $ex->getMessage() . "\n"
+                . $ex->getFile() . "\n"
+                . $ex->getLine();
+        }
+
+        $export['pplshipments'] = [
+            "shipments" => $shipments,
+            "orderShipments" => $orderShipments
+        ];
 
         return $export;
     }

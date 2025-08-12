@@ -42,3 +42,6 @@
 # 1.0.28
 - uhlazení logování
 - chování smart v případě, že zona je nastavená na "všude"
+# 1.0.29
+- přidání informaci v ramci logu u objednávky 
+- fix výpočtu ceny dopravy
