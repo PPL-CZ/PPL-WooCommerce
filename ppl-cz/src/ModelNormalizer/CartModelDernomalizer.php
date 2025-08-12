@@ -160,35 +160,46 @@ class CartModelDernomalizer implements DenormalizerInterface
 
         if ($setting->getCostByWeight()) {
             $selectedWeightRule = null;
-            foreach ($setting->getWeights() as $weight) {
-                if (($weight->getFrom() == null || $weight->getFrom() <= $totalWeight)
-                    && ($weight->getTo() == null || $weight->getTo() > $totalWeight)) {
-                    //["EUR" => 6, "CZK" => 5]. ["CZK" => 5], 5
-                    // [] => null
-                    $weightPrice = array_filter($weight->getPrices(), function ($price) use ($currency) {
-                        return $price->getCurrency() === $currency;
-                    });
-                    $weightPrice = reset($weightPrice);
-                    if ($weightPrice && $selectedWeightPrice < $weightPrice->getPrice()) {
-                        $selectedWeightPrice = $weightPrice->getPrice() ?: 0;
-                        $shipmentCartModel->setDisabledByWeight(false);
-                        $selectedWeightRule = $weight;
+
+            $activeCurrency = array_filter($setting->getCurrencies(), function($currencies ) use ($currency) {
+                return $currencies->getCurrency() === $currency;
+            });
+
+            $activeCurrency = reset($activeCurrency);
+
+            if ($activeCurrency && $activeCurrency->getEnabled()) {
+
+                foreach ($setting->getWeights() as $weight) {
+                    if (($weight->getFrom() == null || $weight->getFrom() <= $totalWeight)
+                        && ($weight->getTo() == null || $weight->getTo() > $totalWeight)) {
+                        //["EUR" => 6, "CZK" => 5]. ["CZK" => 5], 5
+                        // [] => null
+                        $weightPrice = array_filter($weight->getPrices(), function ($price) use ($currency) {
+                            return $price->getCurrency() === $currency;
+                        });
+                        $weightPrice = reset($weightPrice);
+                        if ($weightPrice && $selectedWeightPrice < $weightPrice->getPrice()) {
+                            $selectedWeightPrice = $weightPrice->getPrice() ?: 0;
+                            $shipmentCartModel->setDisabledByWeight(false);
+                            $selectedWeightRule = $weight;
+                        }
                     }
+                }
+
+                if ($selectedWeightRule) {
+                    $shipmentCartModel->setAlzaBoxEnabled($shipmentCartModel->getAlzaBoxEnabled() && !$selectedWeightRule->getDisabledAlzaBox());
+                    $shipmentCartModel->setParcelBoxEnabled($shipmentCartModel->getParcelBoxEnabled() && !$selectedWeightRule->getDisabledParcelBox());
+                    $shipmentCartModel->setParcelShopEnabled($shipmentCartModel->getParcelShopEnabled() && !$selectedWeightRule->getDisabledParcelShop());
                 }
             }
 
-            if ($selectedWeightRule) {
-                $shipmentCartModel->setAlzaBoxEnabled($shipmentCartModel->getAlzaBoxEnabled() && !$selectedWeightRule->getDisabledAlzaBox());
-                $shipmentCartModel->setParcelBoxEnabled($shipmentCartModel->getParcelBoxEnabled() && !$selectedWeightRule->getDisabledParcelBox());
-                $shipmentCartModel->setParcelShopEnabled($shipmentCartModel->getParcelShopEnabled() && !$selectedWeightRule->getDisabledParcelShop());
-            }
         } else {
             $selectedWeightRule = array_filter($setting->getCurrencies(), function($currencies ) use ($currency) {
                 return $currencies->getCurrency() === $currency;
             });
 
             $selectedWeightRule = reset($selectedWeightRule);
-            if ($selectedWeightRule)
+            if ($selectedWeightRule && $selectedWeightRule->getEnabled())
             {
                 $shipmentCartModel->setDisabledByWeight(false);
                 /**
@@ -255,7 +266,12 @@ class CartModelDernomalizer implements DenormalizerInterface
 
         $shipmentCartModel->setIsPriceWithDph($isPriceWithDph);
 
-        if (!$maxCodPrice) {
+        if (!$maxCodPrice
+            || !isset($maxCodPrice[0])
+            || !isset($maxCodPrice[0]['max'])
+            || $maxCodPrice[0]['max'] === ''
+            || $maxCodPrice[0]['max'] === null
+            || $total >=  $maxCodPrice[0]['max']) {
             $shipmentCartModel->setDisableCod(true);
             if ($currencySetting->getCostOrderFree() != null
                 && $currencySetting->getCostOrderFree() <= $total) {

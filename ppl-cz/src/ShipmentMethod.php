@@ -107,7 +107,6 @@ class ShipmentMethod extends \WC_Shipping_Method {
     public function __construct($method_id)
     {
         parent::__construct(intval($method_id));
-        $isInstance = !!intval($method_id);
 
         $zones_shipments = wp_cache_get(pplcz_create_name("zones_shipment")) ?: [];
         if (!$zones_shipments || $method_id === (intval($method_id) . "") && !($founded = array_filter($zones_shipments, function ($item) use ($method_id) {
@@ -129,7 +128,10 @@ class ShipmentMethod extends \WC_Shipping_Method {
                     return $item->instance_id == $method_id;
                 });
             }
-            $method_id = reset($founded)->method_id;
+            $method_id = '';
+            if ($founded) {
+                $method_id = reset($founded)->method_id;
+            }
             $this->id = $method_id;
             $pplId = str_replace(pplcz_create_name(""), "", $method_id);
         } else if ($method_id) {
@@ -138,19 +140,22 @@ class ShipmentMethod extends \WC_Shipping_Method {
         } else
             throw new \Exception();
 
-        $codAvailables = self::codMethods();
-
-        $this->codAvailable = isset($codAvailables[$pplId]) ? @$codAvailables[$pplId] : false;
-        $this->parcelBoxRequired = in_array($pplId, self::parcelMethods());
+        if (!$pplId) {
+            $this->codAvailable = false;
+            $this->parcelBoxRequired = false;
+        }
+        else {
+            $codAvailables = self::codMethods();
+            $this->codAvailable = isset($codAvailables[$pplId]) ? @$codAvailables[$pplId] : false;
+            $this->parcelBoxRequired = in_array($pplId, self::parcelMethods());
+            $this->title = $this->method_title = self::methods()[$pplId];
+            $this->method_description = self::methodsDescriptions()[$pplId];
+        }
 
         $this->supports = array(
             "shipping-zones",
             "instance-settings"
         );
-
-        $this->title = $this->method_title = self::methods()[$pplId];
-        $this->method_description = self::methodsDescriptions()[$pplId];
-
     }
 
     public function get_instance_form_fields() {

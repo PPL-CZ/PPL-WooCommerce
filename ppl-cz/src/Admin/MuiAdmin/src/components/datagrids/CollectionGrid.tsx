@@ -15,7 +15,7 @@ import {useQueryClient} from "@tanstack/react-query";
 type CollectionModel = components["schemas"]["CollectionModel"];
 
 
-const MenuRow = (props: { row: CollectionModel }) => {
+const MenuRow = (props: { id: string, row: CollectionModel }) => {
     const qc = useQueryClient();
     const [show, setShow] = useState(false);
     const [progres, setProgres] = useState(false);
@@ -48,6 +48,7 @@ const MenuRow = (props: { row: CollectionModel }) => {
             {["Created", "BeforeSend"].indexOf(props.row.state || "") > -1 ? (
                 <>
                     <IconButton
+                        id={props.id}
                         onClick={e => {
                             e.stopPropagation();
                             setAnchorEl(e.currentTarget);
@@ -69,6 +70,8 @@ const MenuRow = (props: { row: CollectionModel }) => {
                             <List component="nav">
                                 {state === "BeforeSend" ? (
                                     <ListItemButton
+                                        data-collection-type={'send'}
+                                        id={'send-' + props.id}
                                         onClick={e => {
                                             updateState("PUT");
                                             setShow(false);
@@ -80,6 +83,8 @@ const MenuRow = (props: { row: CollectionModel }) => {
                                 {state === "Created" ? (
                                     <>
                                         <ListItemButton
+                                            data-collection-type={'delete'}
+                                            id={'delete-' + props.id}
                                             onClick={e => {
                                                 updateState("DELETE");
                                                 setShow(false);
@@ -159,7 +164,7 @@ const columns: GridColDef<CollectionModel>[] = [
         align: "right",
         flex: 1,
         renderCell: params => {
-            return <MenuRow row={params.row}/>;
+            return <MenuRow id={`${params.row.id}`} row={params.row}/>;
         },
     },
 ];

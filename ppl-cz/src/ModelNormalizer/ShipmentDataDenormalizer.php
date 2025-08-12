@@ -43,10 +43,13 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
              */
             $shippingMethod = reset($shippingMethods);
             $method = new ShipmentMethod($shippingMethod->get_instance_id() ?: $shippingMethod->get_method_id());
+            // kontrola!
+            if (!$method->id)
+                return [null, null, false, null];
             $code = $method->getMethodCodeByPayment($order->get_payment_method());
             $code = ShipmentMethod::methodsFor($order->get_shipping_country(), $code);
             $title = ShipmentMethod::methodsWithCod()[$code];
-            $parcel = self::getParcelDataModel($shippingMethod, true);
+            $parcel = self::getParcelDataModel($shippingMethod);
             return [$code, $title, ShipmentMethod::isMethodWithCod($code), $parcel];
         }
         return [null, null, false, null];

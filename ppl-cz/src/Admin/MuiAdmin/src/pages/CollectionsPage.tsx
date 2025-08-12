@@ -51,12 +51,9 @@ const CollectionsPage = () => {
                   <Grid item xs={12}>
                     <img src={imagePath(Balik2)} />
                   </Grid>
-
-
-                        <Grid item xs={12}>
-                        <Typography variant="body1" >Vyhledávanému výrazu neodpovídá žádná objednávka</Typography>
-                        </Grid>
-
+                  <Grid item xs={12}>
+                    <Typography variant="body1" >Vyhledávanému výrazu neodpovídá žádná objednávka</Typography>
+                  </Grid>
                   <Grid item xs={12}>
                     <Link
                       href="#"
