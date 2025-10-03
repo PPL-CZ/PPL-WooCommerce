@@ -45,3 +45,5 @@
 # 1.0.29
 - přidání informaci v ramci logu u objednávky 
 - fix výpočtu ceny dopravy
+# 1.0.30
+- fix zobrazení tlačítka objednání svozu
