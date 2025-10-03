@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.js": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/js/main.49200d6a.js",
+    "main.js": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/js/main.ae633b51.js",
     "static/js/159.a6e6aa2d.chunk.js": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/js/159.a6e6aa2d.chunk.js",
-    "static/media/logo.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/logo.05efc4d2556fa35b942b1538cdbb8e73.svg",
+    "static/media/logo.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/logo.0c335e234052f857ddc1ab5e1d10cd31.svg",
     "static/media/list.png": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/list.fd5b993649c2e496f95a.png",
-    "static/media/balik.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/balik.49218a25adb9f4a1919f07077c2cce07.svg",
-    "static/media/balik2.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/balik2.aa5fa14b92019a8e38da35cf0205c37c.svg",
+    "static/media/balik.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/balik.5a97b7a07361fd729f6fbff0f29c2cea.svg",
     "static/media/github.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/github.056d01e47d2ce5af10d578bb89bf8004.svg",
+    "static/media/balik2.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/balik2.e4fa0eaafb5f2230e12856158d869672.svg",
     "index.html": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/index.html",
     "static/media/dokument.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/dokument.81fad61426563a4a247409c3694a6a01.svg",
     "static/media/facebook.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/facebook.a9c070b3c94422d4343ed915586802d6.svg",
-    "static/media/back.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/back.8a2963772fdead7a8b420c2cb11cdbec.svg",
-    "main.49200d6a.js.map": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/js/main.49200d6a.js.map",
+    "static/media/back.svg": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/media/back.43b5034ec12a50a3129ed331d5cf92c7.svg",
+    "main.ae633b51.js.map": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/js/main.ae633b51.js.map",
     "159.a6e6aa2d.chunk.js.map": "/wp-content/plugins/ppl-cz/src/Admin/MuiAdmin/build/static/js/159.a6e6aa2d.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/main.49200d6a.js"
+    "static/js/main.ae633b51.js"
   ]
 }

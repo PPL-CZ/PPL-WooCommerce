@@ -48,6 +48,16 @@ class OrderFilter {
         ]);
     }
 
+    public static function filters_old()
+    {
+        global $typenow;
+
+        if ( $typenow === 'shop_order' ) {
+            // Jsme na stránce seznamu objednávek
+            static::filters();
+        }
+    }
+
     public static function woocommerce_query_vars($query_vars)
     {
         $query_vars['pplcz_batch'] = sanitize_text_field(wp_unslash(isset($_REQUEST['pplcz_batch']) ? $_REQUEST['pplcz_batch'] : '' ));
@@ -201,7 +211,7 @@ class OrderFilter {
         add_action("admin_notices", [self::class, "admin_notices"]);
 
         add_action( 'woocommerce_order_list_table_extra_tablenav', [self::class, 'filters'], 10, 2 );
-        add_action('manage_posts_extra_tablenav', [self::class, "filters"], 10, 2);
+        add_action('manage_posts_extra_tablenav', [self::class, "filters_old"], 10, 2);
 
         add_action("woocommerce_admin_order_preview_end", [self::class, "preview_end"], 10, 2);
         add_filter("woocommerce_admin_order_preview_get_order_details", [self::class, "order_detail"], 10, 2);
