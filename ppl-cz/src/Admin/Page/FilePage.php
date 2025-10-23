@@ -19,12 +19,13 @@ class FilePage {
 <?php
     }
 
-    public static function createUrl($download, $reference = null, $print = null )
+    public static function createUrl($remote_batch, $shipment = null, $package = null, $print = null )
     {
         $vars = array_map('urlencode', array_filter(array(
             "page" => self::SLUG,
-            "pplcz_download" => $download,
-            "pplcz_reference" => $reference,
+            "pplcz_remote_batch" => $remote_batch,
+            "pplcz_shipment" => $shipment,
+            "pplcz_package" => $package,
             "pplcz_print" => $print
         )));
 
@@ -38,39 +39,26 @@ class FilePage {
     public static function page_hook()
     {
         $vars = array(
-            "pplcz_download" => null,
-            "pplcz_reference" => null,
+            "pplcz_remote_batch"=> null,
+            "pplcz_shipment" => null,
+            "pplcz_package" => null,
             "pplcz_print" => null
         );
 
-        if (isset($_GET['pplcz_download']))
-            $vars['pplcz_download'] = wp_strip_all_tags($_GET['pplcz_download']);
-        if (isset($_GET['pplcz_reference']))
-            $vars['pplcz_reference'] = wp_strip_all_tags($_GET['pplcz_reference']);
+        if (isset($_GET['pplcz_remote_batch']))
+            $vars['pplcz_remote_batch'] = wp_strip_all_tags($_GET['pplcz_remote_batch']);
+        if (isset($_GET['pplcz_shipment']))
+            $vars['pplcz_shipment'] = wp_strip_all_tags($_GET['pplcz_shipment']);
+        if (isset($_GET['pplcz_package']))
+            $vars['pplcz_package'] = wp_strip_all_tags($_GET['pplcz_package']);
+
         if (isset($_GET['pplcz_print']))
             $vars['pplcz_print'] = wp_strip_all_tags($_GET['pplcz_print']);
 
-        if (isset($vars['pplcz_download']) && $vars['pplcz_download']) {
-
-            $shipmentId = $vars['pplcz_download'];
+        if (isset($vars['pplcz_remote_batch']) && $vars['pplcz_remote_batch']) {
+            $downloadLabel = new \PPLCZ\Admin\CPLOperation();
             try {
-                if (is_numeric($shipmentId)) {
-                    $downloadLabel = new \PPLCZ\Admin\CPLOperation();
-                    $packageData = new PackageData($shipmentId);
-                    if (!$packageData->get_id())
-                        wp_die(esc_html__('Soubor nebyl nalezen.', 'ppl-cz'));
-                    $shipmentId = $packageData->get_ppl_shipment_id();
-                    $shipmentData = new ShipmentData($shipmentId);
-                    $downloadLabel->getLabelContents($shipmentData->get_batch_id(), $shipmentData->get_reference_id(), $packageData->get_shipment_number(), $vars['pplcz_print']);
-                } else if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $shipmentId)) {
-                    $reference = $vars['pplcz_reference'];
-                    $finded = ShipmentData::read_shipments(["batch_label_group" => [$shipmentId]]);
-                    if ($finded) {
-                        $batch_id = $finded[0]->get_batch_id();
-                        $operation = new \PPLCZ\Admin\CPLOperation();
-                        $operation->getLabelContents($batch_id, $reference, null, $vars['pplcz_print']);
-                    }
-                }
+                $downloadLabel->getLabelContents($vars['pplcz_remote_batch'], $vars['pplcz_shipment'],  $vars['pplcz_package'], $vars['pplcz_print']);
             }
             catch (\Exception $exception)
             {

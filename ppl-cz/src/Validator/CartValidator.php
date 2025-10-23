@@ -4,6 +4,7 @@ namespace PPLCZ\Validator;
 use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\CartModel;
 use PPLCZ\Serializer;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 use PPLCZ\Traits\ParcelDataModelTrait;
 
@@ -31,7 +32,7 @@ class CartValidator extends ModelValidator {
         /**
          * @var CartModel $data
          */
-        $data = Serializer::getInstance()->denormalize($shippingMethod->get_meta_data(), CartModel::class);
+        $data = pplcz_denormalize($shippingMethod->get_meta_data(), CartModel::class);
 
 
         $parcel = pplcz_get_cart_parceldata();
@@ -106,7 +107,7 @@ class CartValidator extends ModelValidator {
             $methodid = str_replace(pplcz_create_name(""), "", $methodid);
         }
 
-        $methodid = ShipmentMethod::methodsFor($cart->get_customer()->get_shipping_country(), $methodid);
+        $methodid = MethodSetting::getMethodForCountry($cart->get_customer()->get_shipping_country(), $methodid);
 
         if (in_array($methodid, ["SMAR", "SMAD"], true)) {
             foreach ($cart->get_cart() as $key => $val) {

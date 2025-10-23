@@ -1,6 +1,6 @@
 import {addPackage, cancelPackage, removePackage, removeShipment} from "./changePackages";
 import {form} from "./form";
-import {create_labels, create_labels2, test_labels, set_print_setting} from "./labels";
+import {create_labels, create_labels2, test_labels, set_print_setting, create_labels_add} from "./labels";
 
 export const panel = (element) => {
 
@@ -64,6 +64,13 @@ export const panel = (element) => {
         e.preventDefault();
         const {orderid: orderId, shipment } = jQuery(e.currentTarget).data();
         create_labels2(nonce, orderId, shipment);
+    });
+
+    jQuery(`${id} .create-labels-add`).on('click.pplcz-events', function(e) {
+        e.preventDefault();
+        const {orderid: orderId, shipment } = jQuery(e.currentTarget).data();
+        create_labels_add(nonce, orderId, shipment)
+
     });
 
     jQuery(`${id} .remove-shipment`).on('click.pplcz-events', (e)=> {

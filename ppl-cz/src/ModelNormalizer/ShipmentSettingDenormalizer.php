@@ -2,11 +2,13 @@
 namespace PPLCZ\ModelNormalizer;
 
 
+use PPLCZ\Model\Model\ShipmentMethodModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingCurrencyModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingPriceRuleModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingWeightModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingWeightRuleModel;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -23,8 +25,18 @@ class ShipmentSettingDenormalizer implements DenormalizerInterface
              * @var ShipmentMethod $data
              */
             $shipment = new ShipmentMethodSettingModel();
-            $shipment->setCode($data->id);
-            $shipment->setParcelBoxes($data->parcelBoxRequired);
+
+            $shipment->setCode(str_replace(pplcz_create_name(""), '', $data->id));
+            $method = array_filter(MethodSetting::getMethods(), function($item) use($shipment) {
+                return $item->getCode() === $shipment->getCode();
+            });
+            /**
+             * @var ShipmentMethodModel $method
+             */
+            $method = reset($method);
+
+            $parcelBoxesRequired = $method ? $method->getParcelRequired() : false;
+            $shipment->setParcelBoxes($parcelBoxesRequired);
 
             $formFields = array_reduce(array_keys($data->get_instance_form_fields()), function($sum, $key) use ($data) {
                 $sum[$key] = @$data->get_instance_option($key);
@@ -38,12 +50,12 @@ class ShipmentSettingDenormalizer implements DenormalizerInterface
             $shipment->setDisablePayments($formFields['disablePayments'] ?: []);
             $shipment->setCostByWeight($formFields["cost_by_weight"] === 'yes' );
 
-            $shipment->setDisabledAlzaBox(!$data->parcelBoxRequired || $formFields["disabledAlzaBox"] === 'yes' );
-            $shipment->setDisabledParcelBox(!$data->parcelBoxRequired || $formFields["disabledParcelBox"] === 'yes' );
-            $shipment->setDisabledParcelShop(!$data->parcelBoxRequired || $formFields["disabledParcelShop"] === 'yes' );
+            $shipment->setDisabledAlzaBox(!$parcelBoxesRequired || $formFields["disabledAlzaBox"] === 'yes' );
+            $shipment->setDisabledParcelBox(!$parcelBoxesRequired || $formFields["disabledParcelBox"] === 'yes' );
+            $shipment->setDisabledParcelShop(!$parcelBoxesRequired || $formFields["disabledParcelShop"] === 'yes' );
 
 
-            if ($data->parcelBoxRequired)
+            if ($parcelBoxesRequired)
                 $savedDisabledParcel = isset($formFields['disabledParcelCountries']) ? $formFields['disabledParcelCountries'] : [];
             else
                 $savedDisabledParcel = [];

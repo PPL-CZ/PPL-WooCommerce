@@ -83,7 +83,13 @@ class ShipmentModel extends \ArrayObject
      *
      * @var string|null
      */
-    protected $batchLabelGroup;
+    protected $batchId;
+    /**
+     * 
+     *
+     * @var string|null
+     */
+    protected $batchRemoteId;
     /**
      * 
      *
@@ -385,21 +391,43 @@ class ShipmentModel extends \ArrayObject
      *
      * @return string|null
      */
-    public function getBatchLabelGroup() : ?string
+    public function getBatchId() : ?string
     {
-        return $this->batchLabelGroup;
+        return $this->batchId;
     }
     /**
      * 
      *
-     * @param string|null $batchLabelGroup
+     * @param string|null $batchId
      *
      * @return self
      */
-    public function setBatchLabelGroup(?string $batchLabelGroup) : self
+    public function setBatchId(?string $batchId) : self
     {
-        $this->initialized['batchLabelGroup'] = true;
-        $this->batchLabelGroup = $batchLabelGroup;
+        $this->initialized['batchId'] = true;
+        $this->batchId = $batchId;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string|null
+     */
+    public function getBatchRemoteId() : ?string
+    {
+        return $this->batchRemoteId;
+    }
+    /**
+     * 
+     *
+     * @param string|null $batchRemoteId
+     *
+     * @return self
+     */
+    public function setBatchRemoteId(?string $batchRemoteId) : self
+    {
+        $this->initialized['batchRemoteId'] = true;
+        $this->batchRemoteId = $batchRemoteId;
         return $this;
     }
     /**

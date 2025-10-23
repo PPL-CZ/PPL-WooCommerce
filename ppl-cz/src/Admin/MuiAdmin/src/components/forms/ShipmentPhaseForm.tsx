@@ -13,12 +13,13 @@ import { components } from "../../schema";
 import { useQueryShipmentStates } from "../../queries/settings";
 import { Skeleton } from "@mui/material";
 import { useEffect, useState } from "react";
-import { baseConnectionUrl } from "../../connection";
+import { useUpdateShipmentPhasesMutation } from "../../queries/useShipmentQueries";
 
 type UpdateSyncPhasesModel = components["schemas"]["UpdateSyncPhasesModel"];
 
 const Check = (props: { name: string; label: string; checked: boolean }) => {
   const [checked, setChecked] = useState(() => props.checked);
+  const { mutateAsync } = useUpdateShipmentPhasesMutation();
 
   return (
     <FormControlLabel
@@ -28,21 +29,13 @@ const Check = (props: { name: string; label: string; checked: boolean }) => {
           checked={checked}
           onChange={e => {
             setChecked(!checked);
-            const { nonce, url } = baseConnectionUrl();
-            fetch(`${url}/ppl-cz/v1/setting/shipment-phases`, {
-              method: "PUT",
-              headers: {
-                "X-WP-Nonce": nonce,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                phases: [
-                  {
-                    code: props.name,
-                    watch: !checked,
-                  },
-                ],
-              }),
+            mutateAsync({
+              phases: [
+                {
+                  code: props.name,
+                  watch: !checked,
+                },
+              ],
             });
           }}
         />
@@ -54,8 +47,8 @@ const Check = (props: { name: string; label: string; checked: boolean }) => {
 
 const ShipmentPhaseForm = () => {
   const { control, resetField, getValues } = useForm<UpdateSyncPhasesModel>();
-
   const { data, isLoading } = useQueryShipmentStates();
+  const { mutateAsync } = useUpdateShipmentPhasesMutation();
 
   useEffect(() => {
     if (data)
@@ -90,17 +83,7 @@ const ShipmentPhaseForm = () => {
                   onBlur={e => {
                     const maxSync = getValues("maxSync");
                     if (maxSync) {
-                      const { nonce, url } = baseConnectionUrl();
-                      fetch(`${url}/ppl-cz/v1/setting/shipment-phases`, {
-                        method: "PUT",
-                        headers: {
-                          "X-WP-Nonce": nonce,
-                          "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                          maxSync,
-                        }),
-                      });
+                      mutateAsync({ maxSync });
                     }
                   }}
                   InputProps={{

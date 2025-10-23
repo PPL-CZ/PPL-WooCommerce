@@ -4,13 +4,13 @@ namespace PPLCZ\ModelNormalizer;
 
 defined("WPINC") or die();
 
+use PPLCZ\Model\Model\ShipmentMethodModel;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use PPLCZ\Data\AddressData;
-use PPLCZ\Data\CodBankAccountData;
 use PPLCZ\Data\PackageData;
 use PPLCZ\Data\ParcelData;
 use PPLCZ\Data\ShipmentData;
-use PPLCZ\Model\Model\BankAccountModel;
 use PPLCZ\Model\Model\PackageModel;
 use PPLCZ\Model\Model\ParcelAddressModel;
 use PPLCZ\Model\Model\ParcelDataModel;
@@ -18,7 +18,6 @@ use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\RecipientAddressModel;
 use PPLCZ\Model\Model\SenderAddressModel;
 use PPLCZ\Model\Model\ShipmentModel;
-use PPLCZ\Model\Model\UpdateShipmentBankAccountModel;
 use PPLCZ\Model\Model\UpdateShipmentModel;
 use PPLCZ\Model\Model\UpdateShipmentSenderModel;
 use PPLCZ\ShipmentMethod;
@@ -45,14 +44,38 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
             $method = new ShipmentMethod($shippingMethod->get_instance_id() ?: $shippingMethod->get_method_id());
             // kontrola!
             if (!$method->id)
-                return [null, null, false, null];
-            $code = $method->getMethodCodeByPayment($order->get_payment_method());
-            $code = ShipmentMethod::methodsFor($order->get_shipping_country(), $code);
-            $title = ShipmentMethod::methodsWithCod()[$code];
-            $parcel = self::getParcelDataModel($shippingMethod);
-            return [$code, $title, ShipmentMethod::isMethodWithCod($code), $parcel];
+                return [null, null, false, false];
+
+            $code = str_replace(pplcz_create_name(''), '',$method->id);
+
+            $method2 = MethodSetting::getMethod($code);
+
+            if (!$method2)
+                return [null, null, false, false];
+
+            $code = MethodSetting::getMethodForCountry($order->get_shipping_country(), $code);
+
+            if (!$code)
+                return [null, null, false, false];
+
+            $method2 = MethodSetting::getMethod($code);
+
+            $isCOD = $method->isCOD($order->get_payment_method());
+
+            if ($isCOD)
+            {
+               $code = MethodSetting::getCodMethods($method2->getCode());
+            }
+            if (!$code)
+                return [null, null, false, false];
+
+            if ($code !== $method2->getCode()) {
+                $method2 = MethodSetting::getMethod($code);
+            }
+
+            return [$code, $method2->getTitle(), $method2->getCodAvailable(), $method2->getParcelRequired()];
         }
-        return [null, null, false, null];
+        return [null, null, false, false];
     }
 
     private function ShipmentDataToModel(ShipmentData $data, array $context = [])
@@ -81,9 +104,11 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
         if ($data->get_service_name())
             $shipmentModel->setServiceName($data->get_service_name());
 
-        if ($data->get_batch_label_group())
-            $shipmentModel->setBatchLabelGroup($data->get_batch_label_group());
+        if ($data->get_batch_id())
+            $shipmentModel->setBatchRemoteId($data->get_batch_id());
 
+        if ($data->get_batch_local_id())
+            $shipmentModel->setBatchId($data->get_batch_local_id());
 
         if($data->get_cod_value())
             $shipmentModel->setCodValue($data->get_cod_value());
@@ -199,29 +224,31 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
         $shipmentModel->setRecipient(Serializer::getInstance()->denormalize($data, RecipientAddressModel::class));
 
         if ($parcel) {
-
-            /**
-             * @var ParcelDataModel $parcel
-             */
-            $code = $parcel->getCode();
-            $founded = ParcelData::getAccessPointByCode($code);
-            if (!$founded) {
-                $founded = new ParcelData();
-                $founded->set_country($parcel->getCountry());
-                $founded->set_code($parcel->getCode());
-                $founded->set_zip($parcel->getZipCode());
-                $founded->set_city($parcel->getCity());
-                $founded->set_type($parcel->getAccessPointType());
-                $founded->set_street($parcel->getStreet());
-                $founded->set_name($parcel->getName());
-                $founded->set_lat($parcel->getGps()->getLatitude());
-                $founded->set_lng($parcel->getGps()->getLongitude());
-                $founded->set_valid(false);
-                $founded->save();
+            $parcel = self::getParcelshopOrderData($data);
+            if ($parcel) {
+                /**
+                 * @var ParcelDataModel $parcel
+                 */
+                $code = $parcel->getCode();
+                $founded = ParcelData::getAccessPointByCode($code);
+                if (!$founded) {
+                    $founded = new ParcelData();
+                    $founded->set_country($parcel->getCountry());
+                    $founded->set_code($parcel->getCode());
+                    $founded->set_zip($parcel->getZipCode());
+                    $founded->set_city($parcel->getCity());
+                    $founded->set_type($parcel->getAccessPointType());
+                    $founded->set_street($parcel->getStreet());
+                    $founded->set_name($parcel->getName());
+                    $founded->set_lat($parcel->getGps()->getLatitude());
+                    $founded->set_lng($parcel->getGps()->getLongitude());
+                    $founded->set_valid(false);
+                    $founded->save();
+                }
+                $founded = Serializer::getInstance()->denormalize($founded, ParcelAddressModel::class);
+                $shipmentModel->setParcel($founded);
+                $shipmentModel->setHasParcel(true);
             }
-            $founded = Serializer::getInstance()->denormalize($founded, ParcelAddressModel::class);
-            $shipmentModel->setParcel($founded);
-            $shipmentModel->setHasParcel(true);
         }
 
         $shipmentModel->setAge("");
@@ -287,29 +314,26 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
         if ($model->isInitialized("serviceCode")) {
             $shipmentData->set_service_code($model->getServiceCode());
             $serviceCode = $model->getServiceCode();
-            $shipmentData->set_service_name(ShipmentMethod::methodsWithCod()[$serviceCode]);
 
-            if (ShipmentMethod::isMethodWithCod($serviceCode)) {
+            $method = MethodSetting::getMethod($serviceCode);
+
+            $shipmentData->set_service_name($method->getTitle());
+
+            if ($method->getCodAvailable()) {
                 if ($model->isInitialized("codVariableNumber"))
                     $shipmentData->set_cod_variable_number($model->getCodVariableNumber());
                 if ($model->isInitialized("codValue"))
                     $shipmentData->set_cod_value($model->getCodValue());
                 if ($model->isInitialized("codValueCurrency"))
                     $shipmentData->set_cod_value_currency($model->getCodValueCurrency());
-                /*
-                $bankAccount = $model->getCodBankAccount();
-                if ($bankAccount) {
-                    $shipmentData->set_cod_bank_account_id($bankAccount->getId());
-                }
-                */
+
             } else {
                 $shipmentData->set_cod_variable_number(null);
                 $shipmentData->set_cod_value(null);
-                $shipmentData->set_cod_bank_account_id(null);
                 $shipmentData->set_cod_value_currency(null);
             }
 
-            if (ShipmentMethod::isMethodWithParcel($serviceCode)) {
+            if ($method->getParcelRequired()) {
                 if ($model->isInitialized("hasParcel") && $model->getHasParcel()) {
                     $shipmentData->set_has_parcel(true);
                     if ($model->isInitialized("parcel"))
@@ -399,28 +423,27 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
         {
             $shipmentData->set_service_code($model->getServiceCode());
             $serviceCode = $model->getServiceCode();
-            $shipmentData->set_service_name(ShipmentMethod::methodsWithCod()[$serviceCode]);
 
-            if (ShipmentMethod::isMethodWithCod($serviceCode)) {
+            $method = MethodSetting::getMethod($serviceCode);
+
+            $shipmentData->set_service_name($method->getTitle());
+
+            if ($method->getCodAvailable()) {
                 if ($model->isInitialized("codVariableNumber"))
                     $shipmentData->set_cod_variable_number($model->getCodVariableNumber());
                 if ($model->isInitialized("codValue"))
                     $shipmentData->set_cod_value($model->getCodValue());
                 if ($model->isInitialized("codValueCurrency"))
                     $shipmentData->set_cod_value_currency($model->getCodValueCurrency());
-                /*
-                if ($model->isInitialized("codBankAccountId"))
-                    $shipmentData->set_cod_bank_account_id($model->getCodBankAccountId());
-                */
+
             }
             else {
                 $shipmentData->set_cod_variable_number(null);
                 $shipmentData->set_cod_value(null);
-                $shipmentData->set_cod_bank_account_id(null);
                 $shipmentData->set_cod_value_currency(null);
             }
 
-            if (ShipmentMethod::isMethodWithParcel($serviceCode)) {
+            if ($method->getParcelRequired()) {
                 if ($model->isInitialized("hasParcel") && $model->getHasParcel())
                 {
                     $shipmentData->set_has_parcel(true);
@@ -511,17 +534,9 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
          */
         if (!isset($context["data"]))
             throw new \Exception("Undefined shipment");
-        $shipment = $context["data"];
-        $serviceCode = $shipment->get_service_code();
-        if (ShipmentMethod::isMethodWithCod($serviceCode)) {
-            if ($sender->isInitialized("bankAccountId")) {
-                $shipment->set_sender_address_id($sender->getBankAccountId());
-            }
-        }
-        else
-        {
-            $shipment->set_cod_bank_account_id(null);
-        }
+
+
+
         return $shipment;
     }
 
@@ -560,10 +575,6 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
         else if($data instanceof UpdateShipmentSenderModel && $type === ShipmentData::class)
         {
             return $this->UpdateShipmentSenderToData($data, $context);
-        }
-        else if($data instanceof UpdateShipmentBankAccountModel && $type === ShipmentData::class)
-        {
-            return $this->UpdateBankAccountToData($data, $context);
         }
         else if ($data instanceof RecipientAddressModel && $type === ShipmentData::class)
         {

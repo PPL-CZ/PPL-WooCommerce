@@ -10,6 +10,7 @@ use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingCurrencyModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingModel;
 use PPLCZ\Serializer;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\Validator\CartValidator;
 use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use PPLCZ\Front\Validator\ParcelShopValidator;
@@ -47,17 +48,14 @@ class CartModelDernomalizer implements DenormalizerInterface
 
         $currencySetting = null;
 
-        if ($setting->getCurrencies())
-        {
-            $currencySetting = array_filter($setting->getCurrencies(), function ($item) use ($currency)
-            {
-               return $item->getCurrency() ===  $currency;
+        if ($setting->getCurrencies()) {
+            $currencySetting = array_filter($setting->getCurrencies(), function ($item) use ($currency) {
+                return $item->getCurrency() === $currency;
             });
             $currencySetting = reset($currencySetting);
         }
 
-        if ($currencySetting == null)
-        {
+        if ($currencySetting == null) {
             $currencySetting = new ShipmentMethodSettingCurrencyModel();
             $currencySetting->setCurrency($currency);
             $currencySetting->setEnabled(false);
@@ -74,9 +72,11 @@ class CartModelDernomalizer implements DenormalizerInterface
         $shipmentCartModel->setAgeRequired(false);
         $shipmentCartModel->setDisabledByRules(false);
 
-        $disabledParcelBox = !!get_option(pplcz_create_name("disabled_parcelbox"));
-        $disabledParcelShop = !!get_option(pplcz_create_name("disabled_parcelshop"));
-        $disabledAlzaBox = !!get_option(pplcz_create_name("disabled_alzabox"));
+        $parcelPlacesSetting = MethodSetting::getGlobalParcelboxesSetting();
+
+        $disabledParcelBox = $parcelPlacesSetting->getDisabledParcelBox();
+        $disabledParcelShop = $parcelPlacesSetting->getDisabledParcelShop();
+        $disabledAlzaBox = $parcelPlacesSetting->getDisabledAlzaBox();
 
 
         if ($setting->getParcelBoxes()) {
@@ -98,7 +98,7 @@ class CartModelDernomalizer implements DenormalizerInterface
 
             // ziskani nepovelnych zemi s nastaveni dopravy a zakladniho nastaveni
             $disabledCountriesFromShipmentSetting = $setting->getDisabledParcelCountries() ?? [];
-            $disabledCountriesFromBaseSetting = get_option(pplcz_create_name("disabled_parcel_countries"));
+            $disabledCountriesFromBaseSetting = $parcelPlacesSetting->getDisabledCountries();
             if (!is_array($disabledCountriesFromBaseSetting))
                 $disabledCountriesFromBaseSetting = [];
             $disabledCountries = array_merge($disabledCountriesFromBaseSetting, $disabledCountriesFromShipmentSetting);
@@ -109,23 +109,22 @@ class CartModelDernomalizer implements DenormalizerInterface
             $zones = \WC_Shipping_Zones::get_zones();
             $data_countries = [];
             $data_countries_is_set = false;
-            foreach ($zones as $zone)
-            {
+            foreach ($zones as $zone) {
                 foreach ($zone["shipping_methods"] as $method) {
-                    if ($method->instance_id == $data->instance_id)
-                    {
+                    if ($method->instance_id == $data->instance_id) {
                         $data_countries_is_set = true;
                         if (!$zone['zone_locations'])
                             $data_countries = $countriesWithParcelshop;
                         else
-                            $data_countries = array_map(function ($item) { return $item->code; }, $zone["zone_locations"]);
+                            $data_countries = array_map(function ($item) {
+                                return $item->code;
+                            }, $zone["zone_locations"]);
                         break;
                     }
                 }
             }
             // není v žádné zóně
-            if (!$data_countries_is_set)
-            {
+            if (!$data_countries_is_set) {
                 $data_countries = $countriesWithParcelshop;
             }
 
@@ -144,8 +143,7 @@ class CartModelDernomalizer implements DenormalizerInterface
             $shipmentCartModel->setAlzaBoxEnabled($enabledByCountry && !$disabledAlzaBox && !$setting->getDisabledAlzaBox());
             $shipmentCartModel->setDisabledByCountry(!$enabledByCountry);
 
-        }
-        else {
+        } else {
             $shipmentCartModel->setDisabledByCountry(false);
             $shipmentCartModel->setParcelBoxEnabled(false);
             $shipmentCartModel->setParcelShopEnabled(false);
@@ -161,7 +159,7 @@ class CartModelDernomalizer implements DenormalizerInterface
         if ($setting->getCostByWeight()) {
             $selectedWeightRule = null;
 
-            $activeCurrency = array_filter($setting->getCurrencies(), function($currencies ) use ($currency) {
+            $activeCurrency = array_filter($setting->getCurrencies(), function ($currencies) use ($currency) {
                 return $currencies->getCurrency() === $currency;
             });
 
@@ -194,43 +192,39 @@ class CartModelDernomalizer implements DenormalizerInterface
             }
 
         } else {
-            $selectedWeightRule = array_filter($setting->getCurrencies(), function($currencies ) use ($currency) {
+            $selectedWeightRule = array_filter($setting->getCurrencies(), function ($currencies) use ($currency) {
                 return $currencies->getCurrency() === $currency;
             });
 
             $selectedWeightRule = reset($selectedWeightRule);
-            if ($selectedWeightRule && $selectedWeightRule->getEnabled())
-            {
+            if ($selectedWeightRule && $selectedWeightRule->getEnabled()) {
                 $shipmentCartModel->setDisabledByWeight(false);
                 /**
-                 * @var ShipmentMethodSettingCurrencyModel  $selectedWeightPrice
+                 * @var ShipmentMethodSettingCurrencyModel $selectedWeightPrice
                  */
                 $selectedWeightPrice = $selectedWeightRule->getCost() ?: 0;
             }
         }
 
 
-
         $serviceCode = str_replace(pplcz_create_name(''), '', $data->id);
         // preklad
-        $serviceCode = ShipmentMethod::methodsFor($country, $serviceCode);
+        $serviceCode = MethodSetting::getMethodForCountry($country, $serviceCode);
 
-        if (CartValidator::ageRequired(WC()->cart, $serviceCode)) {
+        if (!$serviceCode) {
+            $shipmentCartModel->setDisabledByCountry(true);
+        }
+        else if (CartValidator::ageRequired(WC()->cart, $serviceCode)) {
             $shipmentCartModel->setAgeRequired(true);
             $shipmentCartModel->setParcelBoxEnabled(false);
             $shipmentCartModel->setAlzaBoxEnabled(false);
         }
 
-        if (!isset($countries[$country]))
-        {
-            $shipmentCartModel->setDisabledByCountry(true);
-        }
-
+        $serviceCode = $serviceCode ?: "NONSERVICEFOUNDED";
 
         $shipmentCartModel->setServiceCode($serviceCode);
 
-        $codServiceCode = ShipmentMethod::codMethods()[$serviceCode];
-
+        $codServiceCode = MethodSetting::getCodMethods($serviceCode);
 
         $shipmentCartModel->setCodPayment($setting->getCodPayment() ?: '');
 
@@ -244,7 +238,7 @@ class CartModelDernomalizer implements DenormalizerInterface
             return $item['country'] == $country && $item['currency'] == $currency;
         });
 
-        if (!isset($countries[$country]) || !$countries[$country] || !$accountIn)
+        if (!$codServiceCode || !isset($countries[$country]) || !$countries[$country] || !$accountIn)
             $shipmentCartModel->setDisableCod(true);
         else
             $shipmentCartModel->setDisableCod(false);
@@ -256,10 +250,7 @@ class CartModelDernomalizer implements DenormalizerInterface
             return false;
         }, true));
 
-
-
         $totalContents = $cart->get_cart_contents_total() + $cart->get_cart_contents_tax();
-
         $total = $totalContents;
 
         $isPriceWithDph = $setting->getIsPriceWithDph();

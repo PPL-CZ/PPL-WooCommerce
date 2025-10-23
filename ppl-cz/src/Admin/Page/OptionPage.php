@@ -122,6 +122,20 @@ class OptionPage {
         }
     }
 
+    public static function createUrl($local_batch_id )
+    {
+        $vars = array_map('urlencode', array_filter(array(
+                "page" => self::SLUG,
+        )));
+
+        $url = add_query_arg(
+                $vars,
+                admin_url('admin.php')
+        );
+
+        return $url . '#/batch/' . $local_batch_id;
+    }
+
     public static function register()
     {
         add_action("admin_menu", [self::class, "add_menu"]);

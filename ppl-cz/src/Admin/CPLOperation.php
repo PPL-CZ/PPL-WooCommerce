@@ -3,6 +3,8 @@ namespace PPLCZ\Admin;
 defined("WPINC") or die();
 
 
+use PPLCZ\Data\BatchData;
+use PPLCZ\Setting\ApiSetting;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentResultChildItemModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentResultItemModel;
 use PPLCZVendor\GuzzleHttp\HandlerStack;
@@ -120,9 +122,9 @@ class CPLOperation
                 }
             }
         }
-
-        $client_secret = get_option(pplcz_create_name("client_secret")) ?: get_option(pplcz_create_name("secret"));
-        $client_id = get_option(pplcz_create_name("client_id"));
+        $myapi = ApiSetting::getApi();
+        $client_secret = $myapi->getClientSecret();
+        $client_id = $myapi->getClientId();
 
         if (strlen($client_id) < 5 || strlen($client_secret) < 10)
         {
@@ -138,8 +140,9 @@ class CPLOperation
 
         $content = ["grant_type" => "client_credentials"];
         if (strpos(self::ACCESS_TOKEN_URL, "getAccessToken") !== false) {
-            $content["client_id"] = get_option(pplcz_create_name("client_id"));
-            $content["client_secret"] =  get_option(pplcz_create_name("client_secret")) ?: get_option(pplcz_create_name("secret"));
+            $myapi = ApiSetting::getApi();
+            $content["client_id"] = $myapi->getClientId();
+            $content["client_secret"] =  $myapi->getClientSecret();
         }
 
         $url = self::ACCESS_TOKEN_URL ;
@@ -212,19 +215,26 @@ class CPLOperation
     }
 
     /**
-     * @param $shipments
+     * @param $batchId
      * @return void
      * @throws ApiException
      *
      * Vytvoření zásilek
      */
-    public function createPackages($shipments = [], $print = null)
+    public function createPackages($batchId, $print = null)
     {
+        $batchdata = new BatchData($batchId);
+        $batchdata->set_lock(true);
+        $batchdata->ignore_lock();
+        $batchdata->save();
 
         /**
          * @var ShipmentData[] $shipments
          */
+        $shipments = ShipmentData::read_batch_shipments($batchdata->get_id());
+
         $data = [];
+
         foreach ($shipments as $key => $value) {
             $shipments[$key] = new ShipmentData($value);
             $shipments[$key]->ignore_lock();
@@ -233,12 +243,17 @@ class CPLOperation
             $data[$key] = $shipments[$key]->get_props_for_store();
             $shipments[$key] = new ShipmentData($value);
         }
+
         $send = null;
+
         try {
-            $send = Serializer::getInstance()->denormalize($shipments, EpsApiMyApi2WebModelsShipmentBatchCreateShipmentBatchModel::class);
+            $send = pplcz_denormalize($shipments, EpsApiMyApi2WebModelsShipmentBatchCreateShipmentBatchModel::class);
         }
         catch (\Exception $exception)
         {
+            $batchdata->set_lock(false);
+            $batchdata->ignore_lock();
+            $batchdata->save();
             foreach ($shipments as $key => $value) {
                 $value->ignore_lock();
                 $value->set_lock(false);
@@ -256,19 +271,27 @@ class CPLOperation
             $location = reset($output[2]["Location"]);
             $location = explode("/", $location);
             $batch_id = end($location);
+            $batchdata->ignore_lock();
+            $batchdata->set_remote_batch_id($batch_id);
+            $batchdata->save();
 
             foreach ($shipments as $shipment) {
                 $shipment->ignore_lock();
                 pplcz_set_batch_print($batch_id, $print);
                 $shipment->set_import_state("InProgress");
                 $shipment->set_batch_id($batch_id);
-                if (!$shipment->get_lock())
+                if (!$shipment->get_lock()) {
                     $shipment->lock();
+                    $shipment->save();
+                }
                 else
                     $shipment->save();
             }
         }
         catch (\Exception $ex) {
+            $batchdata->set_lock(false);
+            $batchdata->ignore_lock();
+            $batchdata->save();
             foreach ($shipments as $position => $shipment) {
                 if ($shipment->get_lock()) {
                     $shipment->set_lock(false);
@@ -341,18 +364,19 @@ class CPLOperation
         $shipmentNumber = $package->get_shipment_number();
         $shipmentApi->shipmentShipmentNumberCancelPost($shipmentNumber);
         $package->set_phase("Canceled");
+        $package->set_phase_label("Canceled");
         $package->ignore_lock();
         $package->save();
     }
 
     /**
-     * @param $batchId
+     * @param $remoteBatchId
      * @return void
      * @throws ApiException
      *
      * Stažení etiket pro zásilky, které byly vytvořeny v rámci jednoho /shipment/batch
      */
-    public function getLabelContents($batchId, $referenceId = null, $packageId = null, $printFormat = null)
+    public function getLabelContents($remoteBatchId, $shipmentId = null, $packageId = null, $printFormat = null)
     {
         list($client, $configuration) = $this->createClientAndConfiguration();
 
@@ -384,13 +408,16 @@ class CPLOperation
                 break;
         }
 
-        if (!$referenceId) {
-            $response = wp_remote_get(self::BASE_URL . '/shipment/batch/' . $batchId . '/label?' . http_build_query([
+        if (!$shipmentId) {
+
+            $data = $shipmentApi->getShipmentBatch($remoteBatchId, null, null, null, "ReferenceId");
+
+            $response = wp_remote_get(self::BASE_URL . '/shipment/batch/' . $remoteBatchId . '/label?' . http_build_query([
                     "limit" => 100,
                     "offset" => 0,
                     "pageSize" => $format,
                     "position" => $position,
-                    "orderBy" => "ReferenceId,ShipmentNumber"
+                    "orderBy" => "ReferenceId"
                 ], "", "&", PHP_QUERY_RFC3986), [
                 "headers" =>[
                     "Authorization" => "Bearer " . $this->getAccessToken(),
@@ -415,7 +442,11 @@ class CPLOperation
         }
         else {
             // načtu si info kolem batch
-            $data = $shipmentApi->getShipmentBatch($batchId);
+            $data = $shipmentApi->getShipmentBatch($remoteBatchId);
+            $shipmentData = new ShipmentData($shipmentId);
+            $reference = $shipmentData->get_reference_id();
+
+
             $items = $data->getItems();
             usort($items, function (EpsApiMyApi2WebModelsShipmentBatchShipmentResultItemModel $first, EpsApiMyApi2WebModelsShipmentBatchShipmentResultItemModel $second) {
                 return strcmp($first->getReferenceId(), $second->getReferenceId());
@@ -424,8 +455,15 @@ class CPLOperation
             $offset = 0;
             $founded = false;
 
+            if ($packageId)
+            {
+                $packageData =  new PackageData($packageId);
+                $packageId = $packageData->get_shipment_number();
+            }
+
+
             foreach ($items as $item) {
-                $isReference = $item->getReferenceId() === $referenceId;
+                $isReference = $item->getReferenceId() === $reference;
                 if ($isReference && $packageId && $item->getShipmentNumber() === $packageId) {
                     $founded = $item;
                     break;
@@ -461,12 +499,12 @@ class CPLOperation
             $items = $founded->getRelatedItems() ?? [];
             $max = $packageId ? 1: (count($items) + 1);
 
-            $response = wp_remote_get(self::BASE_URL . '/shipment/batch/' . $batchId . '/label?' . http_build_query([
+            $response = wp_remote_get(self::BASE_URL . '/shipment/batch/' . $remoteBatchId . '/label?' . http_build_query([
                     "limit" => $max,
                     "offset" => $offset,
                     "pageSize" => $format,
                     "position" => $position,
-                    "orderBy" => "ReferenceId,ShipmentNumber"
+                    "orderBy" => "ShipmentNumber"
             ], "", "&", PHP_QUERY_RFC3986), [
                 "headers" =>[
                     "Authorization" => "Bearer " . $this->getAccessToken(),
@@ -492,17 +530,17 @@ class CPLOperation
     }
 
     /**
-     * @param $batchIds
+     * @param $batchRemoteIds
      * @return void
      * @throws ApiException
      *
      * Otestování vytvořených zásilek /shipment/batch, zjištění následných chyb a nebo uložení čísla balíku a uložení url na stažení etikety
      *
      */
-    public function loadingShipmentNumbers($batchIds = [])
+    public function loadingShipmentNumbers($batchRemoteIds = [])
     {
         $batch_label_group = gmdate("Y-m-d H:i:s");
-        foreach ($batchIds as $item) {
+        foreach ($batchRemoteIds as $item) {
 
             list($client, $configuration) = $this->createClientAndConfiguration();
 
@@ -512,7 +550,7 @@ class CPLOperation
             $batchData = $shipmentBatchApi->getShipmentBatchWithHttpInfo($item);
 
             $batchData = $batchData[0];
-            $shipments = ShipmentData::read_batch_shipments($item);
+            $shipments = ShipmentData::read_remote_batch_shipments($item);
 
 
             foreach ($batchData->getItems() as $batchItem) {
@@ -523,7 +561,6 @@ class CPLOperation
                 $baseShipmentNumber = $batchItem->getShipmentNumber();
                 $errorCode = $batchItem->getErrorCode();
                 $errorMessage = $batchItem->getErrorMessage();
-
 
                 foreach ($referenceShipments as $shipment) {
                     $packages = $shipment->get_package_ids();

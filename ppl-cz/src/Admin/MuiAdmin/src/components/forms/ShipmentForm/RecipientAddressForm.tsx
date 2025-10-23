@@ -1,4 +1,3 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { components } from "../../../schema";
 import { FormProvider, useForm } from "react-hook-form";
 
@@ -8,12 +7,12 @@ import FormLabel from "@mui/material/FormLabel";
 import Grid from "@mui/material/Grid";
 
 import TextFieldController from "../Controllers/TextFieldController";
-import { baseConnectionUrl } from "../../../connection";
 import {useEffect, useState} from "react";
 import { UnknownErrorException, ValidationErrorException } from "../../../queries/types";
 import CountryController from "../Controllers/CountryController";
 import SavingProgress from "../../SavingProgress";
 import SaveInfo from "./SaveInfo";
+import { useUpdateRecipientMutation } from "../../../queries/useShipmentQueries";
 
 type RecipientAddressModel = components["schemas"]["RecipientAddressModel"];
 
@@ -40,30 +39,9 @@ const RecipienAddressForm = (props: {
     })
   }, [props.address]);
 
-  const { mutateAsync } = useMutation({
-    mutationFn: async (address: RecipientAddressModel) => {
-      const defs = baseConnectionUrl();
-      await fetch(`${defs.url}/ppl-cz/v1/shipment/${props.shipmentId}/recipient`, {
-        method: "PUT",
-        headers: {
-          "X-WP-nonce": defs.nonce,
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(address),
-      })
-        .then(async x => {
-          if (x.status === 400) {
-            const data = await x.json();
-            throw new ValidationErrorException(x.status, data.data);
-          } else if (x.status > 400) throw new UnknownErrorException(x.status);
-          return x;
-        })
-        .then(x => {
-          props.onChange(props.shipmentId);
-          setDisabled(false);
-          setSuccessTimeout(5000);
-        });
-    },
+  const { mutateAsync } = useUpdateRecipientMutation((shipmentId) => {
+    props.onChange(shipmentId);
+    setSuccessTimeout(5000);
   });
 
   return (
@@ -73,7 +51,7 @@ const RecipienAddressForm = (props: {
         onSubmit={handleSubmit(async fields => {
           setDisabled(true);
           try {
-            await mutateAsync(fields);
+            await mutateAsync({ shipmentId: props.shipmentId, address: fields });
           } catch (errors) {
             if (errors instanceof ValidationErrorException) {
               const data = errors.data;

@@ -1,1441 +1,1513 @@
 {
-    "openapi": "3.0.0",
-    "components": {
-        "schemas": {
-            "ProductModel": {
-                "type": "object",
-                "properties": {
-                    "pplConfirmAge15": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "pplConfirmAge18": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "pplDisabledParcelBox": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "pplDisabledAlzaBox": {
-                        "type": "boolean",
-                        "nullable": false
-                    },
-                    "pplDisabledParcelShop": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "pplDisabledTransport": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    }
-                }
+  "openapi": "3.0.0",
+  "components": {
+    "schemas": {
+      "ProductModel": {
+        "type": "object",
+        "properties": {
+          "pplConfirmAge15": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "pplConfirmAge18": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "pplDisabledParcelBox": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "pplDisabledAlzaBox": {
+            "type": "boolean",
+            "nullable": false
+          },
+          "pplDisabledParcelShop": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "pplDisabledTransport": {
+            "type": "array",
+            "items": {
+              "type": "string"
             },
-            "CategoryModel": {
-                "type": "object",
-                "properties": {
-                    "pplDisabledParcelBox": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "pplDisabledAlzaBox": {
-                        "type": "boolean",
-                        "nullable": false
-                    },
-                    "pplDisabledParcelShop": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "pplDisabledTransport": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    }
-                }
-            },
-            "ParcelDataModel": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "activeCardPayment": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "activeCashPayment": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "code": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "country": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "openHours": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "street": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "zipCode": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "id": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "rnd": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "accessPointType": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "gps": {
-                        "type": "object",
-                        "properties": {
-                            "latitude": {
-                                "type": "number",
-                                "nullable": true
-                            },
-                            "longitude": {
-                                "type": "number",
-                                "nullable": true
-                            }
-                        },
-                        "nullable": true
-                    }
-                }
-            },
-            "ParcelPlacesModel": {
-                "type": "object",
-                "properties": {
-                    "disabledParcelBox": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "disabledAlzaBox": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "disabledParcelShop": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "disabledCountries": {
-                        "type": "array",
-                        "nullable": true,
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "mapLanguage": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "MyApi2": {
-                "type": "object",
-                "required": [
-                    "client_id",
-                    "client_secret"
-                ],
-                "properties": {
-                    "client_id": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "client_secret": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "WhisperSettingModel": {
-                "type": "object",
-                "required": [
-                    "active"
-                ],
-                "properties": {
-                    "active": {
-                        "type": "boolean",
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "url": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "WhisperAddressModel": {
-                "type": "object",
-                "properties": {
-                    "city": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "zipCode": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "street": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "houseNumber": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "evidenceNumber": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "UpdateShipmentModel": {
-                "type": "object",
-                "required": [
-                    "referenceId",
-                    "serviceCode",
-                    "packages"
-                ],
-                "properties": {
-                    "referenceId": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "codVariableNumber": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "codValue": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "codValueCurrency": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "codBankAccountId": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "senderId": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "serviceCode": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "orderId": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "hasParcel": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "parcelId": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "age": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "note": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "packages": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/PackageModel"
-                        },
-                        "nullable": true
-                    }
-                }
-            },
-            "UpdateParcelModel": {
-                "type": "object",
-                "properties": {
-                    "parcelCode": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "UpdateShipmentSenderModel": {
-                "required": [
-                    "senderId"
-                ],
-                "type": "object",
-                "properties": {
-                    "senderId": {
-                        "type": "number",
-                        "nullable": true
-                    }
-                }
-            },
-            "UpdateShipmentParcelModel": {
-                "type": "object",
-                "required": [
-                    "parcelCode"
-                ],
-                "properties": {
-                    "parcelCode": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "hasParcel": {
-                        "type": "boolean",
-                        "nullable": true
-                    }
-                }
-            },
-            "CreateShipmentLabelBatchModel": {
-                "type": "object",
-                "required": [
-                    "printSetting",
-                    "shipmentId"
-                ],
-                "properties": {
-                    "printSetting": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "shipmentId": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        },
-                        "nullable": true
-                    }
-                }
-            },
-            "ShipmentLabelRefreshBatchModel": {
-                "type": "object",
-                "required": [
-                    "shipmentId"
-                ],
-                "properties": {
-                    "shipmentId": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        },
-                        "nullable": true
-                    }
-                }
-            },
-            "PrepareShipmentBatchModel": {
-                "type": "object",
-                "required": [
-                    "items"
-                ],
-                "properties": {
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/PrepareShipmentBatchItemModel"
-                        },
-                        "nullable": true
-                    }
-                }
-            },
-            "PrepareShipmentBatchItemModel": {
-                "type": "object",
-                "properties": {
-                    "orderId": {
-                        "type": "integer",
-                        "nullable": true
-                    },
-                    "shipmentId": {
-                        "type": "integer",
-                        "nullable": true
-                    }
-                }
-            },
-            "PrepareShipmentBatchReturnModel": {
-                "type": "object",
-                "properties": {
-                    "shipmentId": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        },
-                        "nullable": true
-                    }
-                }
-            },
-            "RefreshShipmentBatchReturnModel": {
-                "type": "object",
-                "properties": {
-                    "batchs": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "shipments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ShipmentModel"
-                        },
-                        "nullable": true
-                    }
-                }
-            },
-            "PackageModel": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "nullable": true
-                    },
-                    "shipmentNumber": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "referenceId": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "labelId": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "importError": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "importErrorCode": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "weight": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "insurance": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "insuranceCurrency": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "phase": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "phaseLabel": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "lastUpdatePhase": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "ignorePhase": {
-                        "type": "boolean",
-                        "nullable": true
-                    }
-                }
-            },
-            "ParcelAddressModel": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "code": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "name2": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "street": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "zip": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "country": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "remoteId": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "type": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "lat": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "lng": {
-                        "type": "number",
-                        "nullable": true
-                    }
-                }
-            },
-            "LabelPrintModel": {
-                "type": "object",
-                "required": [
-                    "title",
-                    "code"
-                ],
-                "properties": {
-                    "title": {
-                        "type": "string"
-                    },
-                    "code": {
-                        "type": "string"
-                    }
-                }
-            },
-            "CollectionAddressModel": {
-                "type": "object",
-                "required": [
-                    "street",
-                    "city",
-                    "zip",
-                    "country"
-                ],
-                "properties": {
-                    "street": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "zip": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "country": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "code": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "default": {
-                        "type": "boolean",
-                        "nullable": true
-                    }
-                }
-            },
-            "SenderAddressModel": {
-                "type": "object",
-                "required": [
-                    "addressName",
-                    "name",
-                    "street",
-                    "city",
-                    "zip",
-                    "country"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "addressName": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "contact": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "street": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "zip": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "country": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "mail": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "phone": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "note": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "RecipientAddressModel": {
-                "type": "object",
-                "required": [
-                    "name",
-                    "street",
-                    "city",
-                    "zip",
-                    "country"
-                ],
-                "properties": {
-                    "contact": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "street": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "city": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "zip": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "country": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "mail": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "phone": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "CartModel": {
-                "type": "object",
-                "properties": {
-                    "isPriceWithDph": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "parcelRequired": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "parcelBoxEnabled": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "parcelShopEnabled": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "alzaBoxEnabled": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "mapEnabled": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "disabledByWeight": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "disabledByRules": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "disabledByCountry": {
-                        "type": "boolean",
-                        "nullable": false
-                    },
-                    "enabledParcelCountries": {
-                        "type": "array",
-                        "items" : {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "ageRequired": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "codPayment": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "serviceCode": {
-                        "type": "string",
-                        "nullable": false
-                    },
-                    "disablePayments": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "disabledByProduct": {
-                        "type": "boolean",
-                        "nullable": false
-                    },
-                    "disableCod": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "codFee": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "codFeeDPH": {
-
-                        "$ref": "#/components/schemas/CalculatedDPH"
-
-                    },
-                    "cost": {
-                        "type": "number",
-                        "nullable": true
-                    },
-
-                    "costDPH": {
-                        "$ref": "#/components/schemas/CalculatedDPH"
-                    },
-
-                    "taxableName": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "ShipmentModel": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "packages": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/PackageModel"
-                        },
-                        "nullable": true
-                    },
-                    "printState": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "importState": {
-                        "type": "string",
-                        "enum": [
-                            "None",
-                            "Accepted",
-                            "InProcess",
-                            "Complete",
-                            "Error"
-                        ],
-                        "nullable": true
-                    },
-                    "referenceId": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "note": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "codValue": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "codValueCurrency": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "codVariableNumber": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "serviceCode": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "serviceName": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "batchLabelGroup": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "hasParcel": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "orderId": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "parcel": {
-                        "$ref": "#/components/schemas/ParcelAddressModel",
-                        "nullable": true
-                    },
-                    "recipient": {
-                        "$ref": "#/components/schemas/RecipientAddressModel",
-                        "nullable": true
-                    },
-                    "sender": {
-                        "$ref": "#/components/schemas/SenderAddressModel",
-                        "nullable": true
-                    },
-                    "age": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "lock": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "importErrors": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "phase": {
-                        "type": "string",
-                        "enum": [
-                            "Undelivered",
-                            "Delivered",
-                            "PickedUpFromSender",
-                            "DeliveredToPickupPoint",
-                            "OutForDelivery",
-                            "NotDelivered",
-                            "CodPaidDate",
-                            "BackToSender",
-                            "Rejected",
-                            "DataShipment",
-                            "Active",
-                            "Canceled",
-                            "Dormant"
-                        ],
-                        "nullable": true
-                    }
-                }
-            },
-            "CurrencyModel": {
-                "required": [
-                    "code",
-                    "title"
-                ],
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "string"
-                    },
-                    "title": {
-                        "type": "string"
-                    }
-                }
-            },
-            "ShipmentPhaseModel": {
-                "type": "object",
-                "required": [
-                    "code",
-                    "title",
-                    "watch"
-                ],
-                "properties": {
-                    "code": {
-                        "type": "string"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "watch": {
-                        "type": "boolean"
-                    }
-                }
-            },
-            "SyncPhasesModel": {
-                "type": "object",
-                "required": [
-                    "phases",
-                    "maxSync"
-                ],
-                "properties": {
-                    "maxSync": {
-                        "type": "integer",
-                        "nullable": true
-                    },
-                    "phases": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ShipmentPhaseModel"
-                        },
-                        "nullable": true
-                    }
-                }
-            },
-            "UpdateSyncPhasesModel": {
-                "type": "object",
-                "properties": {
-                    "maxSync": {
-                        "type": "integer",
-                        "nullable": true
-                    },
-                    "phases": {
-                        "type": "array",
-                        "items": {
-                            "required": [
-                                "code",
-                                "watch"
-                            ],
-                            "properties": {
-                                "code": {
-                                    "type": "string",
-                                    "nullable": true
-                                },
-                                "watch": {
-                                    "type": "boolean",
-                                    "nullable": true
-                                }
-                            }
-                        },
-                        "nullable": true
-                    }
-                }
-            },
-            "CountryModel": {
-                "required": [
-                    "code",
-                    "title",
-                    "parcelAllowed",
-                    "codAllowed"
-                ],
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "string"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "parcelAllowed": {
-                        "type": "boolean"
-                    },
-                    "codAllowed": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "ShipmentMethodModel": {
-                "type": "object",
-                "required": [
-                    "code",
-                    "title",
-                    "codAvailable",
-                    "parcelRequired"
-                ],
-                "properties": {
-                    "code": {
-                        "type": "string"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "codAvailable": {
-                        "type": "boolean"
-                    },
-                    "parcelRequired": {
-                        "type": "boolean"
-                    }
-                }
-            },
-            "NewCollectionModel": {
-                "type": "object",
-                "required": [
-                    "sendDate"
-                ],
-                "properties": {
-                    "sendDate": {
-                        "type": "string"
-                    },
-                    "contact": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "estimatedShipmentCount": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "telephone": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "note": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "email": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "CollectionModel": {
-                "type": "object",
-                "required": [
-                    "id",
-                    "createdDate",
-                    "shipmentCount",
-                    "sendDate",
-                    "referenceId"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "number"
-                    },
-                    "remoteCollectionId": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "referenceId": {
-                        "type": "string"
-                    },
-                    "createdDate": {
-                        "type": "string"
-                    },
-                    "sendDate": {
-                        "type": "string"
-                    },
-                    "sendToApiDate": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "state": {
-                        "enum": [
-                            "BeforeSend",
-                            "None",
-                            "Created",
-                            "PickedUp",
-                            "NotPickedUp",
-                            "Canceled"
-                        ],
-                        "type": "string"
-                    },
-                    "estimatedShipmentCount": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "shipmentCount": {
-                        "type": "number"
-                    },
-                    "contact": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "telephone": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "note": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "email": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                }
-            },
-            "ShipmentMethodSettingModel": {
-                "type": "object",
-                "required": ["currencies", "weights", "code"],
-                "properties": {
-                    "code": {
-                        "type": "string",
-                        "nullable": false
-                    },
-                    "costByWeight": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "parcelBoxes": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "title": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "description": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "disablePayments": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "codPayment": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "isPriceWithDph": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "currencies": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ShipmentMethodSettingCurrencyModel"
-                        },
-                        "nullable": false
-                    },
-                    "weights": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ShipmentMethodSettingWeightRuleModel"
-                        },
-                        "nullable": false
-                    },
-                    "disabledParcelCountries": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "disabledParcelBox": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "disabledAlzaBox": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "disabledParcelShop": {
-                        "type": "boolean",
-                        "nullable": true
-                    }
-                }
-            },
-            "ShipmentMethodSettingCurrencyModel": {
-                "type": "object",
-                "required": ["currency"],
-                "properties": {
-                    "enabled": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "currency": {
-                        "type": "string",
-                        "nullable": false
-                    },
-                    "costOrderFree": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "costCodFee": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "costCodFeeAlways": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "costOrderFreeCod": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "cost": {
-                        "type": "number",
-                        "nullable": true
-                    }
-                }
-            },
-            "ShipmentMethodSettingPriceRuleModel": {
-                "type": "object",
-                "required": ["currency"],
-                "properties": {
-                    "price": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "currency": {
-                        "type": "string"
-                    }
-                }
-            },
-            "ShipmentMethodSettingWeightRuleModel": {
-                "type" : "object",
-                "required": ["prices"],
-                "properties": {
-                    "from": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "to": {
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "disabledParcelBox": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "disabledAlzaBox": {
-                        "type": "boolean",
-                        "nullable": false
-                    },
-                    "disabledParcelShop": {
-                        "type": "boolean",
-                        "nullable": true
-                    },
-                    "prices": {
-                        "type": "array",
-                        "nullable": false,
-                        "items": {
-                            "$ref": "#/components/schemas/ShipmentMethodSettingPriceRuleModel"
-                        }
-                    }
-                }
-            },
-            "ErrorLogItemModel": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "number",
-                        "nullable": false
-                    },
-                    "trace": {
-                        "type": "string",
-                        "nullable": false
-                    }
-                }
-            },
-            "ErrorLogProductSettingModel": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "number"
-                    },
-                    "categoryIds": {
-                        "type": "array",
-                        "items": {
-                            "type": "number"
-                        }
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "weight":{
-                        "type": "number",
-                        "nullable": true
-                    },
-                    "setting": {
-                        "$ref": "#/components/schemas/ProductModel"
-                    },
-                    "parent": {
-                        "nullable": true,
-                        "type": "number"
-                    }
-                }
-            },
-            "ErrorLogCategorySettingModel": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "id": {
-                        "type": "number"
-                    },
-                    "setting": {
-                        "$ref": "#/components/schemas/CategoryModel"
-                    },
-                    "parent": {
-                        "nullable": true,
-                        "type": "number"
-                    }
-                }
-            },
-            "ErrorLogShipmentSettingModel": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "shipmentSetting": {
-                        "$ref": "#/components/schemas/ShipmentMethodSettingModel"
-                    },
-                    "rawBasicData": {
-                        "nullable": true,
-                        "type": "string"
-                    },
-                    "rawWeightData": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "zones": {
-                        "type": "string"
-                    }
-                }
-            },
-            "ErrorLogModel": {
-                "type": "object",
-                "properties": {
-                    "mail": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "info": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "shipmentsSetting": {
-                        "type": "array",
-                        "nullable": true,
-                        "items": {
-                            "$ref": "#/components/schemas/ErrorLogShipmentSettingModel"
-                        }
-                    },
-                    "categorySetting": {
-                        "type": "array",
-                        "items" : {
-                            "$ref": "#/components/schemas/ErrorLogCategorySettingModel"
-                        }
-                    },
-                    "productsSetting": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ErrorLogProductSettingModel"
-                        }
-                    },
-                    "orders": {
-                        "type": "array",
-                        "additionalProperties": true
-                    },
-                    "errors": {
-                        "type": "array",
-                        "nullable": false,
-                        "items": {
-                            "$ref": "#/components/schemas/ErrorLogItemModel"
-                        }
-                    }
-                }
-            },
-            "SendErrorLogModel": {
-                "allOf": [
-                    {
-                        "$ref" : "#/components/schemas/ErrorLogModel"
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "message": {
-                                "type": "string",
-                                "nullable": true
-                            }
-                        }
-                    }
-                ]
-            },
-            "CalculatedDPH": {
-                "type": "object",
-                "properties": {
-                    "dphId": {
-                        "type": "integer",
-                        "nullable": false
-                    },
-                    "value": {
-                        "type": "number",
-                        "nullable": false
-                    }
-                }
-            }
-
-
+            "nullable": true
+          }
         }
-    },
-    "info": {
-        "title": "",
-        "description": "Seznam endpointu",
-        "version": "1.0.0"
-    },
-    "paths": {
-
+      },
+      "CategoryModel": {
+        "type": "object",
+        "properties": {
+          "pplDisabledParcelBox": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "pplDisabledAlzaBox": {
+            "type": "boolean",
+            "nullable": false
+          },
+          "pplDisabledParcelShop": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "pplDisabledTransport": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ParcelDataModel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "activeCardPayment": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "activeCashPayment": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "openHours": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "zipCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "number",
+            "nullable": true
+          },
+          "rnd": {
+            "type": "number",
+            "nullable": true
+          },
+          "accessPointType": {
+            "type": "string",
+            "nullable": true
+          },
+          "gps": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number",
+                "nullable": true
+              },
+              "longitude": {
+                "type": "number",
+                "nullable": true
+              }
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ParcelPlacesModel": {
+        "type": "object",
+        "properties": {
+          "disabledParcelBox": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "disabledAlzaBox": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "disabledParcelShop": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "disabledCountries": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "mapLanguage": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "MyApi2": {
+        "type": "object",
+        "required": [
+          "client_id",
+          "client_secret"
+        ],
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "client_secret": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "WhisperSettingModel": {
+        "type": "object",
+        "required": [
+          "active"
+        ],
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "WhisperAddressModel": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "zipCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "houseNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "evidenceNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateShipmentModel": {
+        "type": "object",
+        "required": [
+          "referenceId",
+          "serviceCode",
+          "packages"
+        ],
+        "properties": {
+          "referenceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "codVariableNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "codValue": {
+            "type": "number",
+            "nullable": true
+          },
+          "codValueCurrency": {
+            "type": "string",
+            "nullable": true
+          },
+          "codBankAccountId": {
+            "type": "number",
+            "nullable": true
+          },
+          "senderId": {
+            "type": "number",
+            "nullable": true
+          },
+          "serviceCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "orderId": {
+            "type": "number",
+            "nullable": true
+          },
+          "hasParcel": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "parcelId": {
+            "type": "number",
+            "nullable": true
+          },
+          "age": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "packages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackageModel"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "UpdateParcelModel": {
+        "type": "object",
+        "properties": {
+          "parcelCode": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateShipmentSenderModel": {
+        "required": [
+          "senderId"
+        ],
+        "type": "object",
+        "properties": {
+          "senderId": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateShipmentParcelModel": {
+        "type": "object",
+        "required": [
+          "parcelCode"
+        ],
+        "properties": {
+          "parcelCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasParcel": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "CreateShipmentLabelBatchModel": {
+        "type": "object",
+        "required": [
+          "printSetting",
+          "shipmentId"
+        ],
+        "properties": {
+          "printSetting": {
+            "type": "string",
+            "nullable": true
+          },
+          "shipmentId": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ShipmentLabelRefreshBatchModel": {
+        "type": "object",
+        "required": [
+          "shipmentId"
+        ],
+        "properties": {
+          "shipmentId": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ShipmentWithAdditionalModel": {
+        "required": [
+          "shipment"
+        ],
+        "type": "object",
+        "properties": {
+          "shipment": {
+            "$ref": "#/components/schemas/ShipmentModel"
+          },
+          "errors": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/WpErrorModel"
+            }
+          }
+        }
+      },
+      "WpErrorModel": {
+        "required": [
+          "key",
+          "values"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "nullable": false
+          },
+          "values": {
+            "type": "array",
+            "nullable": false,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "BatchModel": {
+        "required": [
+          "id",
+          "created"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "nullable": false
+          },
+          "remoteBatchId": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "created": {
+            "type": "string",
+            "nullable": false
+          },
+          "lock": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PrepareShipmentBatchModel": {
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrepareShipmentBatchItemModel"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "PrepareShipmentBatchItemModel": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "nullable": true
+          },
+          "shipmentId": {
+            "type": "integer",
+            "nullable": true
+          }
+        }
+      },
+      "PrepareShipmentBatchReturnModel": {
+        "type": "object",
+        "properties": {
+          "shipmentId": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "RefreshShipmentBatchReturnModel": {
+        "type": "object",
+        "properties": {
+          "batchs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "shipments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShipmentModel"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "PackageModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "shipmentNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "labelId": {
+            "type": "string",
+            "nullable": true
+          },
+          "importError": {
+            "type": "string",
+            "nullable": true
+          },
+          "importErrorCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "weight": {
+            "type": "number",
+            "nullable": true
+          },
+          "insurance": {
+            "type": "number",
+            "nullable": true
+          },
+          "insuranceCurrency": {
+            "type": "string",
+            "nullable": true
+          },
+          "phase": {
+            "type": "string",
+            "nullable": true
+          },
+          "phaseLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastUpdatePhase": {
+            "type": "string",
+            "nullable": true
+          },
+          "ignorePhase": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "ParcelAddressModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "name2": {
+            "type": "string",
+            "nullable": true
+          },
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "remoteId": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "lat": {
+            "type": "number",
+            "nullable": true
+          },
+          "lng": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "LabelPrintModel": {
+        "type": "object",
+        "required": [
+          "title",
+          "code"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "CollectionAddressModel": {
+        "type": "object",
+        "required": [
+          "street",
+          "city",
+          "zip",
+          "country"
+        ],
+        "properties": {
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "default": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "SenderAddressModel": {
+        "type": "object",
+        "required": [
+          "addressName",
+          "name",
+          "street",
+          "city",
+          "zip",
+          "country"
+        ],
+        "properties": {
+          "id": {
+            "type": "number",
+            "nullable": true
+          },
+          "addressName": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "contact": {
+            "type": "string",
+            "nullable": true
+          },
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "mail": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RecipientAddressModel": {
+        "type": "object",
+        "required": [
+          "name",
+          "street",
+          "city",
+          "zip",
+          "country"
+        ],
+        "properties": {
+          "contact": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "mail": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CartModel": {
+        "type": "object",
+        "properties": {
+          "isPriceWithDph": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "parcelRequired": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "parcelBoxEnabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "parcelShopEnabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "alzaBoxEnabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "mapEnabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "disabledByWeight": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "disabledByRules": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "disabledByCountry": {
+            "type": "boolean",
+            "nullable": false
+          },
+          "enabledParcelCountries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "ageRequired": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "codPayment": {
+            "type": "string",
+            "nullable": true
+          },
+          "serviceCode": {
+            "type": "string",
+            "nullable": false
+          },
+          "disablePayments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "disabledByProduct": {
+            "type": "boolean",
+            "nullable": false
+          },
+          "disableCod": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "codFee": {
+            "type": "number",
+            "nullable": true
+          },
+          "codFeeDPH": {
+            "$ref": "#/components/schemas/CalculatedDPH"
+          },
+          "cost": {
+            "type": "number",
+            "nullable": true
+          },
+          "costDPH": {
+            "$ref": "#/components/schemas/CalculatedDPH"
+          },
+          "taxableName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ShipmentModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "nullable": true
+          },
+          "packages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackageModel"
+            },
+            "nullable": true
+          },
+          "printState": {
+            "type": "string",
+            "nullable": true
+          },
+          "importState": {
+            "type": "string",
+            "enum": [
+              "None",
+              "Accepted",
+              "InProcess",
+              "Complete",
+              "Error"
+            ],
+            "nullable": true
+          },
+          "referenceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "codValue": {
+            "type": "number",
+            "nullable": true
+          },
+          "codValueCurrency": {
+            "type": "string",
+            "nullable": true
+          },
+          "codVariableNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "serviceCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "serviceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "batchId": {
+            "type": "string",
+            "nullable": true
+          },
+          "batchRemoteId": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasParcel": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "orderId": {
+            "type": "number",
+            "nullable": true
+          },
+          "parcel": {
+            "$ref": "#/components/schemas/ParcelAddressModel",
+            "nullable": true
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/RecipientAddressModel",
+            "nullable": true
+          },
+          "sender": {
+            "$ref": "#/components/schemas/SenderAddressModel",
+            "nullable": true
+          },
+          "age": {
+            "type": "string",
+            "nullable": true
+          },
+          "lock": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "importErrors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "Undelivered",
+              "Delivered",
+              "PickedUpFromSender",
+              "DeliveredToPickupPoint",
+              "OutForDelivery",
+              "NotDelivered",
+              "CodPaidDate",
+              "BackToSender",
+              "Rejected",
+              "DataShipment",
+              "Active",
+              "Canceled",
+              "Dormant"
+            ],
+            "nullable": true
+          }
+        }
+      },
+      "CurrencyModel": {
+        "required": [
+          "code",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ShipmentPhaseModel": {
+        "type": "object",
+        "required": [
+          "code",
+          "title",
+          "watch"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SyncPhasesModel": {
+        "type": "object",
+        "required": [
+          "phases",
+          "maxSync"
+        ],
+        "properties": {
+          "maxSync": {
+            "type": "integer",
+            "nullable": true
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShipmentPhaseModel"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "UpdateSyncPhasesModel": {
+        "type": "object",
+        "properties": {
+          "maxSync": {
+            "type": "integer",
+            "nullable": true
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "required": [
+                "code",
+                "watch"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "watch": {
+                  "type": "boolean",
+                  "nullable": true
+                }
+              }
+            },
+            "nullable": true
+          }
+        }
+      },
+      "CountryModel": {
+        "required": [
+          "code",
+          "title",
+          "parcelAllowed",
+          "codAllowed"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "parcelAllowed": {
+            "type": "boolean"
+          },
+          "codAllowed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ShipmentMethodModel": {
+        "type": "object",
+        "required": [
+          "code",
+          "title",
+          "codAvailable",
+          "parcelRequired"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "codAvailable": {
+            "type": "boolean"
+          },
+          "parcelRequired": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NewCollectionModel": {
+        "type": "object",
+        "required": [
+          "sendDate"
+        ],
+        "properties": {
+          "sendDate": {
+            "type": "string"
+          },
+          "contact": {
+            "type": "string",
+            "nullable": true
+          },
+          "estimatedShipmentCount": {
+            "type": "number",
+            "nullable": true
+          },
+          "telephone": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CollectionModel": {
+        "type": "object",
+        "required": [
+          "id",
+          "createdDate",
+          "shipmentCount",
+          "sendDate",
+          "referenceId"
+        ],
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "remoteCollectionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceId": {
+            "type": "string"
+          },
+          "createdDate": {
+            "type": "string"
+          },
+          "sendDate": {
+            "type": "string"
+          },
+          "sendToApiDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "enum": [
+              "BeforeSend",
+              "None",
+              "Created",
+              "PickedUp",
+              "NotPickedUp",
+              "Canceled"
+            ],
+            "type": "string"
+          },
+          "estimatedShipmentCount": {
+            "type": "number",
+            "nullable": true
+          },
+          "shipmentCount": {
+            "type": "number"
+          },
+          "contact": {
+            "type": "string",
+            "nullable": true
+          },
+          "telephone": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ShipmentMethodSettingModel": {
+        "type": "object",
+        "required": [
+          "currencies",
+          "weights",
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": false
+          },
+          "costByWeight": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "parcelBoxes": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "disablePayments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "codPayment": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPriceWithDph": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "currencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShipmentMethodSettingCurrencyModel"
+            },
+            "nullable": false
+          },
+          "weights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShipmentMethodSettingWeightRuleModel"
+            },
+            "nullable": false
+          },
+          "disabledParcelCountries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "disabledParcelBox": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "disabledAlzaBox": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "disabledParcelShop": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "ShipmentMethodSettingCurrencyModel": {
+        "type": "object",
+        "required": [
+          "currency"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string",
+            "nullable": false
+          },
+          "costOrderFree": {
+            "type": "number",
+            "nullable": true
+          },
+          "costCodFee": {
+            "type": "number",
+            "nullable": true
+          },
+          "costCodFeeAlways": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "costOrderFreeCod": {
+            "type": "number",
+            "nullable": true
+          },
+          "cost": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "ShipmentMethodSettingPriceRuleModel": {
+        "type": "object",
+        "required": [
+          "currency"
+        ],
+        "properties": {
+          "price": {
+            "type": "number",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "ShipmentMethodSettingWeightRuleModel": {
+        "type": "object",
+        "required": [
+          "prices"
+        ],
+        "properties": {
+          "from": {
+            "type": "number",
+            "nullable": true
+          },
+          "to": {
+            "type": "number",
+            "nullable": true
+          },
+          "disabledParcelBox": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "disabledAlzaBox": {
+            "type": "boolean",
+            "nullable": false
+          },
+          "disabledParcelShop": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "prices": {
+            "type": "array",
+            "nullable": false,
+            "items": {
+              "$ref": "#/components/schemas/ShipmentMethodSettingPriceRuleModel"
+            }
+          }
+        }
+      },
+      "ErrorLogItemModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "nullable": false
+          },
+          "trace": {
+            "type": "string",
+            "nullable": false
+          }
+        }
+      },
+      "ErrorLogProductSettingModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number",
+            "nullable": true
+          },
+          "setting": {
+            "$ref": "#/components/schemas/ProductModel"
+          },
+          "parent": {
+            "nullable": true,
+            "type": "number"
+          }
+        }
+      },
+      "ErrorLogCategorySettingModel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "number"
+          },
+          "setting": {
+            "$ref": "#/components/schemas/CategoryModel"
+          },
+          "parent": {
+            "nullable": true,
+            "type": "number"
+          }
+        }
+      },
+      "ErrorLogShipmentSettingModel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "shipmentSetting": {
+            "$ref": "#/components/schemas/ShipmentMethodSettingModel"
+          },
+          "rawBasicData": {
+            "nullable": true,
+            "type": "string"
+          },
+          "rawWeightData": {
+            "type": "string",
+            "nullable": true
+          },
+          "zones": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorLogModel": {
+        "type": "object",
+        "properties": {
+          "mail": {
+            "type": "string",
+            "nullable": true
+          },
+          "info": {
+            "type": "string",
+            "nullable": true
+          },
+          "shipmentsSetting": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ErrorLogShipmentSettingModel"
+            }
+          },
+          "categorySetting": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorLogCategorySettingModel"
+            }
+          },
+          "productsSetting": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorLogProductSettingModel"
+            }
+          },
+          "orders": {
+            "type": "array",
+            "additionalProperties": true
+          },
+          "errors": {
+            "type": "array",
+            "nullable": false,
+            "items": {
+              "$ref": "#/components/schemas/ErrorLogItemModel"
+            }
+          }
+        }
+      },
+      "SendErrorLogModel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ErrorLogModel"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "CalculatedDPH": {
+        "type": "object",
+        "properties": {
+          "dphId": {
+            "type": "integer",
+            "nullable": false
+          },
+          "value": {
+            "type": "number",
+            "nullable": false
+          }
+        }
+      }
     }
+  },
+  "info": {
+    "title": "",
+    "description": "Seznam endpointu",
+    "version": "1.0.0"
+  },
+  "paths": {
+  }
 }

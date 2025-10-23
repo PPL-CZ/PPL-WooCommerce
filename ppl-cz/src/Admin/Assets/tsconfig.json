@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "outDir": "./build/",
-    "target": "es5",
+    "target": "esnext",
     "jsx": "react-jsx",
     "module": "commonjs",
     "noImplicitAny": false,
-
+    "lib": ["ES2020", "DOM"],
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true

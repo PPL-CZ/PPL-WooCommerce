@@ -37,6 +37,16 @@ class OrderFilter {
         ]);
     }
 
+    public static function filters_old() {
+        global $typenow;
+
+        if ( $typenow === 'shop_order' ) {
+            // Jsme na stránce seznamu objednávek
+            static::filters();
+        }
+
+    }
+
     public static function filters() {
         ob_start();
         menu_page_url(OptionPage::SLUG);
@@ -48,15 +58,6 @@ class OrderFilter {
         ]);
     }
 
-    public static function filters_old()
-    {
-        global $typenow;
-
-        if ( $typenow === 'shop_order' ) {
-            // Jsme na stránce seznamu objednávek
-            static::filters();
-        }
-    }
 
     public static function woocommerce_query_vars($query_vars)
     {
@@ -174,7 +175,7 @@ class OrderFilter {
 
     public static function bulk_action($bulk) {
 
-        $bulk["pplcz_bulk_operation_create_labels"] = "Vytisknout zásilky PPL";
+        $bulk["pplcz_bulk_operation_create_labels"] = "Přidat do hromadného tisku PPL";
         return $bulk;
     }
 

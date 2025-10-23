@@ -7,8 +7,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useSenderAddressesQuery } from "../../../queries/settings";
 import SelectInput from "../Inputs/SelectInput";
 import { useState } from "react";
-import { baseConnectionUrl } from "../../../connection";
 import SavingProgress from "../../SavingProgress";
+import { useUpdateShipmentSenderMutation } from "../../../queries/useShipmentQueries";
 
 type UpdateShipmentSenderModel = components["schemas"]["UpdateShipmentSenderModel"];
 type SenderAddressModel = components["schemas"]["SenderAddressModel"];
@@ -23,6 +23,9 @@ const SenderSelect = (props: {
   const data = useSenderAddressesQuery();
   const [sender, setSender] = useState(props.sender);
   const [disabled, setDisabled] = useState(false);
+  const { mutateAsync } = useUpdateShipmentSenderMutation((shipmentId) => {
+    props.onChange(shipmentId);
+  });
 
   if (!data) {
     return <CircularProgress />;
@@ -47,18 +50,9 @@ const SenderSelect = (props: {
             const newSender = optionals.filter(x => `${x.id}` === val)[0];
             if (newSender) {
               setSender(newSender.data);
-              const nonce = baseConnectionUrl();
-              fetch(`${nonce.url}/ppl-cz/v1/shipment/${props.shipmentId}/sender`, {
-                method: "PUT",
-                headers: {
-                  "content-type": "application/json",
-                  "X-WP-nonce": nonce.nonce,
-                },
-                body: JSON.stringify({
-                  senderId: parseInt(newSender.id),
-                } as UpdateShipmentSenderModel),
-              }).then(x => {
-                if (x.status === 204) props.onChange(props.shipmentId);
+              mutateAsync({
+                shipmentId: props.shipmentId,
+                senderId: parseInt(newSender.id),
               });
             }
           }}

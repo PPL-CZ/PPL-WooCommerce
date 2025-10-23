@@ -4,6 +4,7 @@ defined("WPINC") or die();
 
 
 use PPLCZ\Admin\CPLOperation;
+use PPLCZ\Data\PackageData;
 use PPLCZ\Data\ParcelData;
 use PPLCZ\Data\ShipmentData;
 use PPLCZ\Admin\Errors;
@@ -40,6 +41,33 @@ class ShipmentV1RestController extends PPLRestController
                 ]
             ]
         ]);
+
+        register_rest_route($this->namespace, "/" . $this->base .  "/(?P<id>\d+)/state/(?P<packageId>\d+)", [
+            "methods" => "PUT",
+            "callback" => [$this, "update_state"],
+            "permission_callback"=>[$this, "check_permission"],
+            "args"=> [
+                "id" => [
+                    "validate_callback" => function($params, $request, $key) {
+                        return is_numeric($params) && (new ShipmentData($params))->get_id();
+                    }
+                ]
+            ]
+        ]);
+
+        register_rest_route($this->namespace, "/" . $this->base .  "/(?P<id>\d+)/cancel/(?P<packageId>\d+)", [
+            "methods" => "DELETE",
+            "callback" => [$this, "cancel"],
+            "permission_callback"=>[$this, "check_permission"],
+            "args"=> [
+                "id" => [
+                    "validate_callback" => function($params, $request, $key) {
+                        return is_numeric($params) && (new ShipmentData($params))->get_id();
+                    }
+                ]
+            ]
+        ]);
+
 
         register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/recipient",
         [
@@ -82,20 +110,6 @@ class ShipmentV1RestController extends PPLRestController
             [
                 "methods" => \WP_REST_Server::EDITABLE,
                 "callback" => [$this, "update_shipment_sender"],
-                "permission_callback"=>[$this, "check_permission"],
-                "args"=> [
-                    "id" => [
-                        "validate_callback" => function($params, $request, $key) {
-                            return is_numeric($params) && (new ShipmentData($params))->get_id();
-                        }
-                    ]
-                ]
-            ]);
-
-        register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/bankAccount",
-            [
-                "methods" => \WP_REST_Server::EDITABLE,
-                "callback" => [$this, "update_shipment_bank_account"],
                 "permission_callback"=>[$this, "check_permission"],
                 "args"=> [
                     "id" => [
@@ -188,24 +202,6 @@ class ShipmentV1RestController extends PPLRestController
         return $resp;
     }
 
-    public function update_shipment_bank_account(\WP_REST_Request $request)
-    {
-        $data = $request->get_json_params();
-        /**
-         * @var UpdateShipmentBankAccountModel $sender
-         */
-        $sender = pplcz_denormalize($data, UpdateShipmentBankAccountModel::class);
-        $shipment = $this->getShipment($request->get_param("id"));
-
-        if ($shipment instanceof \WP_REST_Response)
-            return $shipment;
-        $shipment->set_cod_bank_account_id($sender->getBankAccountId());
-        $shipment->save();
-        $resp = new \WP_REST_Response();
-        $resp->set_status(204);
-        return $resp;
-
-    }
 
     public function update_shipment_parcel(\WP_REST_Request $request)
     {
@@ -285,5 +281,29 @@ class ShipmentV1RestController extends PPLRestController
         return $resp;
     }
 
+    public function update_state(\WP_REST_Request $request)
+    {
+        $shipment = new ShipmentData($request->get_param("id"));
+        $package = new PackageData($request->get_param("packageId"));
+        if ($package->get_shipment_number()) {
+            $cpl = new CPLOperation();
+            $cpl->testPackageStates([$package]);
+        }
+        $resp = new \WP_REST_Response();
+        $resp->set_status(204);
+    }
+
+    public function cancel(\WP_REST_Request $request)
+    {
+        $shipment = new ShipmentData($request->get_param("id"));
+        $package = new PackageData($request->get_param("packageId"));
+        if ($package->get_shipment_number()) {
+            $cpl = new CPLOperation();
+            $cpl->cancelPackage($package);
+
+        }
+        $resp = new \WP_REST_Response();
+        $resp->set_status(204);
+    }
 
 }

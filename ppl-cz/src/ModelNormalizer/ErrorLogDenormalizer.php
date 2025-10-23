@@ -14,6 +14,7 @@ use PPLCZ\Model\Model\ErrorLogShipmentSettingModel;
 use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingModel;
 use PPLCZ\Model\Model\ShipmentModel;
+use PPLCZ\Setting\ApiSetting;
 use PPLCZ\ShipmentMethod;
 use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -160,8 +161,10 @@ class ErrorLogDenormalizer implements DenormalizerInterface
         $client_secret = null;
         $accessToken = null;
         try {
-            $client_id = get_option(pplcz_create_name("client_id"));
-            $client_secret = get_option(pplcz_create_name("client_secret")) ?: get_option(pplcz_create_name("secret"));
+            $apisetting = ApiSetting::getApi();
+            $client_id = $apisetting->getClientId();
+            $client_secret = $apisetting->getClientSecret();
+
             if ($client_id && $client_secret) {
                 $accessToken = (new CPLOperation())->getAccessToken();
             }

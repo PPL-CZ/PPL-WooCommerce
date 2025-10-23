@@ -24,8 +24,8 @@ if (!class_exists('ValidationException', false) && !interface_exists('Validation
 if (!class_exists('ReferenceNormalizer', false) && !interface_exists('ReferenceNormalizer', false) && !trait_exists('ReferenceNormalizer', false)) {
     spl_autoload_call('PPLCZVendor\ReferenceNormalizer');
 }
-if (!class_exists('ComposerAutoloaderInit4777630d57292fbfd30fceb81832bcb6', false) && !interface_exists('ComposerAutoloaderInit4777630d57292fbfd30fceb81832bcb6', false) && !trait_exists('ComposerAutoloaderInit4777630d57292fbfd30fceb81832bcb6', false)) {
-    spl_autoload_call('PPLCZVendor\ComposerAutoloaderInit4777630d57292fbfd30fceb81832bcb6');
+if (!class_exists('ComposerAutoloaderInitaedbb7a8b05c4d12061c34c570f1a02a', false) && !interface_exists('ComposerAutoloaderInitaedbb7a8b05c4d12061c34c570f1a02a', false) && !trait_exists('ComposerAutoloaderInitaedbb7a8b05c4d12061c34c570f1a02a', false)) {
+    spl_autoload_call('PPLCZVendor\ComposerAutoloaderInitaedbb7a8b05c4d12061c34c570f1a02a');
 }
 if (!class_exists('HelloWorldCommand', false) && !interface_exists('HelloWorldCommand', false) && !trait_exists('HelloWorldCommand', false)) {
     spl_autoload_call('PPLCZVendor\HelloWorldCommand');

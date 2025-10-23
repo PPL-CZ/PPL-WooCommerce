@@ -4,6 +4,7 @@ defined("WPINC") or die();
 use PPLCZ\Data\ParcelData;
 use PPLCZ\Model\Model\ShipmentModel;
 use PPLCZ\Model\Model\UpdateShipmentModel;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 
 class ParcelValidator extends ModelValidator
@@ -58,7 +59,9 @@ class ParcelValidator extends ModelValidator
         if ($model instanceof ShipmentModel) {
             if ($model->isInitialized("serviceCode") && $model->getServiceCode()) {
                 $code = $model->getServiceCode();
-                if (!ShipmentMethod::isMethodWithParcel($code)) {
+                $method = MethodSetting::getMethod($code);
+
+                if (!$method || !$method->getParcelRequired()) {
                     if ($this->getValue($model, "hasParcel")) {
                         $errors->add("$path.hasParcel", "Metoda neumožňuje výběr výdejního místa");
                     }

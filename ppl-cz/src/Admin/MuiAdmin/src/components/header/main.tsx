@@ -19,9 +19,10 @@ const pages = [
     key: "/setting",
     label: "Nastavení",
   },
-  { key: "/news", label: "Novinky"},
+  { key: "/batch", label: "Tisk" },
+  { key: "/news", label: "Novinky" },
   { key: "/links", label: "Odkazy" },
-  { key: "/logs", label: "Nahlásit problém"}
+  { key: "/logs", label: "Nahlásit problém" },
 ];
 
 const HeaderMain = () => {
@@ -42,8 +43,8 @@ const HeaderMain = () => {
   };
 
   return (
-      <Box className={classes.rootBox} marginTop={2}>
-        <Box maxWidth={'xl'} marginLeft={'auto'} marginRight={'auto'} >
+    <Box className={classes.rootBox} marginTop={2}>
+      <Box maxWidth={"xl"} marginLeft={"auto"} marginRight={"auto"}>
         <AppBar component={"div"} className={classes.appBar}>
           <Toolbar>
             <Typography
@@ -139,8 +140,8 @@ const HeaderMain = () => {
             </Box>
           </Toolbar>
         </AppBar>
-        </Box>
       </Box>
+    </Box>
   );
 };
 

@@ -4,7 +4,9 @@ defined("WPINC") or die();
 
 use PPLCZ\Model\Model\ParcelDataModel;
 use PPLCZ\Model\Model\CartModel;
+use PPLCZ\Model\Model\ShipmentMethodModel;
 use PPLCZ\Serializer;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 
 trait ParcelDataModelTrait {
@@ -39,8 +41,11 @@ trait ParcelDataModelTrait {
         foreach ($shippingMethods as $shippingMethod) {
             if (str_contains($shippingMethod->get_method_id(), pplcz_create_name(""))) {
                 $method = new ShipmentMethod($shippingMethod->get_instance_id());
-                if ($method->parcelBoxRequired)
+                $code = str_replace(pplcz_create_name(""), "",$method->id);
+                $methodsetting = MethodSetting::getMethod($code);
+                if ($methodsetting && $methodsetting->getParcelRequired()) {
                     $shippingMethod->update_meta_data(pplcz_create_name("parcelshop_data"), $data ? Serializer::getInstance()->normalize($data, "array") : null);
+                }
             }
         }
     }

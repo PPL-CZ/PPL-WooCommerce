@@ -68,6 +68,7 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
 
 
 
+
     $suppress = $wpdb->suppress_errors(true);
     @$wpdb->query("select * from {$wpdb->prefix}woocommerce_ppl_cod_bank_account limit 0");
     if (!$wpdb->error)
@@ -75,6 +76,8 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
     @$wpdb->query("select * from {$wpdb->prefix}pplshipping_cod_bank_account limit 0");
     if (!$wpdb->error)
         $wpdb->query("ALTER TABLE `{$wpdb->prefix}pplshipping_cod_bank_account` RENAME TO `{$wpdb->prefix}pplcz_cod_bank_account`");
+
+
     $wpdb->suppress_errors($suppress);
 
     $table = $wpdb->prefix . 'pplcz_cod_bank_account';
@@ -211,8 +214,9 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
 
     $table = $wpdb->prefix . 'pplcz_shipment';
 
+
     $sql = "CREATE TABLE `$table` (
-    `ppl_shipment_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ppl_shipment_id` int(11) NOT NULL AUTO_INCREMENT,
   `wc_order_id` int(11) DEFAULT NULL,
   `import_errors` text DEFAULT NULL,
   `reference_id` varchar(50) NOT NULL,
@@ -230,16 +234,35 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
   `has_parcel` tinyint(4) NOT NULL,
   `parcel_id` int(11) DEFAULT NULL,
   `batch_id` varchar(50) DEFAULT NULL,
+  `batch_local_id` int(11) DEFAULT NULL,
   `batch_label_group` datetime DEFAULT NULL,
   `note` varchar(300) DEFAULT NULL,
   `age` varchar(3) DEFAULT NULL,
   `lock` tinyint(4) NOT NULL,
   `draft` timestamp NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`ppl_shipment_id`),
-  UNIQUE KEY `reference_id` (`reference_id`)
+  PRIMARY KEY (`ppl_shipment_id`)
 ) $charset_collate";
 
     dbDelta($sql);
+
+    $suppress = $wpdb->suppress_errors();
+    @$wpdb->query("ALTER TABLE `{$wpdb->prefix}pplcz_shipment` DROP INDEX `reference_id`");
+    $wpdb->suppress_errors($suppress);
+
+
+    $table = "{$wpdb->prefix}pplcz_batch";
+
+    $sql = "CREATE TABLE `{$table}` (
+        `ppl_batch_id` int(11) NOT NULL AUTO_INCREMENT,
+        `name` varchar(100) COLLATE utf8mb3_bin DEFAULT NULL,
+        `remote_batch_id` varchar(50) COLLATE utf8mb3_bin DEFAULT NULL,
+        `lock` int(11) NOT NULL,
+        `created_at` datetime NOT NULL,
+         PRIMARY KEY (`ppl_batch_id`)
+    ) $charset_collate";
+
+    dbDelta($sql);
+
     $wpdb->query("delete from {$wpdb->prefix}options where option_name = 'pplcz_version'");
     $wpdb->query("delete from {$wpdb->prefix}options where option_name = 'pplcz_rules_version'");
 
@@ -269,6 +292,8 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
     $wpdb->query("update {$wpdb->prefix}options set option_name = replace(option_name, 'pplcz_pplcz_CONN', 'woocommerce_pplcz_CONN') where option_name like 'pplcz_pplcz_CONN%' ");
 
     $wpdb->query("truncate {$wpdb->prefix}pplcz_log");
+
+
 
     add_option(pplcz_create_name("error_log"), 0, null, 'yes') || update_option(pplcz_create_name("error_log"), 0, 'yes');
     add_option(pplcz_create_name("error_log_hashes"), "", null, 'yes') || update_option(pplcz_create_name("error_log_hashes"), "", 'yes');

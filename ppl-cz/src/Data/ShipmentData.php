@@ -4,9 +4,6 @@
 namespace PPLCZ\Data;
 defined("WPINC") or die();
 
-use PPLCZ\Model\Model\BankAccountModel;
-use PPLCZ\Model\Model\RecipientAddressModel;
-
 class ShipmentData extends PPLData implements ShipmentDataInterface
 {
     protected $data = [
@@ -25,6 +22,7 @@ class ShipmentData extends PPLData implements ShipmentDataInterface
         "parcel_id" => null,
         "has_parcel" => false,
         "batch_id" => null,
+        "batch_local_id" => null,
         "batch_label_group" => null,
         "age"=> null,
         "note" => null,
@@ -174,30 +172,6 @@ class ShipmentData extends PPLData implements ShipmentDataInterface
         $this->set_prop("sender_address_id", $value);
     }
 
-    // Getter and Setter for 'cod_payment_id'
-    public function get_cod_bank_account_id($context = 'view')
-    {
-        if ($context === "default") {
-            $banks = CodBankAccountData::get_default_bank_accounts();
-            $currency = $this->get_cod_value_currency();
-            $banks2 = array_filter($banks, function (CodBankAccountData $bank) use ($currency){
-                return $currency === $bank->get_currency();
-            });
-            if ($banks2)
-                return reset($banks2)->get_id();
-            if ($banks)
-                return reset($banks)->get_id();
-
-
-        }
-        return $this->get_prop("cod_bank_account_id", $context);
-    }
-
-    public function set_cod_bank_account_id($value)
-    {
-        $this->set_prop("cod_bank_account_id", $value);
-    }
-
     // Getter and Setter for 'has_cod_payment'
     public function get_cod_value($context = 'view')
     {
@@ -240,6 +214,16 @@ class ShipmentData extends PPLData implements ShipmentDataInterface
     public function set_has_parcel($value)
     {
         $this->set_prop("has_parcel", $value);
+    }
+
+    public function get_batch_local_id($context = 'view')
+    {
+        return $this->get_prop("batch_local_id", $context);
+    }
+
+    public function set_batch_local_id($value)
+    {
+        $this->set_prop("batch_local_id", $value);
     }
 
     // Getter and Setter for 'batch_id'
@@ -306,15 +290,6 @@ class ShipmentData extends PPLData implements ShipmentDataInterface
                 $package->set_ppl_shipment_id($this->get_id());
                 $package->set_wc_order_id($this->get_wc_order_id());
                 $package->save();
-            }
-        }
-
-        if ($this->get_cod_bank_account_id()) {
-
-            $codBank = new CodBankAccountData($this->get_cod_bank_account_id());
-            if (!$codBank->get_lock()) {
-                $codBank->set_lock(true);
-                $codBank->save();
             }
         }
     }
@@ -387,9 +362,9 @@ class ShipmentData extends PPLData implements ShipmentDataInterface
      * @return ShipmentData[]
      * @throws \Exception
      */
-    public static function read_batch_shipments($batch_id)
+    public static function read_remote_batch_shipments($batch_id)
     {
-        return \WC_Data_Store::load("pplcz-shipment")->read_batch_shipments($batch_id);
+        return \WC_Data_Store::load("pplcz-shipment")->read_remote_batch_shipments($batch_id);
     }
 
     /**
@@ -409,8 +384,18 @@ class ShipmentData extends PPLData implements ShipmentDataInterface
     }
 
 
-    public static function read_label_groups()
+    /**
+     * @param $batch_local_id
+     * @return ShipmentData[]
+     * @throws \Exception
+     */
+    public static function read_batch_shipments($batch_local_id)
     {
-        return \WC_Data_Store::load("pplcz-shipment")->read_label_groups();
+        return \WC_Data_Store::load("pplcz-shipment")->read_batch_shipments($batch_local_id);
+    }
+
+    public static function reorder_batch_shipments($batch_local_id, $shipments)
+    {
+        return \WC_Data_Store::load("pplcz-shipment")->reorder_batch_shipments($batch_local_id, $shipments);
     }
 }

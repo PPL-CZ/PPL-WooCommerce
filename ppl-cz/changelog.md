@@ -46,4 +46,6 @@
 - přidání informaci v ramci logu u objednávky 
 - fix výpočtu ceny dopravy
 # 1.0.30
-- fix zobrazení tlačítka objednání svozu
+- odstranění svozu v rámci gridů mimo objednávky
+# 1.0.31
+- přidání řazení objednávek pro tisk

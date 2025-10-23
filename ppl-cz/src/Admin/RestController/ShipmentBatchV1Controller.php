@@ -3,6 +3,11 @@ namespace PPLCZ\Admin\RestController;
 defined("WPINC") or die();
 
 
+use PPLCZ\Data\BatchData;
+use PPLCZ\Data\BatchDataStore;
+use PPLCZ\Model\Model\BatchModel;
+use PPLCZ\Model\Model\PrepareShipmentBatchItemModel;
+use PPLCZ\Model\Model\ShipmentWithAdditionalModel;
 use PPLCZCPL\Model\EpsApiInfrastructureWebApiModelProblemJsonModel;
 use PPLCZ\Admin\CPLOperation;
 use PPLCZ\Data\ShipmentData;
@@ -17,6 +22,7 @@ use PPLCZ\Model\Model\ShipmentModel;
 use PPLCZ\Serializer;
 use PPLCZ\Traits\ParcelDataModelTrait;
 use PPLCZ\Validator\Validator;
+use WP_REST_Response;
 
 class ShipmentBatchV1Controller extends  PPLRestController
 {
@@ -29,28 +35,246 @@ class ShipmentBatchV1Controller extends  PPLRestController
     public function register_routes()
     {
 
-        register_rest_route($this->namespace, "/" . $this->base . "/preparing", [
+        register_rest_route($this->namespace, "/". $this->base . "/(?P<id>\d+)/test/(?P<shipmentId>\d+)", [
+            "methods" => "PUT",
+            "callback" => [$this, "test_shipment"],
+            "permission_callback" =>[$this, "check_permission"]
+        ]);
+
+        register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/preparing", [
             "methods" => \WP_REST_Server::EDITABLE,
             "callback" => [$this, "prepare_shipments"],
             "permission_callback"=>[$this, "check_permission"],
         ]);
 
-        register_rest_route($this->namespace, "/" . $this->base . "/create-labels", [
+        register_rest_route($this->namespace, "/" . $this->base . "/shipment", [
+            "methods" => \WP_REST_Server::EDITABLE,
+            "callback" => [$this, "add_shipment_to_batch"],
+            "permission_callback"=>[$this, "check_permission"],
+        ]);
+
+        register_rest_route($this->namespace, "/" . $this->base, [
+            "methods"=> \WP_REST_Server::READABLE,
+            "callback"=>[$this, "get_batchs"],
+            "permission_callback"=>[$this, "check_permission"],
+        ]);
+
+        register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/shipment", [
+            "methods"=> \WP_REST_Server::READABLE,
+            "callback"=>[$this, "get_batch"],
+            "permission_callback"=>[$this, "check_permission"],
+        ]);
+
+        register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/reorder", [
+            "methods"=> "PUT",
+            "callback"=>[$this, "reorder"],
+            "permission_callback"=>[$this, "check_permission"],
+        ]);
+
+
+
+        register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/shipment/(?P<shipmentId>\d+)", [
+            "methods"=> \WP_REST_Server::DELETABLE,
+            "callback"=>[$this, "remove_batch_shipment"],
+            "permission_callback"=>[$this, "check_permission"],
+        ]);
+
+        register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/shipment", [
+            "methods" => \WP_REST_Server::EDITABLE,
+            "callback" => [$this, "add_shipment_to_batch"],
+            "permission_callback"=>[$this, "check_permission"],
+        ]);
+
+        register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/create-labels", [
             "methods" => \WP_REST_Server::EDITABLE,
             "callback" => [$this, "create_labels"],
             "permission_callback"=>[$this, "check_permission"],
         ]);
 
-        register_rest_route($this->namespace, "/" . $this->base . "/refresh-labels", [
+        register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/refresh-labels", [
             "methods" => \WP_REST_Server::EDITABLE,
             "callback" => [$this, "refresh_labels"],
             "permission_callback"=>[$this, "check_permission"],
         ]);
+
+        register_rest_route($this->namespace, "/". $this->base, [
+            "methods" => \WP_REST_Server::CREATABLE,
+            "callback" => [$this, "create_batch"],
+            "permission_callback" =>[$this, "check_permission"]
+        ]);
+
+
+    }
+
+    public function create_batch()
+    {
+        $batchData = new BatchData();
+        $batchData->save();
+
+        $response = new \WP_REST_Response();
+
+        $response->set_headers([
+            "Location" => rtrim(get_rest_url(), '/') . "/woocommerce-ppl/v1/shipment/batch/{$batchData->get_id()}"
+        ]);
+
+        $response->set_status(201);
+        return $response;
+    }
+
+
+    public function get_batchs(\WP_REST_Request  $request)
+    {
+
+        $free = $request->get_param("free");
+        /**
+         * @var BatchData[] $batchs
+         */
+        $batchs = BatchData::get_batchs($free);
+
+        foreach ($batchs as $key => $value)
+        {
+            $batchs[$key] = pplcz_denormalize($batchs[$key], BatchModel::class);
+            $batchs[$key] = pplcz_normalize($batchs[$key]);
+        }
+
+        $response = new \WP_REST_Response();
+        $response->set_data($batchs);
+
+        return $response;
+    }
+
+    public function remove_batch_shipment(\WP_REST_Request $request)
+    {
+        $shipemntId = $request->get_param("shipmentId");
+        $shipment = new ShipmentData($shipemntId);
+
+        $resp = new WP_REST_Response();
+        $resp->set_status(404);
+
+        if (!$shipment->get_id())
+        {
+            $resp = new WP_REST_Response();
+            $resp->set_status(404);
+            return $resp;
+        }
+        $resp->set_status(204);
+        $shipment->set_batch_local_id(null);
+        $shipment->save();
+        return $resp;
+    }
+
+    public function reorder(\WP_REST_Request $request )
+    {
+        $id = $request->get_param('id');
+        $shipments = $request->get_json_params();
+
+        ShipmentData::reorder_batch_shipments($id, $shipments);
+
+        $rest = new WP_REST_Response();
+        $rest->set_status(204);
+        return $rest;
+    }
+
+    public function get_batch(\WP_REST_Request $request)
+    {
+        $id = $request->get_param('id');
+        $shipments = ShipmentData::read_batch_shipments($id);
+
+        foreach ($shipments as $key => $shipment)
+        {
+            $shipments[$key] = pplcz_denormalize($shipments[$key], ShipmentWithAdditionalModel::class);
+            $shipments[$key] = pplcz_normalize($shipments[$key]);
+        }
+
+        $response = new \WP_REST_Response();
+        $response->set_data($shipments);
+
+        return $response;
+    }
+
+    public function add_shipment_to_batch(\WP_REST_Request $request)
+    {
+        $data = $request->get_json_params();
+        /**
+         * @var PrepareShipmentBatchModel $data
+         */
+        $data = pplcz_denormalize($data, PrepareShipmentBatchModel::class);
+        $id = $request->get_param('id');
+        $asNew = false;
+
+        $batchData = new BatchData($id);
+
+        if (!$batchData->get_id())
+        {
+            $response = new \WP_REST_Response();
+            $response->set_status(404);
+            return $response;
+        }
+
+        $shipments = ShipmentData::read_batch_shipments($batchData->get_id());
+        $added = false;
+        foreach ($data->getItems() as $key => $item) {
+            if ($item->getShipmentId())
+            {
+                $shipmentData = new ShipmentData($item->getShipmentId());
+                if ($shipmentData->get_batch_local_id() == $batchData->get_id())
+                    continue;
+
+                if ($shipmentData->get_import_state() || $shipmentData->get_import_state() === "None") {
+                    $shipmentData->set_batch_local_id($batchData->get_id());
+                    $shipmentData->save();
+                    $shipments[] = $shipmentData;
+                    $added = true;
+                }
+
+            }
+            else if ($item->getOrderId())
+            {
+                $finded = ShipmentData::find_shipments_by_wc_order($item->getOrderId());
+                if ($finded)
+                    continue;
+
+                $order = new \WC_Order($item->getOrderId());
+                if (self::hasPPLShipment($order)) {
+                    $shipmentModel = pplcz_denormalize($order, ShipmentModel::class);
+                    $shipmentData = pplcz_denormalize($shipmentModel, ShipmentData::class);
+                    $shipmentData->set_batch_local_id($batchData->get_id());
+                    $shipmentData->save();
+                    $shipments[] = $shipmentData;
+                    $added = true;
+                }
+            }
+        }
+
+        ShipmentData::reorder_batch_shipments($batchData->get_id(), array_map(function ($item) {
+            return $item->get_id();
+        }, $shipments));
+
+        $resp = new \WP_REST_Response();
+
+        $resp->set_headers([
+            "Location" => rtrim(get_rest_url(), '/') . "/woocommerce-ppl/v1/shipment/batch/{$batchData->get_id()}"
+        ]);
+
+        $resp->set_status(204);
+        if ($asNew) {
+            $resp->set_status(201);
+        }
+        $resp->set_data(null);
+        return $resp;
+
     }
 
     public function create_labels(\WP_REST_Request $request)
     {
         $data = $request->get_json_params();
+
+        $id = $request->get_param("id");
+        $batch = new BatchData($id);
+        if (!$batch->get_id())
+        {
+            return new \WP_REST_Response(null, 404);
+        }
 
         /**
          * @var CreateShipmentLabelBatchModel $data
@@ -63,13 +287,21 @@ class ShipmentBatchV1Controller extends  PPLRestController
             add_option(pplcz_create_name("print_setting"), $print) || update_option(pplcz_create_name("print_setting"), $print);
         }
 
+        $shipmentIds = $data->getShipmentId();
+        $batchShipmentIds = array_map(function (ShipmentData $shipment) {
+            return $shipment->get_id();
+        }, ShipmentData::read_batch_shipments($batch->get_id()));
+
+        if (array_diff($shipmentIds, $batchShipmentIds) || array_diff($batchShipmentIds, $shipmentIds))
+            return new \WP_REST_Response(null, 400);
+
 
         $cpl = new CPLOperation();
         $resp = new \WP_REST_Response();
         $resp->set_status(204);
 
         try {
-            $cpl->createPackages($data->getShipmentId(), $print);
+            $cpl->createPackages($batch->get_id(), $print);
         }
         catch (\Exception $exception)
         {
@@ -90,12 +322,34 @@ class ShipmentBatchV1Controller extends  PPLRestController
 
     public function prepare_shipments(\WP_REST_Request $request)
     {
+
+        $id = $request->get_param("id");
+        $batch = new BatchData($id);
+        if (!$batch->get_id())
+        {
+            return new \WP_REST_Response(null, 404);
+        }
+
         $data = $request->get_json_params();
+
+        $batchShipments = ShipmentData::read_batch_shipments($batch->get_id());
 
         /**
          * @var PrepareShipmentBatchModel $data
          */
         $data = pplcz_denormalize($data, PrepareShipmentBatchModel::class);
+
+        $shipmentIds = array_filter(array_map(function(PrepareShipmentBatchItemModel $item) {
+            return $item->getShipmentId();
+        }, $data->getItems()));
+
+        $batchShipmentIds = array_map(function (ShipmentData $shipment) {
+            return $shipment->get_id();
+        }, $batchShipments);
+
+        if (array_diff($shipmentIds, $batchShipmentIds) || array_diff($batchShipmentIds, $shipmentIds))
+            return new \WP_REST_Response(null, 400);
+
         $error = new Errors();
 
         foreach ($data->getItems() as $key => $item) {
@@ -109,21 +363,12 @@ class ShipmentBatchV1Controller extends  PPLRestController
                      * @var ShipmentModel $shipmentModel
                      */
                     $shipmentModel = pplcz_denormalize($shipmentData, ShipmentModel::class);
-                    pplcz_validate($shipmentModel, $error, "item.$key");
+                    pplcz_validate($shipmentModel, $error, "items.$key");
                 }
             }
-            else if ($item->getOrderId())
+            else
             {
-                $order = new \WC_Order($item->getOrderId());
-                if (self::hasPPLShipment($order)) {
-                    $shipmentModel = pplcz_denormalize($order, ShipmentModel::class);
-                    pplcz_validate($shipmentModel, $error, "item.$key");
-
-                } else {
-                    $error->add("item.$key", "Nelze automaticky vytvořit zásilku");
-                }
-            } else {
-                $error->add("item.$key", "Nelze automaticky vytvořit zásilku");
+                $error->add("items.$key", "Nelze automaticky vytvořit zásilku z objednávky");
             }
         }
 
@@ -138,15 +383,9 @@ class ShipmentBatchV1Controller extends  PPLRestController
             if ($item->getShipmentId()) {
                 $output[$key] = $item->getShipmentId();
             }
-            else if ($item->getOrderId())
-            {
-                $order = new \WC_Order($item->getOrderId());
-                $shipmentModel = pplcz_denormalize($order, ShipmentModel::class);
-                $shipmentData = pplcz_denormalize($shipmentModel, ShipmentData::class);
-                $shipmentData->save();
-                $output[$key] = $shipmentData->get_id();
-            }
         }
+
+        ShipmentData::reorder_batch_shipments($batch->get_id(), array_values($output));
 
         $model = new PrepareShipmentBatchReturnModel();
         $model->setShipmentId($output);
@@ -158,8 +397,8 @@ class ShipmentBatchV1Controller extends  PPLRestController
 
     public function refresh_labels(\WP_REST_Request $request)
     {
+        $id = $request->get_param("id");
         $data = $request->get_json_params();
-
         /**
          * @var ShipmentLabelRefreshBatchModel $data
          */
@@ -181,13 +420,13 @@ class ShipmentBatchV1Controller extends  PPLRestController
         foreach ($data->getShipmentId() as $item) {
             $shipmentData = new ShipmentData($item);
             $output[] = pplcz_denormalize($shipmentData, ShipmentModel::class);
-            $ids[] = $shipmentData->get_batch_label_group();
+            $ids[] = $shipmentData->get_batch_id();
         }
 
         $refresh = new RefreshShipmentBatchReturnModel();
         $refresh->setShipments($output);
         $refresh->setBatchs(array_filter($ids));
-        $data = pplcz_normalize($refresh, "array");
+        $data = pplcz_normalize($refresh);
         $resp = new \WP_REST_Response();
         $resp->set_data($data);
 

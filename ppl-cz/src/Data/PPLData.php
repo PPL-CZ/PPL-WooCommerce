@@ -66,12 +66,13 @@ abstract class PPLData extends \WC_Data
             return;
         $changes = $this->get_changes();
         $locked = isset($changes["lock"]) ? true : false;
-        if (!$this->get_lock() && $locked)
-            throw new \Exception(esc_html__("Zamknutý záznam", "ppl-cz"));
-        if ( !$this->ignore_lock && $this->get_lock())
-        {
-            if (!$locked)
+        if (!$this->ignore_lock) {
+            if (!$this->get_lock() && $locked)
                 throw new \Exception(esc_html__("Zamknutý záznam", "ppl-cz"));
+            if ($this->get_lock()) {
+                if (!$locked)
+                    throw new \Exception(esc_html__("Zamknutý záznam", "ppl-cz"));
+            }
         }
     }
 

@@ -11,6 +11,7 @@ use PPLCZ\ModelCPLNormalizer\CPLBatchShipmentDenormalizer;
 use PPLCZ\Model\Normalizer\JaneObjectNormalizer;
 use PPLCZ\ModelNormalizer\AddressModelDenormalizer;
 use PPLCZ\ModelNormalizer\BankModelDenormalizer;
+use PPLCZ\ModelNormalizer\BatchModelDenormalizer;
 use PPLCZ\ModelNormalizer\CategoryModelDenormalizer;
 use PPLCZ\ModelNormalizer\ErrorLogDenormalizer;
 use PPLCZ\ModelNormalizer\OrderAddressDataDenormalizer;
@@ -21,6 +22,8 @@ use PPLCZ\ModelNormalizer\CartModelDernomalizer;
 use PPLCZ\ModelNormalizer\ShipmentDataDenormalizer;
 use PPLCZ\ModelNormalizer\CollectionDataDenormalizer;
 use PPLCZ\ModelNormalizer\ShipmentSettingDenormalizer;
+use PPLCZ\ModelNormalizer\ShipmentWithAdditionalModelDenormalizer;
+use PPLCZ\ModelNormalizer\WpErrorModelDenormalizer;
 
 class Serializer extends \PPLCZVendor\Symfony\Component\Serializer\Serializer {
     public function __construct(array $normalizers = [], array $encoders = [])
@@ -30,7 +33,6 @@ class Serializer extends \PPLCZVendor\Symfony\Component\Serializer\Serializer {
             new CollectionDataDenormalizer(),
             new OrderAddressDataDenormalizer(),
             new AddressModelDenormalizer(),
-            new BankModelDenormalizer(),
             new PackageModelDernomalizer(),
             new ShipmentDataDenormalizer(),
             new ParcelDataModelDenormalizer(),
@@ -39,6 +41,9 @@ class Serializer extends \PPLCZVendor\Symfony\Component\Serializer\Serializer {
             new CategoryModelDenormalizer(),
             new ShipmentSettingDenormalizer(),
             new ErrorLogDenormalizer(),
+            new WpErrorModelDenormalizer(),
+            new ShipmentWithAdditionalModelDenormalizer(),
+            new BatchModelDenormalizer(),
             // cpl
             new CPLBatchAddressDenormalizer(),
             new CPLBatchCreateShipmentsDenormalizer(),
