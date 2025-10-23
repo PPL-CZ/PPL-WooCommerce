@@ -17,6 +17,8 @@ use PPLCZ\Model\Model\ShipmentPhaseModel;
 use PPLCZ\Model\Model\SyncPhasesModel;
 use PPLCZ\Model\Model\UpdateSyncPhasesModel;
 use PPLCZ\Serializer;
+use PPLCZ\Setting\ApiSetting;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\Validator\Validator;
 
 class SettingV1RestController extends  PPLRestController
@@ -210,8 +212,6 @@ class SettingV1RestController extends  PPLRestController
     public function update_addresses(\WP_REST_Request $request)
     {
         $sender = $request->get_json_params();
-
-        $validator = Validator::getInstance();
         $errors = new Errors();
 
         foreach ($sender as $key => $value)
@@ -227,7 +227,6 @@ class SettingV1RestController extends  PPLRestController
             $address = new AddressData($addressId);
             $sender[$key] = pplcz_denormalize($sender[$key], AddressData::class, ["data" => $address]);
             $sender[$key]->save();
-
         }
 
         AddressData::set_default_sender_addresses($sender);
@@ -242,9 +241,6 @@ class SettingV1RestController extends  PPLRestController
     public function update_api(\WP_REST_Request $request)
     {
         delete_transient(pplcz_create_name("validate_cpl_connect"));
-
-        $apiKey = pplcz_create_name("client_id");
-        $apiSecret = pplcz_create_name("secret");
 
         $data = $request->get_json_params();
         /**
@@ -261,16 +257,13 @@ class SettingV1RestController extends  PPLRestController
             return new RestResponse400($wp_error);
         }
 
-        add_option($apiKey, $setting->getClientId()) || update_option($apiKey, $setting->getClientId());
-        add_option($apiSecret, $setting->getClientSecret()) || update_option($apiSecret, $setting->getClientSecret());
+        ApiSetting::setApi($setting);
 
         $cpl = new CPLOperation();
         $cpl->clearAccessToken();
         $accessToken = $cpl->getAccessToken();
 
         if (!$accessToken) {
-            $response = new \WP_REST_Response();
-
             $wp_error = new Errors();
             $wp_error->add("", "PPL Plugin nebude fungovat, protože přihlašovací údaje nejsou správně nastaveny! Ujistěte se, že jsou zadány správně. Pokud je nemáte, prosím kontaktujte ithelp@ppl.cz");
             return new RestResponse400($wp_error);
@@ -284,14 +277,10 @@ class SettingV1RestController extends  PPLRestController
 
     public function get_api(\WP_REST_Request $request)
     {
-        $apiKey = pplcz_create_name("client_id");
-        $apiSecret = pplcz_create_name("secret");
 
-        $myapi2 = new MyApi2();
-        $myapi2->setClientId(get_option($apiKey) ?: "");
-        $myapi2->setClientSecret(get_option($apiSecret) ?: "");
+        $myapi2 = ApiSetting::getApi();
 
-        $myapi2 = pplcz_normalize($myapi2, "array");
+        $myapi2 = pplcz_normalize($myapi2);
 
         $response = new \WP_REST_Response();
         $response->set_data($myapi2);
@@ -301,23 +290,7 @@ class SettingV1RestController extends  PPLRestController
     public function get_parcelplaces(\WP_REST_Request $request)
     {
 
-        $places = new ParcelPlacesModel();
-        $places->setDisabledParcelShop(!!get_option(pplcz_create_name("disabled_parcelshop")));
-        $places->setDisabledAlzaBox(!!get_option(pplcz_create_name("disabled_alzabox")));
-        $places->setDisabledParcelBox(!!get_option(pplcz_create_name("disabled_parcelbox")));
-
-        $disabledCountries = get_option(pplcz_create_name("disabled_parcel_countries"));
-        if (!is_array($disabledCountries))
-            $disabledCountries = [];
-
-        $mapLanguage = get_option(pplcz_create_name("map_language"));
-        if (!is_string($mapLanguage))
-            $mapLanguage = null;
-
-        $places->setMapLanguage($mapLanguage);
-
-
-        $places->setDisabledCountries($disabledCountries);
+        $places = MethodSetting::getGlobalParcelboxesSetting();
 
         $places = pplcz_normalize($places);
 
@@ -336,17 +309,7 @@ class SettingV1RestController extends  PPLRestController
          */
         $setting = pplcz_denormalize($data, ParcelPlacesModel::class);
 
-        $parcelbox = pplcz_create_name("disabled_parcelbox");
-        $parcelshop =pplcz_create_name("disabled_parcelshop");
-        $alzabox = pplcz_create_name("disabled_alzabox");
-        $disabledCountries = pplcz_create_name("disabled_parcel_countries");
-        $languageMap = pplcz_create_name("map_language");
-
-        add_option($parcelbox, $setting->getDisabledParcelBox()) || update_option($parcelbox, $setting->getDisabledParcelBox());
-        add_option($parcelshop, $setting->getDisabledParcelShop()) || update_option($parcelshop, $setting->getDisabledParcelShop());
-        add_option($alzabox, $setting->getDisabledAlzaBox()) || update_option($alzabox, $setting->getDisabledAlzaBox());
-        add_option($disabledCountries, $setting->getDisabledCountries()) || update_option($disabledCountries, $setting->getDisabledCountries());
-        add_option($languageMap, $setting->getMapLanguage()) || update_option($languageMap, $setting->getMapLanguage());
+        MethodSetting::setGlobalParcelboxesSetting($setting);
 
         pplcz_set_update_setting();
 

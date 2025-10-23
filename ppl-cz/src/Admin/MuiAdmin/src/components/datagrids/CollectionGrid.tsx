@@ -9,36 +9,25 @@ import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import {useState} from "react";
 import MoreVert from "@mui/icons-material/MoreVert";
 import {formatDate} from "date-fns";
-import {baseConnectionUrl} from "../../connection";
-import {useQueryClient} from "@tanstack/react-query";
+import { useCollectionOrderMutation } from "../../queries/useCollectionOrderQueries";
 
 type CollectionModel = components["schemas"]["CollectionModel"];
 
 
 const MenuRow = (props: { id: string, row: CollectionModel }) => {
-    const qc = useQueryClient();
     const [show, setShow] = useState(false);
     const [progres, setProgres] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const state = props.row.state;
+    const { mutateAsync } = useCollectionOrderMutation();
 
-    const updateState = (state: "DELETE" | "PUT") => {
-        const {nonce, url} = baseConnectionUrl();
+    const updateState = async (action: "DELETE" | "PUT") => {
         setProgres(true);
-        fetch(`${url}/ppl-cz/v1/collection/${props.row.id}/order`, {
-            method: state,
-            headers: {
-                "X-WP-nonce": nonce,
-            },
-        }).then(x => {
-            if (x.status === 204) {
-                qc.refetchQueries({
-                    queryKey: ["collections"],
-                });
-            }
-        }).finally(() => {
+        try {
+            await mutateAsync({ collectionId: `${props.row.id}`, action });
+        } finally {
             setProgres(false);
-        });
+        }
     }
 
 

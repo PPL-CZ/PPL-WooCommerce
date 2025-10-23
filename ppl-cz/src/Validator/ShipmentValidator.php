@@ -3,6 +3,7 @@ namespace PPLCZ\Validator;
 defined("WPINC") or die();
 use PPLCZ\Model\Model\ShipmentModel;
 use PPLCZ\Model\Model\UpdateShipmentModel;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 
 class ShipmentValidator extends ModelValidator
@@ -27,7 +28,9 @@ class ShipmentValidator extends ModelValidator
 
             if ($model->getServiceCode()) {
                 $code = $model->getServiceCode();
-                $isCod = ShipmentMethod::isMethodWithCod($code);
+                $method = MethodSetting::getMethod($code);
+
+                $isCod = $method && $method->getCodAvailable();
                 if ($isCod) {
                     foreach (["codVariableNumber" => "Variabilní číslo musí být vyplněno", "codValue" => "Hodnota dobírky není určena", "codValueCurrency" => "Není určena měna dobírky", "senderId" =>"Je potřeba určit odesílatele pro etiketu"] as $item => $message) {
                         if (!$this->getValue($model, $item)) {
@@ -80,6 +83,7 @@ class ShipmentValidator extends ModelValidator
                     $errors->add("$path.packages", "Počet balíčku může být pouze 1");
                 }
             }
+
         }
     }
 }

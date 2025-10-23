@@ -3,6 +3,7 @@ namespace PPLCZ\Admin\Order;
 defined("WPINC") or die();
 
 
+use PPLCZ\Admin\Page\OptionPage;
 use PPLCZCPL\ApiException;
 use PPLCZ\Admin\Assets\JsTemplate;
 use PPLCZ\Admin\CPLOperation;
@@ -30,20 +31,22 @@ class OrderPanel {
 
         $shipments = ShipmentData::read_order_shipments($order->get_id());
         foreach ($shipments as $key => $shipment) {
-            $shipments[$key] = Serializer::getInstance()->denormalize($shipment, ShipmentModel::class);
+            $shipments[$key] = pplcz_denormalize($shipment, ShipmentModel::class);
         }
 
         if (!$shipments) {
             if (self::hasPPLShipment($order))
-                $shipments = [Serializer::getInstance()->denormalize($order, ShipmentModel::class)];
+                $shipments = [pplcz_denormalize($order, ShipmentModel::class)];
         }
 
         $jsShipments = [];
         $jsShipmentsOk = [];
         $jsShipmentsErrors = [];
         $jsImage = [];
+        $batchs = [];
 
         foreach ($shipments as $key=>$shipment) {
+            $batchs[$key] = $shipment->getBatchId() ? OptionPage::createUrl($shipment->getBatchId()) : false;
             $jsShipments[$key] = Serializer::getInstance()->normalize($shipment, "array");
             /**
              * @var ShipmentModel $shipment
@@ -90,6 +93,7 @@ class OrderPanel {
             "jsShipments" => $jsShipments,
             "jsShipmentsOk" => $jsShipmentsOk,
             "jsShipmentsErrors" => $jsShipmentsErrors,
+            "batchs" => $batchs,
             "jsImage" => $jsImage,
             "nonce" => wp_create_nonce('orderpanel')
         ]);

@@ -168,16 +168,16 @@ foreach ($shipments as $key => $shipment):
 </table>
 
 <?php if ($shipment->getImportState() === "Complete" || array_filter($shipment->getPackages(),function ($item){
-   return $item->isInitialized("importError") && $item->getImportError();
+   return $item->getImportError();
 })) :?>
 <table>
-    <?php if ($shipment->isInitialized("batchLabelGroup") && $shipment->getBatchLabelGroup()):?>
+    <?php if ($shipment->getBatchRemoteId()):?>
     <tr>
         <td>
             Všechny zásilky na objednávce
         </td>
         <td style="vertical-align: center">
-            <a id="ppl_reference_<?php echo urlencode($shipment->getReferenceId()); ?>" class="button all-labels pplcz-label-download" target="_blank" href="<?php echo esc_html(pplcz_get_download_pdf($shipment->getBatchLabelGroup(), $shipment->getReferenceId(), $shipment->getPrintState() ?: $selectedPrint)) ?>" >
+            <a id="ppl_reference_<?php echo urlencode($shipment->getReferenceId()); ?>" class="button all-labels pplcz-label-download" target="_blank" href="<?php echo esc_html(pplcz_get_download_pdf($shipment->getBatchRemoteId(), $shipment->getId(), null,$shipment->getPrintState() ?: $selectedPrint)) ?>" >
                 <span style="position: relative; top: 5px" class="dashicons dashicons-admin-page"></span>
             </a>
             <?php
@@ -208,17 +208,17 @@ foreach ($shipments as $key => $shipment):
     ?>
     <tr>
         <td>
-            <?php if ($package->isInitialized("shipmentNumber") && $package->getShipmentNumber()) : ?>
+            <?php if ($package->getShipmentNumber()) : ?>
             <a href="https://www.ppl.cz/vyhledat-zasilku?shipmentId=<?php echo  esc_html($package->getShipmentNumber()) ?>"><?php echo esc_html($package->getShipmentNumber())?></a>
             <?php endif; ?>
-            <?php if ($package->isInitialized("referenceId") && $package->getReferenceId()) : ?>
+            <?php if ($package->getReferenceId()) : ?>
             <?php echo esc_html("(ref: " . $package->getReferenceId() . ")") ?>
             <?php endif; ?>
         </td>
         <td style="vertical-align: middle;  line-height: 2.5em">
-            <?php if ($package->isInitialized("labelId") && $package->getLabelId()):?>
+            <?php if ($package->getLabelId()):?>
                 <?php if ($package->getPhase() === "None" || $package->getPhase() === "Order"): ?>
-                <a id="pplcz-order-panel-anchor-href-<?php echo esc_html($addId) ?>"  target="_blank" href="<?php echo esc_html(pplcz_get_download_pdf($package->getId(), null, $shipment->getPrintState() ?: $selectedPrint)); ?>" class="button pplcz-label-download">
+                <a id="pplcz-order-panel-anchor-href-<?php echo esc_html($addId) ?>"  target="_blank" href="<?php echo esc_html(pplcz_get_download_pdf($shipment->getBatchRemoteId(), $shipment->getId(), $package->getId(), $shipment->getPrintState() ?: $selectedPrint)); ?>" class="button pplcz-label-download">
                     <span style="position: relative; top: 5px" class="dashicons dashicons-printer"></span>
                 </a>
                 <button class="button cancel-package"
@@ -258,7 +258,11 @@ foreach ($shipments as $key => $shipment):
 <button class="button create-labels"
         type="button"
         data-orderId="<?php echo  esc_html($order->get_id())?>"
-        <?php if ($shipment->isInitialized("id")): ?>data-shipmentId="<?php echo esc_html($shipment->getId()) ?>"  <?php endif; ?> data-shipment='<?php echo esc_html(wp_json_encode(\PPLCZ\Serializer::getInstance()->normalize($shipment))) ?>'>Tisk etiket</button>
+        <?php if ($shipment->getId()): ?>data-shipmentId="<?php echo esc_html($shipment->getId()) ?>"  <?php endif; ?> data-shipment='<?php echo esc_html(wp_json_encode(pplcz_normalize($shipment))) ?>'>Tisk etiket</button>
+    <button class="button create-labels-add"
+            type="button"
+            data-orderId="<?php echo  esc_html($order->get_id())?>"
+        <?php if ($shipment->getId()): ?>data-shipmentId="<?php echo esc_html($shipment->getId()) ?>"  <?php endif; ?> data-shipment='<?php echo esc_html(wp_json_encode(pplcz_normalize($shipment))) ?>'>Do hromadného tisku etiket <?php if ($shipment->getBatchId()) :?>(#<?php echo esc_html($shipment->getBatchId()) ?>)<?php endif; ?></button>
 <?php endif; ?>
     <?php
     if ($shipment->getId() && in_array($shipment->getImportState(), [
@@ -272,6 +276,9 @@ foreach ($shipments as $key => $shipment):
                 data-orderId="<?php echo esc_html($order->get_id())?>"
                 data-shipmentId="<?php echo esc_html($shipment->getId()) ?>">Odstranit</button>
     <?php } ?>
+    <?php if ($batchs[$key]): ?>
+        <a class="button" href="<?php echo esc_html($batchs[$key]); ?>">Tisková dávka</a>
+    <?php endif; ?>
     <?php if ($key !=  array_key_last($shipments)) :?>
     <hr style="margin-left: -12px; margin-right:-12px"/>
     <?php endif; ?>

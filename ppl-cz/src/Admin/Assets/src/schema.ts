@@ -96,6 +96,21 @@ export interface components {
     ShipmentLabelRefreshBatchModel: {
       shipmentId: number[] | null;
     };
+    ShipmentWithAdditionalModel: {
+      shipment: components["schemas"]["ShipmentModel"];
+      errors?: components["schemas"]["WpErrorModel"][] | null;
+    };
+    WpErrorModel: {
+      key: string;
+      values: string[];
+    };
+    BatchModel: {
+      id: number;
+      remoteBatchId?: string | null;
+      name?: string | null;
+      created: string;
+      lock?: boolean;
+    };
     PrepareShipmentBatchModel: {
       items: components["schemas"]["PrepareShipmentBatchItemModel"][] | null;
     };
@@ -211,7 +226,8 @@ export interface components {
       codVariableNumber?: string | null;
       serviceCode?: string | null;
       serviceName?: string | null;
-      batchLabelGroup?: string | null;
+      batchId?: string | null;
+      batchRemoteId?: string | null;
       hasParcel?: boolean | null;
       orderId?: number | null;
       parcel?: components["schemas"]["ParcelAddressModel"];

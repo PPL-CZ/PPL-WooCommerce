@@ -1,127 +1,137 @@
 import { dispatch } from "@wordpress/data";
 
-let observer = false;
-const elements:any[] = [];
+let isObserverInitialized = false;
+const processedElements: any[] = [];
 
-export function parcelshop(element) {
+/**
+ * Inicializace MutationObserver pro automatické zpracování nově přidaných parcelshop elementů
+ */
+const initMutationObserver = (): void => {
+    if (isObserverInitialized) return;
 
-    if (!observer)
-    {
+    isObserverInitialized = true;
+    let debounceTimeout: number | null = null;
 
-        observer = true;
-        let timeout = null;
-        const mut = new MutationObserver((mutations) => {
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                if (debounceTimeout) return;
 
-            for (let mutation of mutations) {
-                if (mutation.type === 'childList') {
-                    mutation.addedNodes.forEach((node) => {
-                        if (timeout)
-                            return;
+                debounceTimeout = window.setTimeout(() => {
+                    debounceTimeout = null;
 
-                        timeout = setTimeout(()=> {
-                            timeout = false;
-                            jQuery(".pplcz_parcelshop_orderitems").each(function() {
-                                if (elements.indexOf(this) > -1)
-                                    return;
-                                elements.push(this);
-                                parcelshop(this);
-                            })
-                        }, 500);
+                    jQuery(".pplcz_parcelshop_orderitems").each(function() {
+                        if (processedElements.includes(this)) return;
+
+                        processedElements.push(this);
+                        parcelshop(this);
                     });
-                }
+                }, 500);
             }
-        });
-        const config = {
-            childList: true, subtree: true
         }
-        mut.observe(jQuery('#post-body')[0], config);
+    });
+
+    const postBody = jQuery('#post-body')[0];
+    if (postBody) {
+        observer.observe(postBody, { childList: true, subtree: true });
     }
+};
 
-    const input = jQuery(element).find(`input`)
-    const meta_id = input.data('meta_id');
-    const order_id =  input.data('order_id');
+export function parcelshop(element: HTMLElement): void {
+    initMutationObserver();
+
+    const input = jQuery(element).find('input');
+    const metaId = input.data('meta_id');
+    const orderId = input.data('order_id');
     const nonce = input.data('nonce');
+    const container = jQuery(element);
 
-    let container = jQuery(element);
-
-    const error = () => {
+    const showError = (): void => {
         // @ts-ignore
         dispatch("core/notices").createNotice(
-            'error', // Can be one of: success, info, warning, error.
-            'Problém se změnou parcelshop/parcelboxu.', // Text string to display.
-            {
-                isDismissible: true, // Whether the user can dismiss the notice.
-            }
+            'error',
+            'Problém se změnou parcelshop/parcelboxu.',
+            { isDismissible: true }
         );
-    }
+    };
 
-    const clickName = `pplcz_parcelshop_${meta_id}`;
+    const eventNamespace = `pplcz_parcelshop_${metaId}`;
 
-    jQuery(`.${clickName}`).off(`.${clickName}`);
+    // Odstranění starých event listenerů
+    jQuery(`.${eventNamespace}`).off(`.${eventNamespace}`);
 
-    const onComplete = (shipping_address:any) => {
-
+    /**
+     * Handler po výběru parcelshop/parcelbox
+     */
+    const handleParcelSelection = (shippingAddress: any): void => {
         jQuery.ajax({
             // @ts-ignore
             url: pplcz_data.ajax_url,
-            type: "post",
-            dataType: "json",
+            type: 'post',
+            dataType: 'json',
             data: {
-                action: "pplcz_render_parcel_shop",
-                meta_id: meta_id,
-                order_id,
-                shipping_address,
+                action: 'pplcz_render_parcel_shop',
+                meta_id: metaId,
+                order_id: orderId,
+                shipping_address: shippingAddress,
                 nonce
             },
-            error,
-            success: (data) => {
-                if (data.success) {
-                    const newcontent = jQuery(data.data.content);
-                    container.replaceWith(newcontent);
-                    newcontent.show();
-                    parcelshop(newcontent);
-                    newcontent.find('button').css('display', 'inline');
+            error: showError,
+            success: (response) => {
+                if (response.success) {
+                    const newContent = jQuery(response.data.content);
+                    container.replaceWith(newContent);
+                    newContent.show().find('button').css('display', 'inline');
+                    parcelshop(newContent[0]);
+                } else {
+                    showError();
                 }
-                else
-                {
-                    // @ts-ignore
-                    error();
-                }
-
             }
         });
-    }
+    };
 
-    container.addClass(clickName).on(`click.${clickName}`, ".pplcz_parcelshop_parcelshop",function(e) {
-        e.preventDefault();
-        PplMap(onComplete, { parcelShop: true })
-    }).on(`click.click.${clickName}`, ".pplcz_parcelshop_parcelbox",function(e) {
-        e.preventDefault();
-        PplMap(onComplete, { parcelBox: true })
-    }).on(`click.click.${clickName}`, ".pplcz_parcelshop_clear",function(e) {
-        e.preventDefault();
-        onComplete(null);
-    });
+    // Event listenery pro výběr parcelshop/parcelbox
+    container
+        .addClass(eventNamespace)
+        .on(`click.${eventNamespace}`, '.pplcz_parcelshop_parcelshop', (e) => {
+            e.preventDefault();
+            // @ts-ignore
+            PplMap(handleParcelSelection, { parcelShop: true });
+        })
+        .on(`click.${eventNamespace}`, '.pplcz_parcelshop_parcelbox', (e) => {
+            e.preventDefault();
+            // @ts-ignore
+            PplMap(handleParcelSelection, { parcelBox: true });
+        })
+        .on(`click.${eventNamespace}`, '.pplcz_parcelshop_clear', (e) => {
+            e.preventDefault();
+            handleParcelSelection(null);
+        });
 
+    // Zpracování změn shipping metody
+    const parentRow = container.closest(`tr[data-order_item_id="${metaId}"]`);
 
-    const parent = container.closest(`tr[data-order_item_id="${meta_id}"]`);
-    parent.addClass(clickName).one(`click.${clickName}`, "a.edit-order-item",()=>{
-        container.find("button").css("display", "inline");
-        setTimeout(() => {
-            parent.find(`select`).filter((x, y)=> {
-                return y.name === `shipping_method[${meta_id}]`;
-            }).addClass(clickName).on(`change.${clickName}`, function() {
-                const val = jQuery(this).val();
-                if (val.includes("pplcz_")) {
-                    container.show();
-                    container.find('button').css('display', 'block');
-                } else  {
-                    container.hide();
-                    container.find('button').css('display', 'none');
-                }
-            })
-        }, 300);
-    });
+    parentRow
+        .addClass(eventNamespace)
+        .one(`click.${eventNamespace}`, 'a.edit-order-item', () => {
+            container.find('button').css('display', 'inline');
+
+            setTimeout(() => {
+                const shippingMethodSelect = parentRow
+                    .find('select')
+                    .filter((_, element) => element.name === `shipping_method[${metaId}]`);
+
+                shippingMethodSelect
+                    .addClass(eventNamespace)
+                    .on(`change.${eventNamespace}`, function() {
+                        const selectedValue = jQuery(this).val() as string;
+                        const isPplczMethod = selectedValue?.includes('pplcz_');
+
+                        container.toggle(isPplczMethod);
+                        container.find('button').css('display', isPplczMethod ? 'block' : 'none');
+                    });
+            }, 300);
+        });
 }
 
 export default parcelshop;

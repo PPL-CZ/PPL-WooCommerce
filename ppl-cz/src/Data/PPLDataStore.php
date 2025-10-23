@@ -2,6 +2,8 @@
 // phpcs:ignoreFile WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 namespace PPLCZ\Data;
+use PPLCZ\Error\SQLException;
+
 defined("WPINC") or die();
 
 
@@ -18,6 +20,8 @@ class PPLDataStore extends \WC_Data_Store_WP implements \WC_Object_Data_Store_In
         $cache = wp_cache_get($id, $this->table_name);
         if (false === $cache) {
             $cache = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}pplcz_{$this->table_name} WHERE {$this->id_name} = %d LIMIT 1;", $id), ARRAY_A); // WPCS: cache ok, DB call ok.
+            if ($wpdb->last_error)
+                throw new SQLException($wpdb->last_error);
             wp_cache_add($id, $cache,  $this->table_name);
         }
         return $cache;
@@ -32,6 +36,8 @@ class PPLDataStore extends \WC_Data_Store_WP implements \WC_Object_Data_Store_In
         global $wpdb;
         $insertData = $data->get_props_for_store("create");
         $wpdb->insert($wpdb->prefix . "pplcz_". $this->table_name, $insertData); // WPCS: DB call ok.
+        if ($wpdb->last_error)
+            throw new SQLException($wpdb->last_error);
         $id = $wpdb->insert_id;
         $data->set_id($id);
         $data->apply_changes();
@@ -72,7 +78,8 @@ class PPLDataStore extends \WC_Data_Store_WP implements \WC_Object_Data_Store_In
                 $this->id_name => $data->get_id(),
             )
         );
-
+        if ($wpdb->last_error)
+            throw new SQLException($wpdb->last_error);
         wp_cache_delete($data->get_id(), $this->table_name);
         $data->apply_changes();
         do_action("pplcz_{$this->table_name}_update", $data);
@@ -102,7 +109,8 @@ class PPLDataStore extends \WC_Data_Store_WP implements \WC_Object_Data_Store_In
             ),
             array( '%d' )
         ); // WPCS: cache ok, DB call ok.
-
+        if ($wpdb->last_error)
+            throw new SQLException($wpdb->last_error);
 
         wp_cache_delete( $data->get_id(), $this->table_name );
         do_action( "pplcz_{$this->table_name}_delete", $data->get_id(), $data );

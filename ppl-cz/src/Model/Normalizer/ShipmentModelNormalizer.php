@@ -131,12 +131,19 @@ class ShipmentModelNormalizer implements DenormalizerInterface, NormalizerInterf
         elseif (\array_key_exists('serviceName', $data) && $data['serviceName'] === null) {
             $object->setServiceName(null);
         }
-        if (\array_key_exists('batchLabelGroup', $data) && $data['batchLabelGroup'] !== null) {
-            $object->setBatchLabelGroup($data['batchLabelGroup']);
-            unset($data['batchLabelGroup']);
+        if (\array_key_exists('batchId', $data) && $data['batchId'] !== null) {
+            $object->setBatchId($data['batchId']);
+            unset($data['batchId']);
         }
-        elseif (\array_key_exists('batchLabelGroup', $data) && $data['batchLabelGroup'] === null) {
-            $object->setBatchLabelGroup(null);
+        elseif (\array_key_exists('batchId', $data) && $data['batchId'] === null) {
+            $object->setBatchId(null);
+        }
+        if (\array_key_exists('batchRemoteId', $data) && $data['batchRemoteId'] !== null) {
+            $object->setBatchRemoteId($data['batchRemoteId']);
+            unset($data['batchRemoteId']);
+        }
+        elseif (\array_key_exists('batchRemoteId', $data) && $data['batchRemoteId'] === null) {
+            $object->setBatchRemoteId(null);
         }
         if (\array_key_exists('hasParcel', $data) && $data['hasParcel'] !== null) {
             $object->setHasParcel($data['hasParcel']);
@@ -246,8 +253,11 @@ class ShipmentModelNormalizer implements DenormalizerInterface, NormalizerInterf
         if ($object->isInitialized('serviceName') && null !== $object->getServiceName()) {
             $data['serviceName'] = $object->getServiceName();
         }
-        if ($object->isInitialized('batchLabelGroup') && null !== $object->getBatchLabelGroup()) {
-            $data['batchLabelGroup'] = $object->getBatchLabelGroup();
+        if ($object->isInitialized('batchId') && null !== $object->getBatchId()) {
+            $data['batchId'] = $object->getBatchId();
+        }
+        if ($object->isInitialized('batchRemoteId') && null !== $object->getBatchRemoteId()) {
+            $data['batchRemoteId'] = $object->getBatchRemoteId();
         }
         if ($object->isInitialized('hasParcel') && null !== $object->getHasParcel()) {
             $data['hasParcel'] = $object->getHasParcel();

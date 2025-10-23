@@ -4,6 +4,8 @@
 
 namespace PPLCZ\Data;
 
+use Automattic\Jetpack\IdentityCrisis\Exception;
+
 defined("WPINC") or die();
 
 
@@ -25,8 +27,6 @@ class ShipmentDataStore extends PPLDataStore implements ShipmentDataStoreInterfa
     {
         add_filter('woocommerce_data_stores', [self::class, "stores"]);
     }
-
-
 
     public function read_shipments($args = [])
     {
@@ -88,15 +88,30 @@ class ShipmentDataStore extends PPLDataStore implements ShipmentDataStoreInterfa
         return $output;
     }
 
-    public function read_batch_shipments($batch_id)
+    public function read_remote_batch_shipments($batch_remote_id)
     {
         global $wpdb;
 
         $output = [];
 
-        foreach ($wpdb->get_results($wpdb->prepare("SELECT * from {$wpdb->prefix}pplcz_shipment WHERE batch_id = %s ", $batch_id), ARRAY_A) as $result)
+        foreach ($wpdb->get_results($wpdb->prepare("SELECT * from {$wpdb->prefix}pplcz_shipment WHERE batch_id = %s order by reference_id ", $batch_remote_id), ARRAY_A) as $result)
         {
             wp_cache_add($result["ppl_shipment_id"], $result, "pplcz_shipment");
+            $output[] = new ShipmentData($result["ppl_shipment_id"]);
+        }
+
+        return $output;
+    }
+
+    public function read_batch_shipments($batch_local_id)
+    {
+        global $wpdb;
+
+        $output = [];
+
+        foreach ($wpdb->get_results($wpdb->prepare("SELECT * from {$wpdb->prefix}pplcz_shipment WHERE batch_local_id = %d order by reference_id", $batch_local_id), ARRAY_A) as $result)
+        {
+            wp_cache_add($result["ppl_shipment_id"], $result, "shipment");
             $output[] = new ShipmentData($result["ppl_shipment_id"]);
         }
 
@@ -134,20 +149,36 @@ class ShipmentDataStore extends PPLDataStore implements ShipmentDataStoreInterfa
         return $output;
     }
 
-    public function read_label_groups()
+    public function reorder_batch_shipments($batch_local_id, $shipments)
     {
         global $wpdb;
 
-        $output = [];
-        $dateTime = new \DateTime();
-        $dateTime->sub(new \DateInterval("P2D"));
+        $batchShipments = $wpdb->get_results($wpdb->prepare("select ppl_shipment_id from  {$wpdb->prefix}pplcz_shipment where batch_local_id = %d", $batch_local_id), ARRAY_A);
+        $batchShipments = array_map(function($item) {
+            return $item['ppl_shipment_id'];
+        }, $batchShipments);
 
-        $from = $dateTime->format("Y-m-d");
-
-        foreach ($wpdb->get_results($wpdb->prepare("SELECT batch_label_group from {$wpdb->prefix}pplcz_shipment WHERE batch_label_group > %s group by batch_label_group order by batch_label_group desc", $from), ARRAY_A) as $item) {
-            $output[] = $item["batch_label_group"];
+        if (array_diff($shipments, $batchShipments) || array_diff($batchShipments, $shipments)) {
+            throw new \Exception("Invalid count shipments");
         }
 
-        return $output;
+        foreach ($shipments as $key => $shipment)
+        {
+            $shipments[$key] = new ShipmentData($shipment);
+            if ($shipments[$key]->get_lock())
+                throw new Exception('lock');
+        }
+
+        $pad = 5;
+        $position = 1;
+
+        foreach ($shipments as $shipment)
+        {
+            $ref = str_pad($position, $pad,"0", STR_PAD_LEFT ) . '#' . $shipment->get_wc_order_id();
+            $shipment->set_reference_id($ref);
+            $shipment->save();
+            $position++;
+        }
     }
+
 }

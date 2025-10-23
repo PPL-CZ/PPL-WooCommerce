@@ -9,6 +9,7 @@ use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Entity\ProductEntity;
 use PPLCZ\Serializer;
 use PPLCZ\Model\Model\ShipmentMethodModel;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 
 class Tab {
@@ -31,14 +32,9 @@ class Tab {
     public static function get_shipping()
     {
         $output = [];
-        foreach (ShipmentMethod::methodsWithCod() as $k => $v) {
-            $shipmentMethodModel = Serializer::getInstance()->denormalize([
-                "code" => $k,
-                "title" => $v,
-                "codAvailable" => ShipmentMethod::isMethodWithCod($k),
-                "parcelRequired" => ShipmentMethod::isMethodWithParcel($k)
-            ], ShipmentMethodModel::class);
-            $output[] = Serializer::getInstance()->normalize($shipmentMethodModel);
+        foreach (MethodSetting::getMethods() as $v) {
+            $shipmentMethodModel = pplcz_normalize($v);
+            $output[] = $shipmentMethodModel;
         }
         return $output;
     }

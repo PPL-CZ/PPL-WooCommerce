@@ -1,60 +1,51 @@
 import { components } from "../schema";
+import { updateOverlay, ajaxPost } from './utils';
 
 type ShipmentModel = components["schemas"]["ShipmentModel"];
 
-const renderForm = (nonce: string, orderId: number, shipment: ShipmentModel) => {
-    const id = `#pplcz-order-panel-shipment-div-${orderId}-overlay`;
+/**
+ * Zobrazení formuláře pro úpravu zásilky
+ */
+const renderShipmentForm = (nonce: string, orderId: number, shipment: ShipmentModel): void => {
     // @ts-ignore
     const PPLczPlugin = window.PPLczPlugin = window.PPLczPlugin || [];
-    let unmount:any = null;
-    const item = jQuery("<div>").prependTo("body")[0];
+    const containerEl = jQuery("<div>").prependTo("body")[0];
+    let unmount: any = null;
 
-    PPLczPlugin.push(["newShipment", item, {
-        "shipment": shipment,
-        "returnFunc": function(data) {
+    const refreshPanel = (): Promise<any> =>
+        ajaxPost('pplcz_order_panel', { orderId, nonce });
+
+    PPLczPlugin.push(["newShipment", containerEl, {
+        shipment,
+        returnFunc: (data: any) => {
             unmount = data.unmount;
         },
-        "onChange": function() {
-            // @ts-ignore
-            wp.ajax.post({
-                action: "pplcz_order_panel",
-                orderId,
-                nonce,
-            }).done(function (response) {
-                jQuery(id).html(response.html);
-                jQuery(window).trigger(`pplcz-refresh-${orderId}`);
+        onChange: () => {
+            refreshPanel().done((response: any) => {
+                updateOverlay(orderId, response.html);
             });
         },
-        "onFinish": function() {
-            // @ts-ignore
-            wp.ajax.post({
-                action: "pplcz_order_panel",
-                orderId,
-                nonce,
-            }).done(function (response) {
+        onFinish: () => {
+            refreshPanel().done((response: any) => {
                 unmount();
-                jQuery(id).html(response.html);
-                jQuery(window).trigger(`pplcz-refresh-${orderId}`);
+                updateOverlay(orderId, response.html);
             });
         }
     }]);
-}
+};
 
-export const form = (nonce: string, orderId:number, shipment:ShipmentModel) => {
-    const id = `#pplcz-order-panel-shipment-div-${orderId}-overlay`;
+/**
+ * Zobrazí formulář pro úpravu zásilky (pokud neexistuje, připraví novou)
+ */
+export const form = (nonce: string, orderId: number, shipment?: ShipmentModel): void => {
     if (shipment) {
-        renderForm(nonce, orderId, shipment);
+        renderShipmentForm(nonce, orderId, shipment);
+    } else {
+        ajaxPost('pplcz_order_panel_prepare_package', { orderId, nonce })
+            .done((response: any) => {
+                updateOverlay(orderId, response.html);
+                renderShipmentForm(nonce, orderId, response.shipment);
+            });
     }
-    else {
-        // @ts-ignore
-        wp.ajax.post({
-            action: "pplcz_order_panel_prepare_package",
-            orderId,
-            nonce
-        }).done(function(response) {
-            jQuery(id).html(response.html);
-            renderForm(nonce, orderId, response.shipment);
-        });
-    }
-}
+};
 

@@ -7,6 +7,8 @@ use PPLCZ\Model\Model\CountryModel;
 use PPLCZ\Model\Model\CurrencyModel;
 use PPLCZ\Model\Model\ShipmentMethodModel;
 use PPLCZ\Model\Model\ShipmentPhaseModel;
+use PPLCZ\Setting\CountrySetting;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 
 class CodelistV1RestController extends PPLRestController
@@ -39,24 +41,10 @@ class CodelistV1RestController extends PPLRestController
 
     public function get_countries(\WP_REST_Request $request)
     {
-
-        $allowedCountries = pplcz_get_allowed_countries();
-        $currencies = pplcz_get_cod_currencies();
-        $parcelAllowed = array_keys(pplcz_get_parcel_countries());
-
-        $output = array_map(function ($value, $key) use ($currencies, $parcelAllowed) {
-            return new CountryModel([
-                "code" => $key,
-                "title" =>$value,
-                "parcelAllowed" => in_array($key, $parcelAllowed),
-                "codAllowed" => array_unique(array_map(function ($item) {
-                    return $item['currency'];
-
-                }, array_filter($currencies, function ($item) use ($key) {
-                    return $item['country'] === $key;
-                })))
-            ]);
-        }, $allowedCountries, array_keys($allowedCountries));
+        $output = CountrySetting::getCountries();
+        $output = array_map(function ($item) {
+            return pplcz_normalize($item);
+        }, $output );
 
         $rest = new \WP_REST_Response();
         $rest->set_data($output);
@@ -71,10 +59,10 @@ class CodelistV1RestController extends PPLRestController
 
         foreach ($currencies as $key=>$value)
         {
-            $output[] = new CurrencyModel([
-                "code" => $key,
-                "title" =>$key,
-            ]);
+            $currency = new CurrencyModel();
+            $currency->setCode($key);
+            $currency->setTitle($key);
+            $output[] = pplcz_normalize($currency);
         }
         $rest = new \WP_REST_Response();
         $rest->set_data($output);
@@ -84,13 +72,8 @@ class CodelistV1RestController extends PPLRestController
     public function get_methods(\WP_REST_Request $request)
     {
         $output = [];
-        foreach (ShipmentMethod::methodsWithCod() as $k => $v) {
-            $output[] = new ShipmentMethodModel([
-                "code" => $k,
-                "title" => $v,
-                "codAvailable" => ShipmentMethod::isMethodWithCod($k),
-                "parcelRequired" => ShipmentMethod::isMethodWithParcel($k)
-            ]);
+        foreach (MethodSetting::getMethods() as  $v) {
+            $output[] = pplcz_normalize($v);
         }
 
         $response = new \WP_REST_Response();

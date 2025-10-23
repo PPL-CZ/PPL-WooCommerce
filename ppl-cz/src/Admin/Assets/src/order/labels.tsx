@@ -1,187 +1,192 @@
+import {
+    createOverlayId,
+    disableButtons,
+    enableButtons,
+    updateOverlay,
+    showErrorNotice,
+    ajaxPost
+} from './utils';
 
+/**
+ * Testování/refresh štítků zásilky
+ */
+export const test_labels = (nonce: string, orderId: number, shipmentId: number): void => {
+    const id = createOverlayId(orderId);
+    disableButtons(orderId);
 
-export const test_labels = (nonce: string, orderId: number, shipmentId: number) => {
-    const id = `#pplcz-order-panel-shipment-div-${orderId}-overlay`;
-    jQuery(id).find('button').attr("disabled", "disabled");
-    // @ts-ignore
-    wp.ajax.post({
-        action: "pplcz_order_panel_test_labels",
-        orderId,
-        shipmentId,
-        nonce
-    }).done(function (response) {
-        const hasLabels = !!jQuery(`${id} .refresh-shipments-labels`).length;
-        jQuery(id).html(response.html);
-        const afterHasLabels = !!jQuery(`${id} .refresh-shipments-labels`).length;
-        if (hasLabels && !afterHasLabels) {
-            const allLabels = jQuery(`${id} .all-labels`)[0];
-            if (allLabels instanceof HTMLLinkElement) {
-                document.location = allLabels.href;
+    ajaxPost('pplcz_order_panel_test_labels', { orderId, shipmentId, nonce })
+        .done((response: any) => {
+            const hadLabels = !!jQuery(`${id} .refresh-shipments-labels`).length;
+            updateOverlay(orderId, response.html);
+            const hasLabels = !!jQuery(`${id} .refresh-shipments-labels`).length;
+
+            // Automatické přesměrování na stažení všech štítků
+            if (hadLabels && !hasLabels) {
+                const allLabelsLink = jQuery(`${id} .all-labels`)[0];
+                if (allLabelsLink instanceof HTMLLinkElement) {
+                    document.location = allLabelsLink.href;
+                }
             }
-        }
-        jQuery(window).trigger(`pplcz-refresh-${orderId}`);
-    }).fail(function (response) {
-        jQuery(id).find('button').removeAttr("disabled");
+        })
+        .fail((response: any) => {
+            enableButtons(orderId);
 
-        if (typeof response === "string") {
-            // @ts-ignore
-            wp.data.dispatch('core/notices').createNotice(
-                'error', // Can be one of: success, info, warning, error.
-                response, // Text string to display.
-                {
-                    isDismissible: true, // Whether the user can dismiss the notice.
-                    // Any actions the user can perform.
+            if (typeof response === 'string') {
+                showErrorNotice(response);
+            } else {
+                if (response.html) {
+                    updateOverlay(orderId, response.html);
                 }
-            );
-        }
-        else {
-            jQuery(id).html(response.html);
-            // @ts-ignore
-            wp.data.dispatch('core/notices').createNotice(
-                'error', // Can be one of: success, info, warning, error.
-                response.message, // Text string to display.
-                {
-                    isDismissible: true, // Whether the user can dismiss the notice.
-                    // Any actions the user can perform.
+                if (response.message) {
+                    showErrorNotice(response.message);
                 }
-            );
-        }
-    });
-}
+            }
+        });
+};
 
-export const set_print_setting = (nonce: string, orderId: number, shipmentId: number, value: string, optionals: any) => {
+/**
+ * Nastavení typu tisku štítku
+ */
+export const set_print_setting = (
+    nonce: string,
+    orderId: number,
+    shipmentId: number,
+    initialValue: string,
+    optionals: any
+): void => {
+    disableButtons(orderId);
 
-    const id = `#pplcz-order-panel-shipment-div-${orderId}-overlay`;
-    jQuery(id).find('button').attr("disabled", "disabled");
     // @ts-ignore
     const PPLczPlugin = window.PPLczPlugin = window.PPLczPlugin || [];
-    let unmount:any = null;
-    let render: any= null;
+    const containerEl = jQuery("<div>").prependTo("body")[0];
 
-    const item = jQuery("<div>").prependTo("body")[0];
-    let response:any = null;
+    let unmount: any = null;
+    let render: any = null;
+    let currentValue = initialValue;
+    let cachedResponse: string | null = null;
 
-    const onFinish = function() {
-        if (response) {
-            unmount();
-            jQuery(id).html(response);
-            jQuery(window).trigger(`pplcz-refresh-${orderId}`);
+    const onFinish = (): void => {
+        unmount();
+
+        if (cachedResponse) {
+            updateOverlay(orderId, cachedResponse);
         } else {
-            unmount();
-            // @ts-ignore
-            wp.ajax.post({
-                action: "pplcz_change_print",
-                print: value,
+            ajaxPost('pplcz_change_print', {
+                print: currentValue,
                 orderId,
                 shipmentId,
                 nonce
-            }).done(function (response) {
-                jQuery(id).html(response.html);
-                jQuery(window).trigger(`pplcz-refresh-${orderId}`);
+            }).done((response: any) => {
+                updateOverlay(orderId, response.html);
             });
         }
-    }
+    };
 
-    const onChange =  (newval: string) => {
-        value = newval;
-        render({
-            optionals,
-            value,
-            onFinish,
-            onChange,
-        })
-        response = null;
-        // @ts-ignore
-        wp.ajax.post({
-            action: "pplcz_change_print",
-            print: value,
+    const onChange = (newValue: string): void => {
+        currentValue = newValue;
+        cachedResponse = null;
+
+        render({ optionals, value: currentValue, onFinish, onChange });
+
+        ajaxPost('pplcz_change_print', {
+            print: currentValue,
             orderId,
             shipmentId,
             nonce
-        }).done(function (resp) {
-            response = resp.html;
+        }).done((response: any) => {
+            cachedResponse = response.html;
         });
-    }
+    };
 
-    PPLczPlugin.push(["selectLabelPrint", item, {
+    PPLczPlugin.push(["selectLabelPrint", containerEl, {
         optionals,
-        value,
+        value: currentValue,
         onFinish,
         onChange,
-        "returnFunc": function(data) {
+        returnFunc: (data: any) => {
             unmount = data.unmount;
-            render = data.render
+            render = data.render;
         }
     }]);
-}
+};
 
-
-export const create_labels2 = (nonce: string, orderId: number, shipment: any) => {
-    const id = `#pplcz-order-panel-shipment-div-${orderId}-overlay`;
-    jQuery(id).find('button').attr("disabled", "disabled");
+/**
+ * Přidání štítků do dávky
+ */
+export const create_labels_add = (nonce: string, orderId: number, shipment: any): void => {
     // @ts-ignore
-    const PPLczPlugin = window.PPLczPlugin = window.PPLczPlugin || [];
-    let unmount:any = null;
-    const item = jQuery("<div>").prependTo("body")[0];
+    const PPLczPlugin = window.PPLczPlugin || [];
+    const containerEl = document.createElement("div");
+    document.body.append(containerEl);
 
-    PPLczPlugin.push(["newLabel", item, {
-        "hideOrderAnchor": false ,
-        "shipment": shipment,
-        "returnFunc": function(data) {
+    let unmount: any = null;
+
+    PPLczPlugin.push(["selectBatch", containerEl, {
+        items: {
+            items: [{ orderId, shipmentId: shipment.id }]
+        },
+        onClose: () => {
+            ajaxPost('pplcz_order_panel', { orderId, nonce })
+                .done((response: any) => {
+                    unmount();
+                    updateOverlay(orderId, response.html);
+                });
+        },
+        returnFunc: (data: any) => {
             unmount = data.unmount;
         },
-        "onFinish": function() {
-            // @ts-ignore
-            wp.ajax.post({
-                action: "pplcz_order_panel",
-                orderId,
-                nonce
-            }).done(function (response) {
-                unmount();
-                jQuery(id).html(response.html);
-                jQuery(window).trigger(`pplcz-refresh-${orderId}`);
-            });
+    }]);
+};
+
+/**
+ * Vytvoření nových štítků s dialogem
+ */
+export const create_labels2 = (nonce: string, orderId: number, shipment: any): void => {
+    disableButtons(orderId);
+
+    // @ts-ignore
+    const PPLczPlugin = window.PPLczPlugin = window.PPLczPlugin || [];
+    const containerEl = jQuery("<div>").prependTo("body")[0];
+    let unmount: any = null;
+
+    PPLczPlugin.push(["newLabel", containerEl, {
+        hideOrderAnchor: false,
+        shipment,
+        returnFunc: (data: any) => {
+            unmount = data.unmount;
+        },
+        onFinish: () => {
+            ajaxPost('pplcz_order_panel', { orderId, nonce })
+                .done((response: any) => {
+                    unmount();
+                    updateOverlay(orderId, response.html);
+                });
         }
     }]);
-}
+};
 
-export const create_labels = (nonce: string, orderId: number, shipmentId?: number) => {
-   const id = `#pplcz-order-panel-shipment-div-${orderId}-overlay`;
-    jQuery(id).find('button').attr("disabled", "disabled");
-    // @ts-ignore
-    wp.ajax.post({
-        action: "pplcz_order_panel_create_labels",
-        orderId,
-        shipmentId,
-        nonce,
-    }).done(function (response) {
-        jQuery(id).html(response.html);
-        jQuery(window).trigger(`pplcz-refresh-${orderId}`);
-    }).fail(function(response) {
-        jQuery(id).find('button').removeAttr("disabled");
-        if (typeof response === "string") {
-            // @ts-ignore
-            wp.data.dispatch('core/notices').createNotice(
-                'error', // Can be one of: success, info, warning, error.
-                response, // Text string to display.
-                {
-                    isDismissible: true, // Whether the user can dismiss the notice.
-                    // Any actions the user can perform.
+/**
+ * Vytvoření štítků pro zásilku
+ */
+export const create_labels = (nonce: string, orderId: number, shipmentId?: number): void => {
+    disableButtons(orderId);
+
+    ajaxPost('pplcz_order_panel_create_labels', { orderId, shipmentId, nonce })
+        .done((response: any) => {
+            updateOverlay(orderId, response.html);
+        })
+        .fail((response: any) => {
+            enableButtons(orderId);
+
+            if (typeof response === 'string') {
+                showErrorNotice(response);
+            } else {
+                if (response.html) {
+                    updateOverlay(orderId, response.html);
                 }
-            );
-        }
-        else {
-            jQuery(id).html(response.html);
-            jQuery(window).trigger(`pplcz-refresh-${orderId}`);
-            // @ts-ignore
-            wp.data.dispatch('core/notices').createNotice(
-                'error', // Can be one of: success, info, warning, error.
-                response.message, // Text string to display.
-                {
-                    isDismissible: true, // Whether the user can dismiss the notice.
-                    // Any actions the user can perform.
+                if (response.message) {
+                    showErrorNotice(response.message);
                 }
-            );
-        }
-    });
-}
+            }
+        });
+};

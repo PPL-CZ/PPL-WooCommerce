@@ -3,10 +3,10 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { components } from "../../../schema";
 import { useState } from "react";
-import { baseConnectionUrl } from "../../../connection";
 import MapIcon from "@mui/icons-material/Map";
 import SavingProgress from "../../SavingProgress";
 import SaveInfo from "./SaveInfo";
+import { useUpdateShipmentParcelMutation } from "../../../queries/useShipmentQueries";
 
 type ParcelAddressModel = components["schemas"]["ParcelAddressModel"];
 type UpdateShipmentParcelModel = components["schemas"]["UpdateShipmentParcelModel"];
@@ -22,19 +22,9 @@ const ParcelSelect = (props: {
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(0);
-  const fetcher = (accessPoint: any) => {
-    const nonce = baseConnectionUrl();
-    return fetch(`${nonce.url}/ppl-cz/v1/shipment/${props.shipment.id}/parcel`, {
-      method: "PUT",
-      headers: {
-        "X-WP-nonce": nonce.nonce,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        parcelCode: accessPoint.code,
-      } as UpdateShipmentParcelModel),
-    });
-  };
+  const { mutateAsync } = useUpdateShipmentParcelMutation((shipmentId) => {
+    props.onChange(shipmentId);
+  });
 
   const onClick = () => {
     const recipient = props.shipment.recipient;
@@ -44,21 +34,21 @@ const ParcelSelect = (props: {
     if (props.shipment.age) map.parcelShop = true;
 
     // @ts-ignore
-    PplMap(accessPoint => {
+    PplMap(async (accessPoint) => {
       if (accessPoint) {
         setLoading(true);
-        fetcher(accessPoint)
-          .then((resp) => {
-            if (resp.status === 404)
-            {
-              setError(e => e + 1);
-            }
-            props.onChange(props.shipment.id!);
-            setLoading(false);
-          })
-          .catch(e => {
-            setLoading(false);
+        try {
+          await mutateAsync({
+            shipmentId: props.shipment.id!,
+            parcelCode: accessPoint.code,
           });
+        } catch (e: any) {
+          if (e?.message === "Parcel not found") {
+            setError(err => err + 1);
+          }
+        } finally {
+          setLoading(false);
+        }
       }
     }, map);
   };

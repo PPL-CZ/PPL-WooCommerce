@@ -1,6 +1,6 @@
 import { Controller, useForm, FormProvider } from "react-hook-form";
 
-import {useAddressCollection, useLastCollection, useNewCollection} from "../../queries/useCollectionQueries";
+import { useAddressCollection, useLastCollection, useNewCollection } from "../../queries/useCollectionQueries";
 import { components } from "../../schema";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -44,8 +44,8 @@ const NewCollectionForm = (props: { onCreate: () => void }) => {
 
   const { handleSubmit, control, resetField, setError, setValue } = formCtx;
 
-  const { isLoading: isLoading1, isError:isError1, data: collection } = useLastCollection();
-  const { isLoading: isLoading2, isError: isError2, data: address} = useAddressCollection();
+  const { isLoading: isLoading1, isError: isError1, data: collection } = useLastCollection();
+  const { isLoading: isLoading2, isError: isError2, data: address } = useAddressCollection();
   const isLoading = isLoading2 || isLoading1;
   const isError = isError1 || isError2;
 
@@ -56,12 +56,12 @@ const NewCollectionForm = (props: { onCreate: () => void }) => {
           setValue("contact", collection.contact);
         }
         if (collection.email) {
-          setValue("email", collection.email );
+          setValue("email", collection.email);
         }
         if (collection.telephone) {
-          setValue("telephone", collection.telephone );
+          setValue("telephone", collection.telephone);
         }
-      },200);
+      }, 200);
     }
   }, [collection]);
 
@@ -77,11 +77,10 @@ const NewCollectionForm = (props: { onCreate: () => void }) => {
     // change label and border color when readonly
     "&:has([readonly]) ": {
       "& .MuiOutlinedInput-root": {
-        backgroundColor: '#EAEAEA'
-      }
+        backgroundColor: "#EAEAEA",
+      },
     },
-  }
-
+  };
 
   return (
     <Card>
@@ -179,13 +178,6 @@ const NewCollectionForm = (props: { onCreate: () => void }) => {
                           InputProps={{
                             endAdornment: (
                               <InputAdornment position="end">
-                                <IconButton
-                                  onClick={e => {
-                                    onChange(ival + 1);
-                                  }}
-                                >
-                                  <Add />
-                                </IconButton>
                                 {ival > 0 ? (
                                   <IconButton
                                     onClick={e => {
@@ -195,6 +187,13 @@ const NewCollectionForm = (props: { onCreate: () => void }) => {
                                     <Minus />
                                   </IconButton>
                                 ) : null}
+                                <IconButton
+                                  onClick={e => {
+                                    onChange(ival + 1);
+                                  }}
+                                >
+                                  <Add />
+                                </IconButton>
                               </InputAdornment>
                             ),
                           }}
@@ -237,50 +236,71 @@ const NewCollectionForm = (props: { onCreate: () => void }) => {
                 </Grid>
                 <Grid item xs={4} /> {/* xsOffset to nezna, i kdyz ho mui5 podporuje */}
               </Grid>
-              {address && !isLoading && !isError2 ?
-                  <>
-                    <Typography variant="h3" mb={3}>
-                      Adresa svozu
-                    </Typography>
-                    <Grid id="coll_address" container alignItems={"center"}>
-                      <Grid item xs={4} display={"flex"}>
-                        <FormLabel>Jméno</FormLabel>
-                      </Grid>
-                      <Grid item xs={6} display={"flex"}>
-                        <TextField size="medium" sx={readonly} inputProps={{
-                          readOnly: true
-                        }} value={address.name} />
-                      </Grid>
-                      <Grid item xs={4} display={"flex"}>
-                        <FormLabel>Adresa</FormLabel>
-                      </Grid>
-                      <Grid item xs={6} display={"flex"}>
-                        <TextField size="medium"  sx={readonly} inputProps={{
-                          readOnly: true
-                        }} value={address.street} />
-                      </Grid>
-                      <Grid item xs={4} display={"flex"}>
-                        <FormLabel>Město</FormLabel>
-                      </Grid>
-                      <Grid item xs={6} display={"flex"}>
-                        <TextField size="medium" sx={readonly} inputProps={{
-                          readOnly: true
-                        }} value={address.city} />
-                      </Grid>
-                      <Grid item xs={4} display={"flex"}>
-                        <FormLabel>PSČ</FormLabel>
-                      </Grid>
-                      <Grid item xs={6} display={"flex"}>
-                        <TextField size="medium" sx={readonly} inputProps={{
-                          readOnly: true
-                        }} value={address.zip} />
-                      </Grid>
-                      <Grid item xs={4} /> {/* xsOffset to nezna, i kdyz ho mui5 podporuje */}
-                      <Grid item xs={8}>
-                        <Button type="submit">Vytvořit a objednat svoz</Button>
-                      </Grid>
+              {address && !isLoading && !isError2 ? (
+                <>
+                  <Typography variant="h3" mb={3}>
+                    Adresa svozu
+                  </Typography>
+                  <Grid id="coll_address" container alignItems={"center"}>
+                    <Grid item xs={4} display={"flex"}>
+                      <FormLabel>Jméno</FormLabel>
                     </Grid>
-              </>: null}
+                    <Grid item xs={6} display={"flex"}>
+                      <TextField
+                        size="medium"
+                        sx={readonly}
+                        inputProps={{
+                          readOnly: true,
+                        }}
+                        value={address.name}
+                      />
+                    </Grid>
+                    <Grid item xs={4} display={"flex"}>
+                      <FormLabel>Adresa</FormLabel>
+                    </Grid>
+                    <Grid item xs={6} display={"flex"}>
+                      <TextField
+                        size="medium"
+                        sx={readonly}
+                        inputProps={{
+                          readOnly: true,
+                        }}
+                        value={address.street}
+                      />
+                    </Grid>
+                    <Grid item xs={4} display={"flex"}>
+                      <FormLabel>Město</FormLabel>
+                    </Grid>
+                    <Grid item xs={6} display={"flex"}>
+                      <TextField
+                        size="medium"
+                        sx={readonly}
+                        inputProps={{
+                          readOnly: true,
+                        }}
+                        value={address.city}
+                      />
+                    </Grid>
+                    <Grid item xs={4} display={"flex"}>
+                      <FormLabel>PSČ</FormLabel>
+                    </Grid>
+                    <Grid item xs={6} display={"flex"}>
+                      <TextField
+                        size="medium"
+                        sx={readonly}
+                        inputProps={{
+                          readOnly: true,
+                        }}
+                        value={address.zip}
+                      />
+                    </Grid>
+                    <Grid item xs={4} /> {/* xsOffset to nezna, i kdyz ho mui5 podporuje */}
+                    <Grid item xs={8}>
+                      <Button type="submit">Vytvořit a objednat svoz</Button>
+                    </Grid>
+                  </Grid>
+                </>
+              ) : null}
             </Box>
           </form>
         </LocalizationProvider>

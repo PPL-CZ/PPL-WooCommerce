@@ -6,6 +6,7 @@ use PPLCZ\Admin\Assets\JsTemplate;
 use PPLCZ\Model\Model\CategoryModel;
 use PPLCZ\Model\Model\ShipmentMethodModel;
 use PPLCZ\Serializer;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 
 class CategoryPanel {
@@ -13,15 +14,8 @@ class CategoryPanel {
     public static function get_shipping()
     {
         $output = [];
-        foreach (ShipmentMethod::methodsWithCod() as $k => $v) {
-            $shipmentMethodModel = Serializer::getInstance()->denormalize([
-                "code" => $k,
-                "title" => $v,
-                "codAvailable" => ShipmentMethod::isMethodWithCod($k),
-                "parcelRequired" => ShipmentMethod::isMethodWithParcel($k)
-            ], ShipmentMethodModel::class);
-
-            $output[] = Serializer::getInstance()->normalize($shipmentMethodModel);
+        foreach (MethodSetting::getMethods() as $v) {
+            $output[] = pplcz_normalize($v);
         }
         return $output;
     }

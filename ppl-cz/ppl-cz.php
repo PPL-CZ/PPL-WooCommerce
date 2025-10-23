@@ -6,7 +6,7 @@ Plugin URI: https://www.ppl.cz/jak-zacit#plugin
 Author URI: https://www.ppl.cz
 Description: Jednoduché vytváření zásilek pro PPL CZ s.r.o. Integrace do košíku, editace adres objednávek, stavy zásilek (zjednodušené, kompletní) a jejich sledování. Základem pluginu je tisk etiket. Pro aktivaci pluginu, kontaktujte ithelp@ppl.cz. Určeno pro WooCommerce verze 8.0 a vyšší.
 Author: PPL
-Version: 1.0.30
+Version: 1.0.31
 Requires Plugins: woocommerce
 License: GPLv2 or later
 Requires PHP: 7.3
@@ -39,28 +39,23 @@ PPLCZ\Admin\Cron\DeleteLogCron::register();
 
 function pplcz_init()
 {
-
     PPLCZ\Data\CollectionDataStore::register();
     PPLCZ\Data\ShipmentDataStore::register();
     PPLCZ\Data\AddressDataStore::register();
-    PPLCZ\Data\CodBankAccountDataStore::register();
     PPLCZ\Data\PackageDataStore::register();
     PPLCZ\Data\ParcelDataStore::register();
     PPLCZ\Data\LogDataStore::register();
-
     PPLCZ\Template\Template::register();
+    PPLCZ\Data\BatchDataStore::register();
 
     if (class_exists(\Automattic\WooCommerce\Blocks\BlockTypes\OrderConfirmation\ShippingAddress::class)) {
         PPLCZ\Front\Components\ParcelShopSummary\BlockOrderConfirmation::register();
     }
 
     PPLCZ\ShipmentMethod::register();
-
     PPLCZ\Front\Components\ParcelShop\BlockOldView::register();
-
     PPLCZ\Admin\Product\Tab::register();
     PPLCZ\Front\Validator\ParcelShopValidator::register();
-
     PPLCZ\Front\Operation\ParcelShopOperation::register();
     PPLCZ\Admin\Order\ParcelShop::register();
     PPLCZ\Admin\Order\OrderFilter::register();

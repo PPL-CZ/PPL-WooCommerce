@@ -1,52 +1,32 @@
 import { UseFormSetError, UseFormSetValue } from "react-hook-form";
-import { baseConnectionUrl } from "../../../connection";
-import { components } from "../../../schema";
+import { fetchCreateLabels } from "../../../queries/useLabelQueries";
 
-type ShipmentModel = components["schemas"]["ShipmentModel"];
-type CreateShipmentLabelBatchModel = components["schemas"]["CreateShipmentLabelBatchModel"];
-
-type CreteLabelShipmentItems = {
-  labelPrintSetting: string;
-  items: ShipmentModel[];
-};
+import { CreteLabelShipmentItems } from "./types";
 
 const createLabels = async (
+  batchId: string,
   shipmentId: number[],
   printSetting: string,
   controller: AbortController,
   setError: UseFormSetError<CreteLabelShipmentItems>,
   setValue: UseFormSetValue<CreteLabelShipmentItems>
 ) => {
-  const conn = baseConnectionUrl();
+  const result = await fetchCreateLabels(batchId, shipmentId, printSetting, controller);
 
-  const response = await fetch(`${conn.url}/ppl-cz/v1/shipment/batch/create-labels`, {
-    headers: {
-      "X-WP-Nonce": conn.nonce,
-      "Content-Type": "application/json",
-    },
-    signal: controller.signal,
-    method: "POST",
-    body: JSON.stringify({ printSetting, shipmentId } as CreateShipmentLabelBatchModel),
-  });
-
-  if (response.status === 200 || response.status === 400) {
-    const ret = (await response.json()) as ShipmentModel[];
-    for (let i = 0; i < ret.length; i++) {
+  if ((result.status === 200 || result.status === 400) && result.data) {
+    for (let i = 0; i < result.data.length; i++) {
       // @ts-ignore
-      setValue(`item.${i}`, ret[i]);
-      if (response.status === 400) {
+      setValue(`items.${i}.shipment`, result.data[i]);
+      if (result.status === 400) {
         // @ts-ignore
-        setError(`item.${i}`, { message: "Chyba při importu" });
+        setError(`items.${i}`, { message: "Chyba při importu" });
       }
     }
 
-    if (response.status === 400) {
-      return false;
-    } else {
-      return true;
-    }
+    return result.status !== 400;
   }
-  if (response.status === 204) return true;
+
+  if (result.status === 204) return true;
 
   throw new Error("Problém s přípravou zásilek");
 };

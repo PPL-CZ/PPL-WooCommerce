@@ -9,58 +9,14 @@ defined("WPINC") or die();
 use PPLCZ\Admin\Assets\JsTemplate;
 use PPLCZ\Front\Validator\ParcelShopValidator;
 use PPLCZ\Model\Model\CartModel;
+use PPLCZ\Model\Model\ShipmentMethodModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingModel;
 use PPLCZ\ModelNormalizer\CartModelDernomalizer;
+use PPLCZ\Setting\MethodSetting;
 
 
 class ShipmentMethod extends \WC_Shipping_Method {
 
-    public $parcelBoxRequired = false;
-
-    public $codAvailable = "";
-
-    public static function allMethods() {
-        return array_merge(array_keys(self::methods()), array_values(self::codMethods()));
-    }
-
-    public static function methodsWithCod() {
-        $methods = self::methods();
-        foreach (self::codMethods() as $k => $v)
-        {
-            if (isset($methods[$k]))
-            {
-                $methods[$v] = $methods[$k] . ' - dobírka';
-            }
-        }
-        return $methods;
-    }
-
-    public static function isMethodWithCod($code) {
-        $cods = array_flip(self::codMethods());
-        return isset($cods[$code]);
-    }
-
-    public static function isMethodWithParcel($code)
-    {
-        return in_array($code, self::parcelMethods());
-    }
-
-    public static function parcelMethods()
-    {
-        return [
-            "SMAR", "SMEU", "SMAD", "SMED"
-        ];
-    }
-
-    public static function methods() {
-        return [
-            "PRIV"=> "PPL Parcel CZ Private", // cz
-            "SMAR" => "PPL Parcel CZ Smart", // cz, VM
-
-            "SMEU" => "PPL Parcel Smart Europe", // necz
-            "CONN" => "PPL Parcel Connect", // necz
-        ];
-    }
 
     public static function methodsDescriptions()
     {
@@ -68,41 +24,18 @@ class ShipmentMethod extends \WC_Shipping_Method {
             "PRIV" => "Doprava v rámci České republiky na adresu",
             "SMAR" => "Doprava v rámci České republiky na výdejní místo",
             "SMEU" => "Doprava v rámci Polska, Německa, Slovenska na výdejní místo",
-            "CONN" => "Doprava v rámci EU na adresu"
+            "CONN" => "Doprava v rámci EU na adresu",
+            "COPL" => "Doprava mimo EU v rámci Evropy"
         ];
     }
 
-    public static function codMethods() {
-        return  [
-            "BUSS" => "BUSD",
-            "DOPO" => "DOPD",
-            "PRIV"=> "PRID",
-            "CONN" => "COND",
-            "SMAR" => "SMAD",
-            "SMEU" => "SMED"
-        ];
 
-    }
-
-    public function getMethodTitleByCode($paymentCode)
-    {
-
-        $cod = @$this->get_instance_option("codPayment");
-        if ($cod === $paymentCode) {
-            return $this->get_method_title() . " - dobírka";
-        }
-        return $this->get_method_title();
-    }
-
-    public function getMethodCodeByPayment($paymentCode)
+    public function isCOD($paymentCode)
     {
         $cod = @$this->get_instance_option("codPayment");
-        if ($cod === $paymentCode) {
-            $originalCode = str_replace(pplcz_create_name(""), "", $this->id);
-            return self::codMethods()[$originalCode];
-        }
-        return str_replace(pplcz_create_name(""), "", $this->id);
+        return $cod === $paymentCode;
     }
+
 
     public function __construct($method_id)
     {
@@ -140,16 +73,13 @@ class ShipmentMethod extends \WC_Shipping_Method {
         } else
             throw new \Exception();
 
-        if (!$pplId) {
-            $this->codAvailable = false;
-            $this->parcelBoxRequired = false;
-        }
-        else {
-            $codAvailables = self::codMethods();
-            $this->codAvailable = isset($codAvailables[$pplId]) ? @$codAvailables[$pplId] : false;
-            $this->parcelBoxRequired = in_array($pplId, self::parcelMethods());
-            $this->title = $this->method_title = self::methods()[$pplId];
-            $this->method_description = self::methodsDescriptions()[$pplId];
+
+        if ($pplId) {
+            $method = MethodSetting::getMethod($pplId);
+            if ($method) {
+                $this->title = $this->method_title = $method->getTitle();
+                $this->method_description = self::methodsDescriptions()[$pplId];
+            }
         }
 
         $this->supports = array(
@@ -203,7 +133,11 @@ class ShipmentMethod extends \WC_Shipping_Method {
             'default'     => '',
             'desc_tip'    => true
         );
-        if ($this->parcelBoxRequired) {
+
+        $id = str_replace(pplcz_create_name(""), "", $this->id);
+        $method = MethodSetting::getMethod($id);
+
+        if ($method->getParcelRequired()) {
 
             $form_fields["disabledParcelBox"] = array(
                 "title" => esc_html__('Nepoužívat parcelboxy', 'ppl-cz'),
@@ -331,7 +265,7 @@ class ShipmentMethod extends \WC_Shipping_Method {
         $form_fields["disablePayments"] = array(
             'title'       => esc_html__('Platby, které nejsou povoleny', 'ppl-cz' ),
             'type'        => 'multiselect',
-            'description' => !$this->codAvailable ? esc_html__( 'Tato metoda nepodoruje dobírku, prosim označte tuto platbu, pokud existuje', 'ppl-cz'  ): "",
+            'description' =>  esc_html__( 'Platby, které nejsou povoleny', 'ppl-cz'  ),
             "options" => $payments,
             'default'     => [],
             'desc_tip'    => true
@@ -349,26 +283,6 @@ class ShipmentMethod extends \WC_Shipping_Method {
         $this->form_fields = $form_fields;
     }
 
-    public static function methodsFor($country, $method)
-    {
-
-        if ($country === 'CZ')
-        {
-            return [
-                'PRIV' => 'PRIV', 'PRID'=> "PRID", 'SMAR'=> 'SMAR', 'SMAD'=> 'SMAD',
-                'SMEU' => "SMAR", "SMED" => "SMAD", "CONN" => "PRIV", 'COND'=> "PRID"
-            ][$method];
-
-        }
-        else
-        {
-            return [
-                'PRIV' => 'CONN', 'PRID'=> "COND", 'SMAR'=> 'SMEU', 'SMAD'=> 'SMED',
-                'SMEU' => "SMEU", "SMED" => "SMED", "CONN" => "CONN", 'COND'=> "COND"
-            ][$method];
-        }
-    }
-
     public static function shipping_methods($shippings)
     {
 
@@ -377,6 +291,7 @@ class ShipmentMethod extends \WC_Shipping_Method {
             pplcz_create_name("SMAR") =>  new ShipmentMethod("SMAR"),
             pplcz_create_name("SMEU")=>  new ShipmentMethod("SMEU"),
             pplcz_create_name("CONN") => new ShipmentMethod("CONN"),
+            pplcz_create_name("COPL") => new ShipmentMethod("COPL"),
         ]);
     }
 
@@ -522,7 +437,7 @@ class ShipmentMethod extends \WC_Shipping_Method {
         /**
          * @var CartModel $metadata
          */
-        $metadata = Serializer::getInstance()->denormalize($shipmentMethod, CartModel::class);
+        $metadata = pplcz_denormalize($shipmentMethod, CartModel::class);
 
         if ($metadata->getCodFee())
         {
@@ -649,10 +564,6 @@ class ShipmentMethod extends \WC_Shipping_Method {
         return array_merge(['taxableName', 'priceWithDph', 'isPriceWithDph', 'disablePayments', "parcelRequired", "mapEnabled", "codFee", "codPayment", "disableCod", "ageRequired", "cost", "codFee", "serviceCode", "parcelBoxEnabled", "alzaBoxEnabled", "parcelShopEnabled"], $metas );
     }
 
-    public static function shipping_zone_shipping_methods($methods)
-    {
-        return $methods;
-    }
 
     public static function register() {
         add_filter("woocommerce_shipping_methods", [self::class, 'shipping_methods']);
@@ -663,6 +574,5 @@ class ShipmentMethod extends \WC_Shipping_Method {
 
         add_filter('yay_currency_get_data_info_from_shipping_method', [self::class, 'yay_currency'], 10, 4);
         add_filter('woocommerce_package_rates', [self::class, 'woocommerce_package_rates'], 99999, 2);
-        add_filter("woocommerce_shipping_zone_shipping_methods", [self::class, 'shipping_zone_shipping_methods']);
     }
 }

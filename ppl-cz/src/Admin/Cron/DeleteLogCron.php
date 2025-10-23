@@ -4,6 +4,7 @@ defined("WPINC") or die();
 
 
 use PPLCZ\Admin\CPLOperation;
+use PPLCZ\Data\BatchData;
 use PPLCZ\Data\LogDataStore;
 use PPLCZ\Data\PackageData;
 use PPLCZ\Data\ShipmentData;
@@ -14,6 +15,7 @@ class DeleteLogCron {
     public static function delete_logs()
     {
         LogDataStore::clear_logs();
+        BatchData::remove_batchs();
     }
 
     public static function register()

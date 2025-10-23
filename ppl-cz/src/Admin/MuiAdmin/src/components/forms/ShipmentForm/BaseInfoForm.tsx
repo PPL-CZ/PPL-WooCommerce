@@ -15,19 +15,17 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
-
 import ShipmentMethodController from "../Controllers/ShipmentMethodController";
 import TextFieldController from "../Controllers/TextFieldController";
 import { useQueryShipmentMethods } from "../../../queries/codelists";
 import CurrencyController from "../Controllers/CurrencyController";
 import PackageForm from "./PackageForm";
-import { useMutation } from "@tanstack/react-query";
-import { baseConnectionUrl } from "../../../connection";
 import SelectInput from "../Inputs/SelectInput";
 import { useSenderAddressesQuery } from "../../../queries/settings";
-import { UnknownErrorException, ValidationErrorException } from "../../../queries/types";
+import { ValidationErrorException } from "../../../queries/types";
 import SavingProgress from "../../SavingProgress";
 import SaveInfo from "./SaveInfo";
+import { useUpdateShipmentMutation } from "../../../queries/useShipmentQueries";
 
 type UpdateShipmentModel = components["schemas"]["UpdateShipmentModel"];
 type ShipmentModel = components["schemas"]["ShipmentModel"];
@@ -78,7 +76,6 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
   }, [props.data]);
 
   const [successTimeout, setSuccessTimeout] = useState(0);
-  const [close, setClose] = useState(false);
   const data = useQueryShipmentMethods();
   const senders =
     useSenderAddressesQuery()?.map(x => {
@@ -98,47 +95,17 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
       keepDirty: false,
       keepErrors: false,
       keepValues: false,
-    })
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values]);
 
-  const { control, watch, handleSubmit, reset, clearErrors, setError, setValue } = formContext;
+  const { control, watch, handleSubmit, clearErrors, setError, setValue } = formContext;
 
   const [disabled, setDisabled] = useState(false);
 
-  const { mutateAsync } = useMutation({
-    mutationFn: async (field: UpdateShipmentModel) => {
-      setDisabled(true);
-      try {
-        const { url, nonce } = baseConnectionUrl();
-        const id = props.data.id ? `/${props.data.id}` : "";
-        const resp = await fetch(`${url}/ppl-cz/v1/shipment${id}`, {
-          method: "PUT",
-          headers: {
-            "X-WP-nonce": nonce,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(field),
-        }).then(async x => {
-          if (x.status === 400) {
-            const data = await x.json();
-            throw new ValidationErrorException(x.status, data.data);
-          } else if (x.status > 400) throw new UnknownErrorException(x.status);
-          return x;
-        });
-
-        if (resp.status === 201) {
-          const id = resp.headers.get("location")?.split("/").reverse()?.[0];
-          props.onChange(parseInt(id!));
-
-        } else if (props.data.id) {
-
-          props.onChange(props.data.id);
-        }
-        setSuccessTimeout(5000);
-      } finally {
-        setDisabled(false);
-      }
-    },
+  const { mutateAsync } = useUpdateShipmentMutation(shipmentId => {
+    props.onChange(shipmentId);
+    setSuccessTimeout(5000);
   });
 
   const serviceCode = watch("serviceCode");
@@ -163,13 +130,15 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
         setValue("age", "");
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isParcel, serviceCode]);
 
   return (
     <form
       onSubmit={handleSubmit(async fields => {
+        setDisabled(true);
         try {
-          await mutateAsync(fields);
+          await mutateAsync({ shipmentId: props.data.id || undefined, data: fields });
         } catch (errors) {
           if (errors instanceof ValidationErrorException) {
             const data = errors.data;
@@ -178,18 +147,22 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
               setError(`${x}`, { type: "validation", message: data.errors[x][0] });
             });
           }
+        } finally {
+          setDisabled(false);
         }
       })}
     >
-      {disabled || !data || !senders || close ? <SavingProgress /> : null}
+      {disabled || !data || !senders ? <SavingProgress /> : null}
       {!props.data.id ? (
         <Alert severity="info">
           Pro úpravu příjemce, odesílatele a případně výběr výdejního místa, je nutno zásilku uložit.
         </Alert>
       ) : null}
-      {disabled ? null: <SaveInfo color={"info"} timeout={successTimeout}>
+      {disabled ? null : (
+        <SaveInfo color={"info"} timeout={successTimeout}>
           Základní informace byly uloženy
-      </SaveInfo>}
+        </SaveInfo>
+      )}
       <FormProvider {...formContext}>
         <Box className="modalBox">
           <Box p={2}>
@@ -225,7 +198,7 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
                     }}
                   />
                 </Box>
-                {serviceCode && ["SMEU", "SMED", "CONN", "COND"].indexOf(serviceCode) > -1 ? null : (
+                {serviceCode && ["SMEU", "SMED", "CONN", "COND", "COPL"].indexOf(serviceCode) > -1 ? null : (
                   <Box p={1}>
                     <FormLabel>Kontrola věku příjemce</FormLabel>
                     <Controller

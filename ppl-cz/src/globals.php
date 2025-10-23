@@ -42,9 +42,9 @@ function pplcz_get_batch_print($batchId)
     return get_transient(pplcz_create_name("print_batch_{$batchId}"));
 }
 
-function pplcz_get_download_pdf($download, $reference = null, $print = null)
+function pplcz_get_download_pdf($download, $shipment = null, $package = null, $print = null)
 {
-    return \PPLCZ\Admin\Page\FilePage::createUrl($download, $reference, $print);
+    return \PPLCZ\Admin\Page\FilePage::createUrl($download, $shipment,  $package, $print);
 }
 
 function pplcz_normalize($value)
@@ -199,9 +199,15 @@ function pplcz_get_cart_shipping_method()
 
     foreach ($chosen_shipping_methods as $key => $shipping_method) {
         $method = str_replace(pplcz_create_name(""), "", $chosen_shipping_method);
-        $methods = \PPLCZ\ShipmentMethod::methods();
+        $methods = \PPLCZ\Setting\MethodSetting::getMethods();
+
         $method = preg_replace("~:[0-9]+$~", "", $method);
-        if (isset($methods[$method])) {
+        $method = array_filter($methods, function($item) use ($method) {
+            return $method === $item->getCode();
+        });
+        $method = reset($method);
+
+        if ($method) {
             $shipping = WC()->session->get("shipping_for_package_{$key}");
             /**
              * @var \WC_Shipping_Rate $rate

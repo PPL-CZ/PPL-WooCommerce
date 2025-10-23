@@ -5,6 +5,7 @@ defined("WPINC") or die();
 use PPLCZ\Model\Model\NewCollectionModel;
 use PPLCZ\Model\Model\ShipmentModel;
 use PPLCZ\Model\Model\UpdateShipmentModel;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 
 class CodValidator extends ModelValidator
@@ -24,7 +25,10 @@ class CodValidator extends ModelValidator
             return;
 
         $code = $model->getServiceCode();
-        $isCod = ShipmentMethod::isMethodWithCod($code);
+
+        $method = MethodSetting::getMethod($code);
+
+        $isCod = $method && $method->getCodAvailable();
         if (!$isCod)
             return;
 
