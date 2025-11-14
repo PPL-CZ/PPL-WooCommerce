@@ -8,15 +8,17 @@ class Stripe
 
     public static function stripe_express_fields($params)
     {
-        $params['checkout']['needs_payer_phone'] = true;
+        if ($params && isset($params['checkout']))
+            $params['checkout']['needs_payer_phone'] = true;
         return $params;
     }
 
     public static $isStripeShippingRequest = false;
 
-    public static function  is_stripe_shipping_request()
+    public static function  is_stripe_shipping_request($shipping_address)
     {
         self::$isStripeShippingRequest = true;
+        return $shipping_address;
     }
 
     public static function register()

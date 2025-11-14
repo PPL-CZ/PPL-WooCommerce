@@ -185,7 +185,6 @@ const ParcelPlaces = () => {
                 <Check label={"Stripe plugin"} name={"disabledByStripe"} control={control} />
               </Grid>
             </Grid>
-            <Button type="submit">Uložit</Button>
           </Box>
           <Typography variant="h3" marginTop={4} marginBottom={4}>
             Jazyk mapy
