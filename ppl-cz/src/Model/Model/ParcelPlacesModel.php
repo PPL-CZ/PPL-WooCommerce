@@ -17,6 +17,12 @@ class ParcelPlacesModel extends \ArrayObject
      *
      * @var bool|null
      */
+    protected $disabledByStripe;
+    /**
+     * 
+     *
+     * @var bool|null
+     */
     protected $disabledParcelBox;
     /**
      * 
@@ -42,6 +48,28 @@ class ParcelPlacesModel extends \ArrayObject
      * @var string|null
      */
     protected $mapLanguage;
+    /**
+     * 
+     *
+     * @return bool|null
+     */
+    public function getDisabledByStripe() : ?bool
+    {
+        return $this->disabledByStripe;
+    }
+    /**
+     * 
+     *
+     * @param bool|null $disabledByStripe
+     *
+     * @return self
+     */
+    public function setDisabledByStripe(?bool $disabledByStripe) : self
+    {
+        $this->initialized['disabledByStripe'] = true;
+        $this->disabledByStripe = $disabledByStripe;
+        return $this;
+    }
     /**
      * 
      *

@@ -263,7 +263,7 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
 
     dbDelta($sql);
 
-    $wpdb->query("delete from {$wpdb->prefix}options where option_name = 'pplcz_version'");
+    $wpdb->query("update {$wpdb->prefix}options set option_value='1.0.0' where option_name = 'pplcz_version'");
     $wpdb->query("delete from {$wpdb->prefix}options where option_name = 'pplcz_rules_version'");
 
     $wpdb->query("update {$wpdb->prefix}options set option_name = replace(option_name, 'woocommerce_ppl_', 'pplshipping_') where option_name like 'woocommerce_ppl_%' ");

@@ -143,8 +143,8 @@ const Item = (props: {
   const style = useTableStyle();
 
   return (
-    <TableRow ref={ref} className={className}>
-      <TableCell sx={tableConfig.body.cell}>
+    <TableRow data-component-id={"shipment-id"}  id={`${model.shipment.id!}`} ref={ref} className={className}>
+      <TableCell  data-component-id={"update-shipment"} sx={tableConfig.body.cell}>
         {edit ? (
           <CreateShipmentWidget
             shipment={model.shipment}
@@ -156,7 +156,7 @@ const Item = (props: {
         ) : null}
         {model.shipment.lock || props.isLocked ? null : (
           <>
-            <button className={style.classes.draggable} ref={handleRef}>
+            <button data-component-id="moveable" className={style.classes.draggable} ref={handleRef}>
               ⋮⋮
             </button>{" "}
           </>
@@ -177,7 +177,7 @@ const Item = (props: {
         ) : null}{" "}
         {basicData.shipment.id ? `(${basicData.shipment.id})` : null}
       </TableCell>
-      <TableCell sx={tableConfig.body.cell}>
+      <TableCell data-component-id="adresa" sx={tableConfig.body.cell}>
         {basicData.shipment.hasParcel
           ? (() => {
               const parcelAddress = [
@@ -217,16 +217,16 @@ const Item = (props: {
               return null;
             })()}
       </TableCell>
-      <TableCell sx={tableConfig.body.cell}>{basicData.shipment.serviceName}</TableCell>
-      <TableCell sx={tableConfig.body.cell}>{packages}</TableCell>
+      <TableCell data-component-id="serviceName" sx={tableConfig.body.cell}>{basicData.shipment.serviceName}</TableCell>
+      <TableCell data-component-id="packages" sx={tableConfig.body.cell}>{packages}</TableCell>
       <TableCell sx={tableConfig.body.cell}>
         {!cod && basicData.shipment.codValue
           ? basicData.shipment.codValue + (basicData.shipment.codValueCurrency || "")
           : ""}
       </TableCell>
-      <TableCell sx={tableConfig.body.cell}>{basicData.shipment.codVariableNumber || ""}</TableCell>
+      <TableCell data-component-id="cod" sx={tableConfig.body.cell}>{basicData.shipment.codVariableNumber || ""}</TableCell>
       {model.shipment.lock || props.isLocked ? null : (
-        <TableCell sx={tableConfig.body.cell}>
+        <TableCell data-component-id="edit" sx={tableConfig.body.cell}>
           <ItemActionsMenu
             position={props.position}
             isLocked={!!model.shipment.lock || props.isLocked}

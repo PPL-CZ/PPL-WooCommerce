@@ -3,6 +3,7 @@ namespace PPLCZ\Validator;
 
 use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\CartModel;
+use PPLCZ\Proxy\ApiCartProxy;
 use PPLCZ\Serializer;
 use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
@@ -16,18 +17,24 @@ class CartValidator extends ModelValidator {
     {
         if ($model instanceof \WC_Cart)
             return true;
+        if ($model instanceof  ApiCartProxy)
+            return true;
         return false;
     }
 
     public function validate($model, $errors, $path)
     {
+
+        $model = $model instanceof  \WC_Cart ? new ApiCartProxy($model) : $model;
+
         /**
-         * @var \WC_Cart $model
+         * @var ApiCartProxy $model
          * @var \WC_Shipping_Rate $shippingMethod
          */
         $shippingMethod = pplcz_get_cart_shipping_method();
         if (!$shippingMethod)
             return;
+
 
         /**
          * @var CartModel $data
@@ -66,27 +73,28 @@ class CartValidator extends ModelValidator {
             $errors->add("parcelshop-missing", "Je potřeba vybrat výdejní místo pro doručení zásilky");
         }
 
-        if (static::ageRequired($model, $shippingMethod)
+        if (static::ageRequired($model->cart, $shippingMethod)
             && (!$parcel || $parcel->getAccessPointType() !== 'ParcelShop'))
         {
             $errors->add("parcelshop-age-required", "Z důvodu kontroly věku je nutné vybrat obchod, ne výdejní box.");
         }
 
-        if (!$model->get_customer()->get_shipping_phone()) {
+
+        if (!$model->getPhone()) {
             $errors->add("parcelshop-phone-required", "Pro zasílání informací o stavu zásilky je nutno vyplnit telefonní číslo.");
         }
-        else if (!self::isPhone($model->get_customer()->get_shipping_phone()))
+        else if (!self::isPhone($model->getPhone()))
         {
             $errors->add("parcelshop-phone-required", "Nevalidní telefonní číslo");
         }
 
-        if (!self::isZip($model->get_customer()->get_shipping_country(), $model->get_customer()->get_shipping_postcode())) {
+        if (!self::isZip($model->getCountry(), $model->getZip())) {
             $errors->add("parcelshop-shippingzip-required", "Nevalidní PSČ u doručovací adresy");
         }
 
-        if ($data->getParcelRequired() && $model->get_customer()->get_shipping_country() && $parcel)
+        if ($data->getParcelRequired() && $model->getCountry() && $parcel)
         {
-            $country = $model->get_customer()->get_shipping_country();
+            $country = $model->getCountry();
             if ($country !== $parcel->getCountry())
             {
                 $errors->add("parcelshop-shippingzip-required", "Země kontaktní (doručovací) adresy je jiná, než výdejního místa");

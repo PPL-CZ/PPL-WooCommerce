@@ -191,7 +191,7 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
         $shipmentModel->setImportState("None");
         $shipmentModel->setOrderId($data->get_id());
         if ($data->get_customer_note())
-            $shipmentModel->setNote($data->get_customer_note());
+            $shipmentModel->setNote(mb_substr($data->get_customer_note(), 0, 300));
 
         // $dm = gmdate("ymd");
         $count = 10 - strlen("");

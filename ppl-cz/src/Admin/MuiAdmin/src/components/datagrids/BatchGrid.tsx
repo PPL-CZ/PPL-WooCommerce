@@ -14,6 +14,7 @@ const RenderId = (props: { id: number | string }) => {
   const navigate = useNavigate();
   return (
     <Link
+      data-key={"batch-id"}
       href={"#"}
       onClick={ev => {
         ev.preventDefault();
@@ -30,6 +31,7 @@ const RenderRemoteBatchId = (props: { id: number | string; remoteBatchId?: strin
   if (!props.remoteBatchId) return null;
   return (
     <Link
+      data-key={"batch-remote-id"}
       href={"#"}
       onClick={ev => {
         ev.preventDefault();

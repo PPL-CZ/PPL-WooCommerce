@@ -131,6 +131,10 @@
       "ParcelPlacesModel": {
         "type": "object",
         "properties": {
+          "disabledByStripe": {
+            "type": "boolean",
+            "nullable": true
+          },
           "disabledParcelBox": {
             "type": "boolean",
             "nullable": true
@@ -975,7 +979,8 @@
         "required": [
           "code",
           "title",
-          "watch"
+          "watch",
+          "orderState"
         ],
         "properties": {
           "code": {
@@ -986,6 +991,10 @@
           },
           "watch": {
             "type": "boolean"
+          },
+          "orderState": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -1021,7 +1030,8 @@
             "items": {
               "required": [
                 "code",
-                "watch"
+                "watch",
+                "state"
               ],
               "properties": {
                 "code": {
@@ -1031,10 +1041,29 @@
                 "watch": {
                   "type": "boolean",
                   "nullable": true
+                },
+                "orderState": {
+                  "type": "string",
+                  "nullable": true
                 }
               }
             },
             "nullable": true
+          }
+        }
+      },
+      "OrderStatusModel": {
+        "required": [
+          "code",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
           }
         }
       },

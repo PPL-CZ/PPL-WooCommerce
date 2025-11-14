@@ -44,7 +44,7 @@ function pplcz_get_batch_print($batchId)
 
 function pplcz_get_download_pdf($download, $shipment = null, $package = null, $print = null)
 {
-    return \PPLCZ\Admin\Page\FilePage::createUrl($download, $shipment,  $package, $print);
+    return \PPLCZ\Admin\Page\FilePage::createUrl($download, $shipment, $package, $print);
 }
 
 function pplcz_normalize($value)
@@ -102,38 +102,6 @@ function pplcz_get_cod_currencies()
     return $currencies;
 }
 
-function pplcz_set_phase_max_sync($value)
-{
-    add_option(pplcz_create_name("watch_phases_max_sync"), intval($value) ?: 200) || update_option(pplcz_create_name("watch_phases_max_sync"), intval($value) ?: 200);
-}
-
-function pplcz_get_phase_max_sync()
-{
-    $value = get_option(pplcz_create_name("watch_phases_max_sync"));
-    return intval($value) ?: 200;
-}
-
-function pplcz_set_phase($key, $watch)
-{
-    if ($watch)
-        add_option(pplcz_create_name("watch_phases_{$key}"), true) || update_option(pplcz_create_name("watch_phases_{$key}"), true);
-    else
-        delete_option(pplcz_create_name("watch_phases_{$key}"));
-}
-
-function pplcz_get_phases()
-{
-    $phases = include __DIR__ . '/config/shipment_phases.php';
-    return array_map(function ($item, $key) {
-        $output = [
-            'code' => $key,
-            'title' => $item,
-            'watch' => !!get_option(pplcz_create_name("watch_phases_{$key}"))
-        ];
-
-        return $output;
-    }, $phases, array_keys($phases));
-}
 
 function pplcz_get_version()
 {
@@ -179,7 +147,7 @@ function pplcz_set_cart_parceldata(?ParcelDataModel $data)
 /**
  * @return \WC_Shipping_Rate|null
  */
-function pplcz_get_cart_shipping_method()
+function pplcz_get_cart_shipping_method($shipmentid = null)
 {
     $session = WC()->session;
     if (!$session)
@@ -202,7 +170,7 @@ function pplcz_get_cart_shipping_method()
         $methods = \PPLCZ\Setting\MethodSetting::getMethods();
 
         $method = preg_replace("~:[0-9]+$~", "", $method);
-        $method = array_filter($methods, function($item) use ($method) {
+        $method = array_filter($methods, function ($item) use ($method) {
             return $method === $item->getCode();
         });
         $method = reset($method);
@@ -255,8 +223,9 @@ function pplcz_tables($activate = false)
     $version = get_option(pplcz_create_name("version"));
     if ($version !== pplcz_get_version()) {
         if (!$version) {
-            foreach (pplcz_get_phases() as $phase) {
-                pplcz_set_phase($phase['code'], true);
+            $phases = \PPLCZ\Setting\PhaseSetting::getPhases()->getPhases();
+            foreach ($phases as $phase) {
+                \PPLCZ\Setting\PhaseSetting::setPhase($phase->getCode(), true, null);
             }
         }
 
@@ -298,7 +267,7 @@ function pplcz_tables($activate = false)
 
     if ($activate) {
         delete_option(pplcz_create_name("rules_version"));
-        delete_option(pplcz_create_name("version"));
+        update_option(pplcz_create_name("version"), "1.0.0");
     }
 }
 

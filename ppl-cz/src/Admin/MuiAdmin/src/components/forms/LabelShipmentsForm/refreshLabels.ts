@@ -20,7 +20,9 @@ export const refreshLabels = async (
           // @ts-ignore
           setValue(`items.${index}.shipment`, x);
         });
-        if (result.data.batchs?.length) {
+        if (result.data.batchs?.length
+            && result.data.shipments?.some(x => x.packages?.some(x => x.shipmentNumber))
+        ) {
           const a = document.createElement("a");
           a.href = result.data.batchs[0];
           return new URL( makePrintUrl(result.data.batchs[0], null, null, printForm));

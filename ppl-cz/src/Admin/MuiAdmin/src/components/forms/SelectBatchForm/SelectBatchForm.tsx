@@ -137,6 +137,31 @@ export const SelectBatchForm = ({ onContinue, items }: SelectBatchFormProps) => 
                 </Stack>
               </ListItem>
             ))}
+              <ListItem
+                  key={'new'}
+                  sx={{
+                      border: "1px solid #e0e0e0",
+                      borderRadius: 1,
+                      mb: 1,
+                  }}
+              >
+                  <ListItemText
+                      primary={`Nová dávka`}
+                      secondary={
+                          <>
+
+                          </>
+                      }
+                  />
+                  <Stack direction="row" spacing={1}>
+                      <Button variant="contained" size="small" onClick={() => handleGoToBatch()}>
+                          Přidat k tisku a připravit tisk
+                      </Button>
+                      <Button variant="outlined" size="small" onClick={() => handleStayOnPage()}>
+                          Přidat k tisku a zůstat na stránce
+                      </Button>
+                  </Stack>
+              </ListItem>
           </List>
         </DialogContent>
       </Dialog>

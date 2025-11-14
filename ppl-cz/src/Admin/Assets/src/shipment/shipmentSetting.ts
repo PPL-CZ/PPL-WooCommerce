@@ -5,7 +5,7 @@ export const InitSettingShipment = (id) => {
     const PPLczPlugin = window.PPLczPlugin = window.PPLczPlugin || [];
     const setting = jQuery(id).data("pplczshipmentsetting")
 
-    const code = setting.code;
+    const code = "pplcz_" + setting.code;
 
     let rerender = null;
 

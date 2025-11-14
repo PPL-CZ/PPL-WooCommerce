@@ -4,8 +4,10 @@ namespace PPLCZ\ModelNormalizer;
 
 defined("WPINC") or die();
 
+use PPLCZ\Front\Components\Stripe;
 use PPLCZ\Model\Model\CalculatedDPH;
 use PPLCZ\Model\Model\CategoryModel;
+use PPLCZ\Model\Model\ParcelDataModel;
 use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingCurrencyModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingModel;
@@ -77,9 +79,22 @@ class CartModelDernomalizer implements DenormalizerInterface
         $disabledParcelBox = $parcelPlacesSetting->getDisabledParcelBox();
         $disabledParcelShop = $parcelPlacesSetting->getDisabledParcelShop();
         $disabledAlzaBox = $parcelPlacesSetting->getDisabledAlzaBox();
+        $disabledByStripe = $parcelPlacesSetting->getDisabledByStripe();
 
 
         if ($setting->getParcelBoxes()) {
+            if ($disabledByStripe) {
+                if (Stripe::$isStripeShippingRequest) {
+                    $parcelshop_data = $session->get(pplcz_create_name("parcelshop_data"));
+                    if ($parcelshop_data) {
+                        $parcelshop_data = pplcz_denormalize($parcelshop_data, ParcelDataModel::class);
+                    }
+
+                    if (!$parcelshop_data) {
+                        $shipmentCartModel->setDisabledByRules(true);
+                    }
+                }
+            }
             $shipmentCartModel->setMapEnabled(true);
             $shipmentCartModel->setParcelRequired(true);
             /**
@@ -391,42 +406,45 @@ class CartModelDernomalizer implements DenormalizerInterface
 
         $isPriceWithDph = $shipmentCartModel->getIsPriceWithDph();
 
-        if ($data->is_taxable() && $isPriceWithDph) {
-            $selected_rates = \WC_Tax::get_shipping_tax_rates();
+        if ($data->is_taxable()) {
+            if ($isPriceWithDph) {
+                $selected_rates = \WC_Tax::get_shipping_tax_rates();
 
-            $default_shipping_tax_class = get_option('woocommerce_shipping_tax_class');
-            // seznam možných daní
-            $shipping_rates = array_merge(wp_list_pluck(\WC_Tax::get_tax_rate_classes(), "slug"), [""]);
-            foreach ($shipping_rates as $key => $rates) {
-                $shipping_rates[$key] = \WC_Tax::get_rates($rates) + ["slug" => $rates];
-            }
-            // vyhledání daňové sazby navázanou na dopravu
-            foreach ($shipping_rates as $specific_rate) {
-                foreach ($specific_rate as $rateKey => $globalRate) {
-                    if ($rateKey === key($selected_rates)) {
-                        $default_shipping_tax_class = $specific_rate['slug'];
-                        break 2;
+                $default_shipping_tax_class = get_option('woocommerce_shipping_tax_class');
+                // seznam možných daní
+                $shipping_rates = array_merge(wp_list_pluck(\WC_Tax::get_tax_rate_classes(), "slug"), [""]);
+                foreach ($shipping_rates as $key => $rates) {
+                    $shipping_rates[$key] = \WC_Tax::get_rates($rates) + ["slug" => $rates];
+                }
+                // vyhledání daňové sazby navázanou na dopravu
+                foreach ($shipping_rates as $specific_rate) {
+                    foreach ($specific_rate as $rateKey => $globalRate) {
+                        if ($rateKey === key($selected_rates)) {
+                            $default_shipping_tax_class = $specific_rate['slug'];
+                            break 2;
+                        }
                     }
                 }
-            }
-            $shipmentCartModel->setTaxableName($default_shipping_tax_class);
+                $shipmentCartModel->setTaxableName($default_shipping_tax_class);
 
 
-            $priceWithDph = \WC_Tax::calc_shipping_tax($shipmentCartModel->getCost(), \WC_Tax::get_shipping_tax_rates());
-            $selectedWeightPrice = $shipmentCartModel->getCost();
-            if ($selectedWeightPrice && $priceWithDph) {
-                $first = reset($priceWithDph);
-                if ($first) {
-                    $procento = ($selectedWeightPrice + $first) / $selectedWeightPrice;
-                    $selectedWeightPrice /= $procento;
+                $priceWithDph = \WC_Tax::calc_shipping_tax($shipmentCartModel->getCost(), \WC_Tax::get_shipping_tax_rates());
+                $selectedWeightPrice = $shipmentCartModel->getCost();
+                if ($selectedWeightPrice && $priceWithDph) {
+                    $first = reset($priceWithDph);
+                    if ($first) {
+                        $procento = ($selectedWeightPrice + $first) / $selectedWeightPrice;
+                        $selectedWeightPrice /= $procento;
+                    }
+                    $priceWithDph = \WC_Tax::calc_shipping_tax($selectedWeightPrice, \WC_Tax::get_shipping_tax_rates());
+                    $costDPH = new CalculatedDPH();
+                    $costDPH->setValue(reset($priceWithDph));
+                    $costDPH->setDphId(key($priceWithDph));
+                    $shipmentCartModel->setCostDPH($costDPH);
                 }
-                $priceWithDph = \WC_Tax::calc_shipping_tax($selectedWeightPrice, \WC_Tax::get_shipping_tax_rates());
-                $costDPH = new CalculatedDPH();
-                $costDPH->setValue(reset($priceWithDph));
-                $costDPH->setDphId(key($priceWithDph));
-                $shipmentCartModel->setCostDPH($costDPH);
+
+                $shipmentCartModel->setCost($selectedWeightPrice);
             }
-            $shipmentCartModel->setCost($selectedWeightPrice);
 
             if ($shipmentCartModel->getCodFee())
             {
@@ -435,7 +453,7 @@ class CartModelDernomalizer implements DenormalizerInterface
                 if($codFeeDPH){
                     $first = reset($codFeeDPH);
                     $codFee = $shipmentCartModel->getCodFee();
-                    if ($first) {
+                    if ($first && $isPriceWithDph) {
                         $procento = ($first + $codFee) / $codFee;
                         $codFee /= $procento;
                     }

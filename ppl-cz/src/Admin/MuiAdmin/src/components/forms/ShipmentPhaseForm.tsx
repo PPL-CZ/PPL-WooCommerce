@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
@@ -14,34 +14,73 @@ import { useQueryShipmentStates } from "../../queries/settings";
 import { Skeleton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useUpdateShipmentPhasesMutation } from "../../queries/useShipmentQueries";
+import { useOrderStatuses } from "../../queries/codelists";
+import SelectInput from "./Inputs/SelectInput";
 
 type UpdateSyncPhasesModel = components["schemas"]["UpdateSyncPhasesModel"];
 
-const Check = (props: { name: string; label: string; checked: boolean }) => {
+const Check = (props: { name: string; label: string; checked: boolean; orderState: string | null }) => {
   const [checked, setChecked] = useState(() => props.checked);
+  const [orderState, setOrdeState] = useState(() => props.orderState);
+
   const { mutateAsync } = useUpdateShipmentPhasesMutation();
+  const { data: statusesData } = useOrderStatuses();
+
+  const statuses = useMemo(() => {
+    if (!statusesData) return null;
+
+    return statusesData.map(x => ({
+      id: x.code,
+      label: x.title,
+    }));
+  }, [statusesData]);
 
   return (
-    <FormControlLabel
-      control={
-        <Checkbox
-          name={props.name}
-          checked={checked}
-          onChange={e => {
-            setChecked(!checked);
-            mutateAsync({
-              phases: [
-                {
-                  code: props.name,
-                  watch: !checked,
-                },
-              ],
-            });
-          }}
+    <tr>
+      <td style={{ width: "240px" }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              name={props.name}
+              checked={checked}
+              onChange={e => {
+                setChecked(!checked);
+                mutateAsync({
+                  phases: [
+                    {
+                      code: props.name,
+                      watch: !checked,
+                      orderState: orderState,
+                    },
+                  ],
+                });
+              }}
+            />
+          }
+          label={props.label}
         />
-      }
-      label={props.label}
-    />
+      </td>
+      <td>
+        {statuses ? (
+          <SelectInput
+            optionals={statuses}
+            value={orderState || undefined}
+            onChange={newOrderState => {
+              setOrdeState(newOrderState || null);
+              mutateAsync({
+                phases: [
+                  {
+                    code: props.name,
+                    watch: checked,
+                    orderState: newOrderState,
+                  },
+                ],
+              });
+            }}
+          />
+        ) : null}
+      </td>
+    </tr>
   );
 };
 
@@ -78,7 +117,7 @@ const ShipmentPhaseForm = () => {
                 <TextField
                   value={value}
                   size="medium"
-                  name={'maxSync'}
+                  name={"maxSync"}
                   onChange={onChange}
                   onBlur={e => {
                     const maxSync = getValues("maxSync");
@@ -104,16 +143,17 @@ const ShipmentPhaseForm = () => {
         {isLoading || !data ? (
           <Skeleton height={150} sx={{ transform: "scale(1,1)" }} />
         ) : (
-          <>
-            {(data.phases || []).map(x => {
-              return (
-                <Fragment key={x.code} >
-                  <Check checked={x.watch} label={x.title} name={x.code} />
-                  <br />
-                </Fragment>
-              );
-            })}
-          </>
+          <table
+            style={{
+              width: "100%",
+            }}
+          >
+            <tbody>
+              {(data.phases || []).map(x => {
+                return <Check key={x.code} checked={x.watch} label={x.title} name={x.code} orderState={x.orderState} />;
+              })}
+            </tbody>
+          </table>
         )}
       </Box>
     </Card>

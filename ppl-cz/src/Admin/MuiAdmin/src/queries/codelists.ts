@@ -6,6 +6,7 @@ import { components } from "../schema";
 type ShipmentMethodModel = components["schemas"]["ShipmentMethodModel"];
 type CurrencyModel = components["schemas"]["CurrencyModel"];
 type CountryModel = components["schemas"]["CountryModel"];
+type OrderStatusModel = components["schemas"]["OrderStatusModel"];
 type LabelPrintModel = components["schemas"]["LabelPrintModel"];
 
 export const useQueryShipmentMethods = () => {
@@ -67,5 +68,19 @@ export const useQueryLabelPrint = () =>
           "X-WP-Nonce": conn.nonce,
         },
       }).then(x => x.json() as Promise<LabelPrintModel[]>);
+    },
+  });
+
+export const useOrderStatuses = () =>
+  useQuery({
+    queryKey: ["order-statuses"],
+    queryFn: () => {
+      const conn = baseConnectionUrl();
+      return fetch(`${conn.url}/ppl-cz/v1/codelist/order-statuses`, {
+        method: "GET",
+        headers: {
+          "X-WP-Nonce": conn.nonce,
+        },
+      }).then(x => x.json() as Promise<OrderStatusModel[]>);
     },
   });
