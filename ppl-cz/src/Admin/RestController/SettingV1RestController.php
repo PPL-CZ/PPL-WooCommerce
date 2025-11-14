@@ -19,6 +19,7 @@ use PPLCZ\Model\Model\UpdateSyncPhasesModel;
 use PPLCZ\Serializer;
 use PPLCZ\Setting\ApiSetting;
 use PPLCZ\Setting\MethodSetting;
+use PPLCZ\Setting\PhaseSetting;
 use PPLCZ\Validator\Validator;
 
 class SettingV1RestController extends  PPLRestController
@@ -128,17 +129,8 @@ class SettingV1RestController extends  PPLRestController
 
         $response = new \WP_REST_Response();
 
-        $phases = array_map(function ($item) {
-            return new ShipmentPhaseModel($item);
-        }, pplcz_get_phases());
+        $response->set_data(pplcz_normalize(PhaseSetting::getPhases()));
 
-        $maxSync = pplcz_get_phase_max_sync();
-
-
-        $response->set_data(new SyncPhasesModel([
-            "maxSync"=>$maxSync,
-            "phases"=>$phases
-        ]));
         return $response;
     }
 
@@ -154,12 +146,12 @@ class SettingV1RestController extends  PPLRestController
 
         if ($value->isInitialized("phases")) {
             foreach ($value->getPhases() as $phase) {
-                pplcz_set_phase($phase->getCode(), $phase->getWatch());
+                PhaseSetting::setPhase($phase->getCode(), $phase->getWatch(), $phase->getOrderState());
             }
         }
         if ($value->isInitialized("maxSync"))
         {
-            pplcz_set_phase_max_sync($value->getMaxSync());
+            PhaseSetting::setMaxSync($value->getMaxSync());
         }
 
         $resp = new \WP_REST_Response();

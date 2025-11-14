@@ -27,6 +27,12 @@ class UpdateSyncPhasesModelPhasesItem extends \ArrayObject
     /**
      * 
      *
+     * @var string|null
+     */
+    protected $orderState;
+    /**
+     * 
+     *
      * @return string|null
      */
     public function getCode() : ?string
@@ -66,6 +72,28 @@ class UpdateSyncPhasesModelPhasesItem extends \ArrayObject
     {
         $this->initialized['watch'] = true;
         $this->watch = $watch;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string|null
+     */
+    public function getOrderState() : ?string
+    {
+        return $this->orderState;
+    }
+    /**
+     * 
+     *
+     * @param string|null $orderState
+     *
+     * @return self
+     */
+    public function setOrderState(?string $orderState) : self
+    {
+        $this->initialized['orderState'] = true;
+        $this->orderState = $orderState;
         return $this;
     }
 }

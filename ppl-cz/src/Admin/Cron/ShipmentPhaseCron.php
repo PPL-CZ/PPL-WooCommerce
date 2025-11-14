@@ -6,6 +6,8 @@ defined("WPINC") or die();
 use PPLCZ\Admin\CPLOperation;
 use PPLCZ\Data\PackageData;
 use PPLCZ\Data\ShipmentData;
+use PPLCZ\Setting\MethodSetting;
+use PPLCZ\Setting\PhaseSetting;
 
 class ShipmentPhaseCron {
 
@@ -14,14 +16,14 @@ class ShipmentPhaseCron {
     {
 
         $phases = array_map(function ($item) {
-            return $item['code'];
-        }, array_filter(pplcz_get_phases(), function ($item) {
-            return $item['watch'];
+            return $item->getCode();
+        }, array_filter(PhaseSetting::getPhases()->getPhases(), function ($item) {
+            return $item->getWatch();
         })) ;
 
         $from = (new \DateTime())->sub(new \DateInterval("PT120M"));
         $lastUpdate = (new \DateTime())->sub(new \DateInterval("P16D"));
-        $max = pplcz_get_phase_max_sync();
+        $max = PhaseSetting::getPhases()->getMaxSync();
 
         $packages = PackageData::find_packages_by_phases_and_time(array_merge($phases, ['None']), $from->format("Y-m-d H:i:s"), $lastUpdate->format("Y-m-d H:i:s"), $max+1);
         $next = $max < count($packages);

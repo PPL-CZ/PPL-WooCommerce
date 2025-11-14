@@ -135,7 +135,7 @@ class OrderFilter {
                     if (strpos($sql['where'], 'pplczship') === false) {
                         $q = ["select pplczship.wc_order_id from {$wpdb->prefix}pplcz_shipment pplczship where (import_state not in ( 'Order', 'Complete') )"];
                         $q[] = "select pplcz_wi.order_id as wc_order_id from {$wpdb->prefix}woocommerce_order_items pplcz_wi join {$wpdb->prefix}woocommerce_order_itemmeta pplcz_woi on pplcz_woi.order_item_id = pplcz_wi.order_item_id  where meta_key = 'method_id' and meta_value like 'pplcz_%' and pplcz_wi.order_id not in (select wc_order_id from {$wpdb->prefix}pplcz_shipment pplczpack)";
-                        $sql['where'] .= sprintf(" AND {$wpdb->prefix}wc_orders.id in (%s) AND (wp_wc_orders.status = 'wc-processing') ", join(" UNION ", $q));
+                        $sql['where'] .= sprintf(" AND {$wpdb->prefix}wc_orders.id in (%s) AND (wp_wc_orders.status = 'wc-processing' or wp_wc_orders.status = 'wc-on-hold' ) ", join(" UNION ", $q));
                     }
                     break;
                 case 'print':

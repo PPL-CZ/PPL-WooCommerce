@@ -43,6 +43,7 @@ export interface components {
       }) | null;
     };
     ParcelPlacesModel: {
+      disabledByStripe?: boolean | null;
       disabledParcelBox?: boolean | null;
       disabledAlzaBox?: boolean | null;
       disabledParcelShop?: boolean | null;
@@ -247,6 +248,7 @@ export interface components {
       code: string;
       title: string;
       watch: boolean;
+      orderState: string | null;
     };
     SyncPhasesModel: {
       maxSync: number | null;
@@ -257,7 +259,12 @@ export interface components {
       phases?: (({
           code: string | null;
           watch: boolean | null;
+          orderState?: string | null;
         })[]) | null;
+    };
+    OrderStatusModel: {
+      code: string;
+      title: string;
     };
     CountryModel: {
       code: string;

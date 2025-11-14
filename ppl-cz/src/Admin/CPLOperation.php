@@ -5,6 +5,8 @@ defined("WPINC") or die();
 
 use PPLCZ\Data\BatchData;
 use PPLCZ\Setting\ApiSetting;
+use PPLCZ\Setting\MethodSetting;
+use PPLCZ\Setting\PhaseSetting;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentResultChildItemModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentResultItemModel;
 use PPLCZVendor\GuzzleHttp\HandlerStack;
@@ -590,6 +592,9 @@ class CPLOperation
                         $package->set_shipment_number($baseShipmentNumber);
                         $package->set_import_error($errorMessage);
                         $package->set_import_error_code($errorCode);
+                        if ($errorCode) {
+                            $package->set_lock(false);
+                        }
                         $package->save();
                     }
 
@@ -619,19 +624,29 @@ class CPLOperation
                                 $label_id = end($label_id);
                                 $package->set_label_id($label_id);
                             }
+
                             $package->set_shipment_number($relatedItem->getShipmentNumber());
                             $package->set_import_error($relatedItem->getErrorMessage());
                             $package->set_import_error_code($relatedItem->getErrorCode());
+
+                            if ($relatedItem->getErrorCode())
+                                $package->set_lock(false);
+
                             $package->save();
                         }
                     }
                     if ($batchData->getCompleteLabel()) {
                         $shipment->set_batch_label_group($batch_label_group);
                     }
-                    else
+                    else {
                         $shipment->set_batch_label_group(null);
-
+                    }
                     $shipment->set_import_state($batchItem->getImportState());
+                    if ($errorCode) {
+                        $shipment->set_lock(false);
+                        $shipment->set_import_state("None");
+                        $shipment->set_import_errors($errorMessage);
+                    }
                     $shipment->ignore_lock();
                     $shipment->save();
                 }
@@ -810,6 +825,30 @@ class CPLOperation
                             if (!$hasCodStatus) {
                                 $order->set_meta_data(["_" . pplcz_create_name("_cod_change_status") => true]);
                                 $order->set_status("Completed");
+                                $order->save();
+                            }
+                        }
+                    }
+
+                    if ($data['phase'])
+                    {
+                        $shipmentId = $package->get_ppl_shipment_id();
+                        $shipment = new ShipmentData($shipmentId);
+                        $order = new \WC_Order($shipment->get_wc_order_id());
+                        $phases = array_filter(PhaseSetting::getPhases()->getPhases(), function ($item) use ($data) {
+                            return $item->getCode() === $data['phase'];
+                        });
+                        $phases = reset($phases);
+                        if ($phases)
+                        {
+                            $has_state = $order->get_meta("_" . pplcz_create_name("_change_status"));
+                            if ($has_state !== $phases->getCode() && $phases->getOrderState())
+                            {
+                                if ($order->get_status() !== $phases->getOrderState())
+                                {
+                                    $order->set_status($phases->getOrderState());
+                                }
+                                $order->set_meta_data(["_" . pplcz_create_name("_change_status") => $phases->getOrderState()]);
                                 $order->save();
                             }
                         }

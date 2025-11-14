@@ -6,6 +6,7 @@ use PPLCZ\Model\Model\ShipmentMethodModel;
 
 class MethodSetting
 {
+
     public static function getGlobalParcelboxesSetting()
     {
         $parcelPlaces = new ParcelPlacesModel();
@@ -13,13 +14,14 @@ class MethodSetting
         $disabledParcelBox = !!get_option(pplcz_create_name("disabled_parcelbox"));
         $disabledParcelShop = !!get_option(pplcz_create_name("disabled_parcelshop"));
         $disabledAlzaBox = !!get_option(pplcz_create_name("disabled_alzabox"));
-
+        $disabledByStripe = !!get_option(pplcz_create_name("disabled_by_stripe"));
         $disabledCountriesFromBaseSetting = get_option(pplcz_create_name("disabled_parcel_countries"));
         if (!is_array($disabledCountriesFromBaseSetting))
             $disabledCountriesFromBaseSetting = [];
 
         $languageMap = pplcz_create_name("map_language");
 
+        $parcelPlaces->setDisabledByStripe($disabledByStripe);
         $parcelPlaces->setDisabledCountries($disabledCountriesFromBaseSetting);
         $parcelPlaces->setMapLanguage($languageMap);
         $parcelPlaces->setDisabledParcelBox($disabledParcelBox);
@@ -34,9 +36,10 @@ class MethodSetting
         $parcelbox = pplcz_create_name("disabled_parcelbox");
         $parcelshop =pplcz_create_name("disabled_parcelshop");
         $alzabox = pplcz_create_name("disabled_alzabox");
+        $disabledByStripe = pplcz_create_name("disabled_by_stripe");
         $disabledCountries = pplcz_create_name("disabled_parcel_countries");
         $languageMap = pplcz_create_name("map_language");
-
+        add_option($disabledByStripe, $setting->getDisabledByStripe()) || update_option($disabledByStripe, $setting->getDisabledByStripe());
         add_option($parcelbox, $setting->getDisabledParcelBox()) || update_option($parcelbox, $setting->getDisabledParcelBox());
         add_option($parcelshop, $setting->getDisabledParcelShop()) || update_option($parcelshop, $setting->getDisabledParcelShop());
         add_option($alzabox, $setting->getDisabledAlzaBox()) || update_option($alzabox, $setting->getDisabledAlzaBox());
@@ -45,7 +48,7 @@ class MethodSetting
     }
 
     public static function getCodMethods($code) {
-        $methods =  [
+        $methods = [
             "PRIV" => "PRID",
             "CONN" => "COND",
             "SMAR" => "SMAD",

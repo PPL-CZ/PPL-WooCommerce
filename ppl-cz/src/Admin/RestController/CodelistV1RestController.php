@@ -5,6 +5,7 @@ defined("WPINC") or die();
 
 use PPLCZ\Model\Model\CountryModel;
 use PPLCZ\Model\Model\CurrencyModel;
+use PPLCZ\Model\Model\OrderStatusModel;
 use PPLCZ\Model\Model\ShipmentMethodModel;
 use PPLCZ\Model\Model\ShipmentPhaseModel;
 use PPLCZ\Setting\CountrySetting;
@@ -34,6 +35,12 @@ class CodelistV1RestController extends PPLRestController
         register_rest_route($this->namespace, '/' . $this->base. "/countries", [
             "methods" => \WP_REST_Server::READABLE,
             "callback" => [$this, "get_countries"],
+            "permission_callback"=>[$this, "check_permission"],
+        ]);
+
+        register_rest_route($this->namespace, '/' . $this->base. "/order-statuses", [
+            "methods" => \WP_REST_Server::READABLE,
+            "callback" => [$this, "get_order_statuses"],
             "permission_callback"=>[$this, "check_permission"],
         ]);
     }
@@ -79,5 +86,23 @@ class CodelistV1RestController extends PPLRestController
         $response = new \WP_REST_Response();
         $response->set_data($output);
         return $response;
+    }
+
+    public function get_order_statuses()
+    {
+        $statuses = wc_get_order_statuses();
+
+        $output = [];
+
+        foreach ($statuses as $key=>$stat)
+        {
+            $orderstatus = new OrderStatusModel();
+            $orderstatus->setCode($key);
+            $orderstatus->setTitle($stat);
+            $output[] = pplcz_normalize($orderstatus);
+        }
+
+        return new \WP_REST_Response($output);
+
     }
 }

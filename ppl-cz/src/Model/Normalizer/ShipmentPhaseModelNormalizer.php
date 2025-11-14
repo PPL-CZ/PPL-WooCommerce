@@ -53,6 +53,13 @@ class ShipmentPhaseModelNormalizer implements DenormalizerInterface, NormalizerI
             $object->setWatch($data['watch']);
             unset($data['watch']);
         }
+        if (\array_key_exists('orderState', $data) && $data['orderState'] !== null) {
+            $object->setOrderState($data['orderState']);
+            unset($data['orderState']);
+        }
+        elseif (\array_key_exists('orderState', $data) && $data['orderState'] === null) {
+            $object->setOrderState(null);
+        }
         foreach ($data as $key => $value) {
             if (preg_match('/.*/', (string) $key)) {
                 $object[$key] = $value;
@@ -69,6 +76,7 @@ class ShipmentPhaseModelNormalizer implements DenormalizerInterface, NormalizerI
         $data['code'] = $object->getCode();
         $data['title'] = $object->getTitle();
         $data['watch'] = $object->getWatch();
+        $data['orderState'] = $object->getOrderState();
         foreach ($object as $key => $value) {
             if (preg_match('/.*/', (string) $key)) {
                 $data[$key] = $value;

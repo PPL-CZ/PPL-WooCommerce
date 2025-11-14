@@ -55,6 +55,13 @@ class UpdateSyncPhasesModelPhasesItemNormalizer implements DenormalizerInterface
         elseif (\array_key_exists('watch', $data) && $data['watch'] === null) {
             $object->setWatch(null);
         }
+        if (\array_key_exists('orderState', $data) && $data['orderState'] !== null) {
+            $object->setOrderState($data['orderState']);
+            unset($data['orderState']);
+        }
+        elseif (\array_key_exists('orderState', $data) && $data['orderState'] === null) {
+            $object->setOrderState(null);
+        }
         foreach ($data as $key => $value) {
             if (preg_match('/.*/', (string) $key)) {
                 $object[$key] = $value;
@@ -70,6 +77,9 @@ class UpdateSyncPhasesModelPhasesItemNormalizer implements DenormalizerInterface
         $data = array();
         $data['code'] = $object->getCode();
         $data['watch'] = $object->getWatch();
+        if ($object->isInitialized('orderState') && null !== $object->getOrderState()) {
+            $data['orderState'] = $object->getOrderState();
+        }
         foreach ($object as $key => $value) {
             if (preg_match('/.*/', (string) $key)) {
                 $data[$key] = $value;

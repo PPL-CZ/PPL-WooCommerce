@@ -6,6 +6,7 @@ defined("WPINC") or die();
 
 use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\CartModel;
+use PPLCZ\Proxy\ApiCartProxy;
 use PPLCZ\Serializer;
 use PPLCZ\Traits\ParcelDataModelTrait;
 use PPLCZ\Validator\Validator;
@@ -15,8 +16,16 @@ class ParcelShopValidator
     use ParcelDataModelTrait;
 
 
-    public static function cart_api_validate(\WP_Error $errors, \WC_Cart $cart)  {
-        Validator::getInstance()->validate($cart, $errors);
+    public static function cart_api_validate($data, \WP_Error $errors, \WC_Cart $cart)  {
+
+        $apicart = new ApiCartProxy($cart);
+        if (isset($data['shipping_address']))
+            $apicart->shipping_address = $data['shipping_address'];
+        if (isset($data['billing_address']))
+            $apicart->billing_address = $data['billing_address'];
+
+
+        Validator::getInstance()->validate($apicart, $errors);
 
         return $errors;
     }
@@ -38,7 +47,9 @@ class ParcelShopValidator
             return $response;
         }
 
-        add_filter("woocommerce_store_api_cart_errors",[static::class, "cart_api_validate"], 10, 2);
+        add_filter("woocommerce_store_api_cart_errors",function (\WP_Error $errors, \WC_Cart $cart) use ($request) {
+            self::cart_api_validate($request->get_json_params(), $errors, $cart);
+        }, 10, 2);
 
         return $response;
     }

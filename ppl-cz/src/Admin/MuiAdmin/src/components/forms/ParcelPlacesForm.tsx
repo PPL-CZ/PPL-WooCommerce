@@ -177,6 +177,16 @@ const ParcelPlaces = () => {
             false
           )}
           <Typography variant="h3" marginTop={4} marginBottom={4}>
+            Zablokování výdejních míst/obchodu v rámci pluginů v případě rychlé koupě (např. okamžité zaplacení  tlačítka na produktu)
+          </Typography>
+          <Box marginTop={4} marginBottom={4}>
+            <Grid container alignItems={"center"}>
+              <Grid item xs={2} display={"flex"} alignContent={"center"}>
+                <Check label={"Stripe plugin"} name={"disabledByStripe"} control={control} />
+              </Grid>
+            </Grid>
+          </Box>
+          <Typography variant="h3" marginTop={4} marginBottom={4}>
             Jazyk mapy
           </Typography>
           <Box marginTop={4} marginBottom={4}>

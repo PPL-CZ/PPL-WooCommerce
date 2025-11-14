@@ -41,6 +41,13 @@ class ParcelPlacesModelNormalizer implements DenormalizerInterface, NormalizerIn
         if (null === $data || false === \is_array($data)) {
             return $object;
         }
+        if (\array_key_exists('disabledByStripe', $data) && $data['disabledByStripe'] !== null) {
+            $object->setDisabledByStripe($data['disabledByStripe']);
+            unset($data['disabledByStripe']);
+        }
+        elseif (\array_key_exists('disabledByStripe', $data) && $data['disabledByStripe'] === null) {
+            $object->setDisabledByStripe(null);
+        }
         if (\array_key_exists('disabledParcelBox', $data) && $data['disabledParcelBox'] !== null) {
             $object->setDisabledParcelBox($data['disabledParcelBox']);
             unset($data['disabledParcelBox']);
@@ -93,6 +100,9 @@ class ParcelPlacesModelNormalizer implements DenormalizerInterface, NormalizerIn
     public function normalize($object, $format = null, array $context = array())
     {
         $data = array();
+        if ($object->isInitialized('disabledByStripe') && null !== $object->getDisabledByStripe()) {
+            $data['disabledByStripe'] = $object->getDisabledByStripe();
+        }
         if ($object->isInitialized('disabledParcelBox') && null !== $object->getDisabledParcelBox()) {
             $data['disabledParcelBox'] = $object->getDisabledParcelBox();
         }
