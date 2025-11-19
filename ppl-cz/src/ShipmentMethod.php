@@ -443,7 +443,7 @@ class ShipmentMethod extends \WC_Shipping_Method {
         {
             WC()->cart->fees_api()->add_fee(
                 array(
-                    'name' => "Příplatek za dobírku",
+                    'name' => __("Příplatek za dobírku", "ppl-cz"),
                     'amount' => (float)$metadata->getCodFee(),
                     'taxable' => !!$metadata->getCodFeeDPH(),
                     'tax_class' => $metadata->getTaxableName() ?: "",

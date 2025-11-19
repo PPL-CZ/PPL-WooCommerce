@@ -47,49 +47,49 @@ class CartValidator extends ModelValidator {
             switch ($parcel->getAccessPointType()) {
                 case 'ParcelShop':
                     if (!$data->getParcelShopEnabled())
-                        $errors->add("parcelshop-disabled-shop", "V košíku produkt, který neumožňuje vybrat obchod pro vyzvednutí zásilky");
+                        $errors->add("parcelshop-disabled-shop", __("V košíku je produkt, který neumožňuje vybrat obchod pro vyzvednutí zásilky", "ppl-cz"));
                     break;
                 case 'ParcelBox':
                     if (!$data->getParcelBoxEnabled())
-                        $errors->add("parcelshop-disabled-box", "V košíku produkt, který neumožňuje vybrat ParcelBox pro vyzvednutí zásilky");
+                        $errors->add("parcelshop-disabled-box", __("V košíku je produkt, který neumožňuje vybrat ParcelBox pro vyzvednutí zásilky", "ppl-cz"));
                     break;
                 case 'AlzaBox':
                     if (!$data->getAlzaBoxEnabled())
-                        $errors->add("parcelshop-disabled-box", "V košíku produkt, který neumožňuje vybrat AlzaBox pro vyzvednutí zásilky");
+                        $errors->add("parcelshop-disabled-box", __("V košíku je produkt, který neumožňuje vybrat AlzaBox pro vyzvednutí zásilky", "ppl-cz"));
                     break;
                 default:
-                    $errors->add("parcelshop-disabled-box", "V košíku produkt, který neumožňuje vybrat box pro vyzvednutí zásilky");
+                    $errors->add("parcelshop-disabled-box", __("V košíku je produkt, který neumožňuje vybrat box pro vyzvednutí zásilky", "ppl-cz"));
             }
 
             $country = $parcel->getCountry();
 
             if (!in_array($country, $data->getEnabledParcelCountries(),true))
             {
-                $errors->add("parcelshop-disabled-country", "Nepovolená země výdejního místa");
+                $errors->add("parcelshop-disabled-country", __("Nepovolená země výdejního místa", "ppl-cz"));
             }
         }
 
         if ($data->getParcelRequired() && !$parcel) {
-            $errors->add("parcelshop-missing", "Je potřeba vybrat výdejní místo pro doručení zásilky");
+            $errors->add("parcelshop-missing", __("Je potřeba vybrat výdejní místo pro doručení zásilky", "ppl-cz"));
         }
 
         if (static::ageRequired($model->cart, $shippingMethod)
             && (!$parcel || $parcel->getAccessPointType() !== 'ParcelShop'))
         {
-            $errors->add("parcelshop-age-required", "Z důvodu kontroly věku je nutné vybrat obchod, ne výdejní box.");
+            $errors->add("parcelshop-age-required", __("Z důvodu kontroly věku je nutné vybrat obchod, ne výdejní box", "ppl-cz"));
         }
 
 
         if (!$model->getPhone()) {
-            $errors->add("parcelshop-phone-required", "Pro zasílání informací o stavu zásilky je nutno vyplnit telefonní číslo.");
+            $errors->add("parcelshop-phone-required", __("Pro zasílání informací o stavu zásilky je nutno vyplnit telefonní číslo", "ppl-cz"));
         }
         else if (!self::isPhone($model->getPhone()))
         {
-            $errors->add("parcelshop-phone-required", "Nevalidní telefonní číslo");
+            $errors->add("parcelshop-phone-required", __("Nevalidní telefonní číslo", "ppl-cz"));
         }
 
         if (!self::isZip($model->getCountry(), $model->getZip())) {
-            $errors->add("parcelshop-shippingzip-required", "Nevalidní PSČ u doručovací adresy");
+            $errors->add("parcelshop-shippingzip-required", __("Nevalidní PSČ u doručovací adresy", "ppl-cz"));
         }
 
         if ($data->getParcelRequired() && $model->getCountry() && $parcel)
@@ -97,7 +97,7 @@ class CartValidator extends ModelValidator {
             $country = $model->getCountry();
             if ($country !== $parcel->getCountry())
             {
-                $errors->add("parcelshop-shippingzip-required", "Země kontaktní (doručovací) adresy je jiná, než výdejního místa");
+                $errors->add("parcelshop-shippingzip-required", __("Země kontaktní (doručovací) adresy je jiná, než výdejního místa", "ppl-cz"));
             }
         }
         return $errors;

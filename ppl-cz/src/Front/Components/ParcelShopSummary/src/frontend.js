@@ -2,7 +2,7 @@ import metadata from './block.json';
 import { registerCheckoutBlock,  extensionCartUpdate, registerCheckoutFilters } from '@woocommerce/blocks-checkout';
 import { useSelect } from "@wordpress/data";
 import {useEffect} from "@wordpress/element";
-
+import { __ } from '@wordpress/i18n';
 
 import "./fontend.css";
 const getShippingRate = (shipment) => {
@@ -23,11 +23,11 @@ const ParcelShop = ({parcelShop}) => {
 
 	return  (
 		<small>
-			<strong>Výdejní místo</strong><br/>
+			<strong>{__("Výdejní místo", "ppl-cz")}</strong><br/>
 			<span>{parcelShop.name}</span> <a href={"#"} onClick={e => {
 			e.preventDefault();
 			PplMap(()=>{}, { lat:  parcelShop?.gps.latitude, lng: parcelShop?.gps.longitude});
-		}}>[na mapě]</a><br/>
+		}}>[{__("na mapě", "ppl-cz")}]</a><br/>
 			<span>{parcelShop.street}</span><br/>
 			<span>{parcelShop.zipCode} {parcelShop.city}</span><br/>
 		</small>

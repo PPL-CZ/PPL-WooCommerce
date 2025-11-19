@@ -119,15 +119,21 @@ class Block implements IntegrationInterface
         wp_register_script(
             'parcelshop-block-frontend',
             $script_url,
-            array_merge($script_asset['dependencies'], ['pplcz_map_js']),
+            array_merge($script_asset['dependencies'], ['pplcz_map_js', 'wp-i18n']),
             $script_asset['version'],
             true
         );
 
         wp_localize_script("parcelshop-block-frontend", "parcelshop_block_frontend", [
             "assets_url" => plugins_url('Admin/Assets/Images', realpath(__DIR__ .'/../../') ),
-
         ]);
+
+        $path = realpath(dirname(plugin_dir_path(__FILE__)) . '/../../Languages');
+        wp_set_script_translations(
+            'parcelshop-block-frontend',
+            'ppl-cz',
+            $path
+        );
     }
 
     /**

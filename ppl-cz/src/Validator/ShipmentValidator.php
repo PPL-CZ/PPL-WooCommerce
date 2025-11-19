@@ -30,6 +30,7 @@ class ShipmentValidator extends ModelValidator
                 $code = $model->getServiceCode();
                 $method = MethodSetting::getMethod($code);
 
+
                 $isCod = $method && $method->getCodAvailable();
                 if ($isCod) {
                     foreach (["codVariableNumber" => "Variabilní číslo musí být vyplněno", "codValue" => "Hodnota dobírky není určena", "codValueCurrency" => "Není určena měna dobírky", "senderId" =>"Je potřeba určit odesílatele pro etiketu"] as $item => $message) {
@@ -83,6 +84,7 @@ class ShipmentValidator extends ModelValidator
                     $errors->add("$path.packages", "Počet balíčku může být pouze 1");
                 }
             }
+
 
         }
     }

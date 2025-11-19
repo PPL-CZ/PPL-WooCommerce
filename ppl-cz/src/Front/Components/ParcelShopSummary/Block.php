@@ -91,7 +91,7 @@ class Block implements IntegrationInterface
         wp_register_script(
     'parcelshop-summary-block-editor',
             $script_url,
-            $script_asset['dependencies'],
+            array_merge($script_asset['dependencies'], [ 'wp-i18n' ]),
             $script_asset['version'],
        true
         );
@@ -126,6 +126,14 @@ class Block implements IntegrationInterface
             array_merge($script_asset['dependencies'], ['pplcz_map_js']),
             $script_asset['version'],
             true
+        );
+
+        $path = realpath(dirname(plugin_dir_path(__FILE__)) . '/../../Languages');
+
+        wp_set_script_translations(
+            'parcelshop-summary-block-frontend',
+            'ppl-cz',
+            $path
         );
 
     }

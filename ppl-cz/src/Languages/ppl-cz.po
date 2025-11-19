@@ -1,0 +1,74 @@
+msgid "V košíku je produkt, který neumožňuje vybrat obchod pro vyzvednutí zásilky"
+msgstr "There is a product in the cart that does not allow choosing a shop for parcel pickup"
+
+msgid "V košíku je produkt, který neumožňuje vybrat ParcelBox pro vyzvednutí zásilky"
+msgstr "There is a product in the cart that does not allow choosing a ParcelBox for parcel pickup"
+
+msgid "V košíku je produkt, který neumožňuje vybrat AlzaBox pro vyzvednutí zásilky"
+msgstr "There is a product in the cart that does not allow choosing an AlzaBox for parcel pickup"
+
+msgid "V košíku je produkt, který neumožňuje vybrat box pro vyzvednutí zásilky"
+msgstr "There is a product in the cart that does not allow choosing a pickup box"
+
+msgid "Nepovolená země výdejního místa"
+msgstr "The pickup point country is not allowed"
+
+msgid "Je potřeba vybrat výdejní místo pro doručení zásilky"
+msgstr "A pickup point must be selected for parcel delivery"
+
+msgid "Z důvodu kontroly věku je nutné vybrat obchod, ne výdejní box"
+msgstr "Due to age verification, you must choose a shop, not a pickup box"
+
+msgid "Pro zasílání informací o stavu zásilky je nutno vyplnit telefonní číslo"
+msgstr "A phone number is required to receive shipment status updates"
+
+msgid "Nevalidní telefonní číslo"
+msgstr "Invalid phone number"
+
+msgid "Nevalidní PSČ u doručovací adresy"
+msgstr "Invalid postcode for the delivery address"
+
+msgid "Země kontaktní (doručovací) adresy je jiná, než výdejního místa"
+msgstr "The country of the delivery address differs from the pickup point country"
+
+msgid "Pro ověření věku je možné vybrat pouze obchod, ne výdejní box"
+msgstr "For age verification, only a shop can be selected, not a pickup box"
+
+msgid "Pro doručení zásilky je nutno vybrat výdejní místo"
+msgstr "A pickup point must be selected for parcel delivery"
+
+msgid "Zboží bude doručeno na doručovací adresu nebo kliknutím na ikonu vyberte místo"
+msgstr "The goods will be delivered to the delivery address, or you can click the icon to choose a pickup point"
+
+msgid "Kliknutím na ikonu vyberte místo"
+msgstr "Click the icon to choose a pickup point"
+
+msgid "Zdarma"
+msgstr "Free of charge"
+
+msgid "Výdejní místo"
+msgstr "Pickup point"
+
+msgid "Vyberte výdejní místo pro doručení zásilky"
+msgstr "Please select a pickup point for delivery"
+
+msgid "Zboží bude dodáno na doručovací adresu"
+msgstr "The goods will be delivered to your delivery address"
+
+msgid "Pro dodání zboží je nutno vybrat jedno z výdejních míst"
+msgstr "To complete delivery, you must select one of the pickup points"
+
+msgid "Výběr výdejního místa"
+msgstr "Select a pickup point"
+
+msgid "Zrušit výběr"
+msgstr "Clear selection"
+
+msgid "Příplatek za dobírku"
+msgstr "COD fee"
+
+msgid "na mapě"
+msgstr "on the map"
+
+
+

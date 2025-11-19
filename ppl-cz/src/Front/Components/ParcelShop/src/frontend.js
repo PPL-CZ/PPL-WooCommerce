@@ -1,6 +1,7 @@
 import metadata from './block.json';
 import { ValidatedTextInput, registerCheckoutBlock, extensionCartUpdate, getRegisteredBlock, ExperimentalOrderShippingPackages  } from '@woocommerce/blocks-checkout';
 import { useSelect } from "@wordpress/data";
+import { __ } from '@wordpress/i18n';
 
 import {Fragment, useEffect, useRef, useState, useMemo, Component} from "react";
 const { registerPlugin } = window.wp.plugins;
@@ -56,13 +57,13 @@ const ParcelShop = (props) => {
 		<div>
 			{parcelShop ?
 				<>
-					<strong>Výdejní místo</strong><br/>
+					<strong>{__("Výdejní místo", "ppl-cz")}</strong><br/>
 					<span>{parcelShop.name}</span>,&nbsp;
 					<span>{parcelShop.street}</span>,&nbsp;
 					<span>{parcelShop.zipCode}</span>,&nbsp;
 					<span>{parcelShop.city}</span>
-					<a href={"#"} onClick={e=>{e.preventDefault();PplMap(()=>{}, { lat: parcelShop?.gps.latitude, lng: parcelShop?.gps.longitude});}}>[na mapě]</a>
-				</> : (parcelRequired ? <>Vyberte výdejní místo pro doručení zásilky</> : <>Zboží bude dodáno na doručovací adresu</>)}
+					<a href={"#"} onClick={e=>{e.preventDefault();PplMap(()=>{}, { lat: parcelShop?.gps.latitude, lng: parcelShop?.gps.longitude});}}>[{__("na mapě", "ppl-cz")}]</a>
+				</> : (parcelRequired ? <>{__("Vyberte výdejní místo pro doručení zásilky", "ppl-cz")}</> : <>{__("Zboží bude dodáno na doručovací adresu", "ppl-cz")}</>)}
 		</div>
 	)
 }
@@ -227,7 +228,7 @@ const Block = (props) => {
 
 console.log(parcelRequired, mapSetting, savingData)
 	if (parcelRequired && !parcelShopBoxSelected)
-		messages.push(<li key={"ageControl"}>Pro dodání zboží je nutno vybrat jedno z výdejních míst</li>);
+		messages.push(<li key={"ageControl"}>{__("Pro dodání zboží je nutno vybrat jedno z výdejních míst", "ppl-cz")}</li>);
 
 	return (
 		<>
@@ -235,12 +236,12 @@ console.log(parcelRequired, mapSetting, savingData)
 				<ParcelShop  cart={storeCard} parcelRequired={parcelRequired}/> <a href="#withCard" className={"pplcz-select-parcelshop"} onClick={e => {
 				e.preventDefault();
 				PplMap(savingData, {...mapSetting } );
-			}}>Výběr výdejního místa</a> {parcelShopBoxSelected ? <> / <a href={"#"} className={"pplcz-clear-map"} onClick={e=>{
+			}}>{__("Výběr výdejního místa", "ppl-cz")}</a> {parcelShopBoxSelected ? <> / <a href={"#"} className={"pplcz-clear-map"} onClick={e=>{
 				e.preventDefault();
 				onUpdateComponent.current = false;
 				savingData(null);
 
-			}}>Zrušit výběr</a></> : null} <br/>
+			}}>{__("Zrušit výběr", "ppl-cz")}</a></> : null} <br/>
 				{messages ? <ul>{messages}</ul>:null}
 			</div>
 		</>)

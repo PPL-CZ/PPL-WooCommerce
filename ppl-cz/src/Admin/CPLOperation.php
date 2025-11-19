@@ -596,6 +596,14 @@ class CPLOperation
                             $package->set_lock(false);
                         }
                         $package->save();
+
+                        if (!$errorCode)
+                        {
+                            do_action("pplcz_package", [
+                                "orderId" => $shipment->get_wc_order_id(),
+                                "packageNumber" => $package->get_shipment_number(),
+                            ]);
+                        }
                     }
 
                     $packages = array_filter($packages, function ($item) use($baseShipmentNumber) {
@@ -631,8 +639,14 @@ class CPLOperation
 
                             if ($relatedItem->getErrorCode())
                                 $package->set_lock(false);
-
                             $package->save();
+                            if (!$relatedItem->getErrorCode())
+                            {
+                                do_action("pplcz_package", [
+                                    "orderId" => $shipment->get_wc_order_id(),
+                                    "packageNumber" => $package->get_shipment_number(),
+                                ]);
+                            }
                         }
                     }
                     if ($batchData->getCompleteLabel()) {
@@ -641,6 +655,7 @@ class CPLOperation
                     else {
                         $shipment->set_batch_label_group(null);
                     }
+
                     $shipment->set_import_state($batchItem->getImportState());
                     if ($errorCode) {
                         $shipment->set_lock(false);
@@ -823,7 +838,7 @@ class CPLOperation
                             $order = new \WC_Order($order);
                             $hasCodStatus = $order->get_meta("_" . pplcz_create_name("_cod_change_status"));
                             if (!$hasCodStatus) {
-                                $order->set_meta_data(["_" . pplcz_create_name("_cod_change_status") => true]);
+                                $order->add_meta_data("_" . pplcz_create_name("_cod_change_status"), true, true);
                                 $order->set_status("Completed");
                                 $order->save();
                             }
@@ -848,10 +863,17 @@ class CPLOperation
                                 {
                                     $order->set_status($phases->getOrderState());
                                 }
-                                $order->set_meta_data(["_" . pplcz_create_name("_change_status") => $phases->getOrderState()]);
+                                $order->add_meta_data("_" . pplcz_create_name("_change_status"),  $phases->getOrderState(), true);
                                 $order->save();
                             }
                         }
+
+                        do_action("pplcz_package_change_phase", [
+                            "orderId" => $shipment->get_wc_order_id(),
+                            "packageNumber" => $package->get_shipment_number(),
+                            "phase" => $package->get_phase(),
+                            "phase_label" => $package->get_phase_label()
+                        ]);
                     }
                 } else {
                     $package->ignore_lock();
@@ -861,6 +883,16 @@ class CPLOperation
                         $package->set_last_update_phase(gmdate("Y-m-d H:i:s"));
                     $package->set_last_test_phase(gmdate("Y-m-d H:i:s"));
                     $package->save();
+
+                    $shipmentId = $package->get_ppl_shipment_id();
+                    $shipment = new ShipmentData($shipmentId);
+
+                    do_action("pplcz_package_phase", [
+                        "orderId" => $shipment->get_wc_order_id(),
+                        "packageNumber" => $package->get_shipment_number(),
+                        "phase" => $package->get_phase(),
+                        "phase_label" => $package->get_phase_label(),
+                    ]);
                 }
             }
         }
