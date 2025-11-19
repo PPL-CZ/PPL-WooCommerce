@@ -21,8 +21,14 @@ class Stripe
         return $shipping_address;
     }
 
+    public static function pplcz_stripe_payment()
+    {
+        self::$isStripeShippingRequest = true;
+    }
+
     public static function register()
     {
+        add_action('pplcz_payment_stripe', [self::class, 'pplcz_stripe_payment']);
         add_filter('wc_stripe_express_checkout_params',[self::class, 'stripe_express_fields']);
         add_filter('wc_stripe_payment_request_shipping_posted_values', [self::class, 'is_stripe_shipping_request']);
     }

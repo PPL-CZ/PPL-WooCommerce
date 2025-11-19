@@ -51,3 +51,5 @@
 - přidání řazení objednávek pro tisk
 # 1.0.32
 - přizpůsobení pluginu stripe, změny stavu objednávek na základě změn stavu zásilky
+# 1.0.33
+- angličtina v rámci košíku, stavy zásilky volány pomocí do_action - více v action.md

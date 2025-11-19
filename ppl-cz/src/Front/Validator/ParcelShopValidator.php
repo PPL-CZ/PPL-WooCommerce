@@ -47,6 +47,11 @@ class ParcelShopValidator
             return $response;
         }
 
+        $stripe = $request->get_json_params();
+
+        if ($stripe && isset($stripe['payment_method']) && $stripe['payment_method'] === 'stripe')
+            do_action('pplcz_payment_stripe');
+
         add_filter("woocommerce_store_api_cart_errors",function (\WP_Error $errors, \WC_Cart $cart) use ($request) {
             self::cart_api_validate($request->get_json_params(), $errors, $cart);
         }, 10, 2);

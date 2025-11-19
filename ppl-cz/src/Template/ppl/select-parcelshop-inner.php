@@ -76,9 +76,9 @@ $parcelBoxRequired = 0;
     } else {
         ?>
         <?php if (!$parcelRequired): ?>
-            Zboží bude doručeno na doručovací adresu nebo kliknutím na ikonu vyberte místo
+            <?php echo __("Zboží bude doručeno na doručovací adresu nebo kliknutím na ikonu vyberte místo", "ppl-cz"); ?>
         <?php else: ?>
-            Kliknutím na ikonu vyberte místo
+            <?php echo __("Kliknutím na ikonu vyberte místo", "ppl-cz"); ?>
         <?php endif; ?>
 
     <?php } ?>
