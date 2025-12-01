@@ -84,9 +84,20 @@ class ProductModelNormalizer implements DenormalizerInterface, NormalizerInterfa
         elseif (\array_key_exists('pplDisabledTransport', $data) && $data['pplDisabledTransport'] === null) {
             $object->setPplDisabledTransport(null);
         }
-        foreach ($data as $key => $value_1) {
+        if (\array_key_exists('pplSizes', $data) && $data['pplSizes'] !== null) {
+            $values_1 = array();
+            foreach ($data['pplSizes'] as $value_1) {
+                $values_1[] = $this->denormalizer->denormalize($value_1, 'PPLCZ\\Model\\Model\\PackageSizeModel', 'json', $context);
+            }
+            $object->setPplSizes($values_1);
+            unset($data['pplSizes']);
+        }
+        elseif (\array_key_exists('pplSizes', $data) && $data['pplSizes'] === null) {
+            $object->setPplSizes(null);
+        }
+        foreach ($data as $key => $value_2) {
             if (preg_match('/.*/', (string) $key)) {
-                $object[$key] = $value_1;
+                $object[$key] = $value_2;
             }
         }
         return $object;
@@ -119,9 +130,16 @@ class ProductModelNormalizer implements DenormalizerInterface, NormalizerInterfa
             }
             $data['pplDisabledTransport'] = $values;
         }
-        foreach ($object as $key => $value_1) {
+        if ($object->isInitialized('pplSizes') && null !== $object->getPplSizes()) {
+            $values_1 = array();
+            foreach ($object->getPplSizes() as $value_1) {
+                $values_1[] = $this->normalizer->normalize($value_1, 'json', $context);
+            }
+            $data['pplSizes'] = $values_1;
+        }
+        foreach ($object as $key => $value_2) {
             if (preg_match('/.*/', (string) $key)) {
-                $data[$key] = $value_1;
+                $data[$key] = $value_2;
             }
         }
         return $data;

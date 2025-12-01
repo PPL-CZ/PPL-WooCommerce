@@ -27,6 +27,18 @@ class ShipmentMethodModel extends \ArrayObject
     /**
      * 
      *
+     * @var string
+     */
+    protected $description;
+    /**
+     * 
+     *
+     * @var bool|null
+     */
+    protected $ageValidation;
+    /**
+     * 
+     *
      * @var bool
      */
     protected $codAvailable;
@@ -36,6 +48,42 @@ class ShipmentMethodModel extends \ArrayObject
      * @var bool
      */
     protected $parcelRequired;
+    /**
+     * 
+     *
+     * @var string[]|null
+     */
+    protected $disabledParcelTypes;
+    /**
+     * 
+     *
+     * @var string[]|null
+     */
+    protected $availableParcelTypes;
+    /**
+     * 
+     *
+     * @var string[]
+     */
+    protected $countries;
+    /**
+     * 
+     *
+     * @var float|null
+     */
+    protected $maxWeight;
+    /**
+     * 
+     *
+     * @var float[]|null
+     */
+    protected $maxDimension;
+    /**
+     * 
+     *
+     * @var float|null
+     */
+    protected $maxPackages;
     /**
      * 
      *
@@ -83,6 +131,50 @@ class ShipmentMethodModel extends \ArrayObject
     /**
      * 
      *
+     * @return string
+     */
+    public function getDescription() : ?string
+    {
+        return $this->description;
+    }
+    /**
+     * 
+     *
+     * @param string $description
+     *
+     * @return self
+     */
+    public function setDescription(string $description) : self
+    {
+        $this->initialized['description'] = true;
+        $this->description = $description;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return bool|null
+     */
+    public function getAgeValidation() : ?bool
+    {
+        return $this->ageValidation;
+    }
+    /**
+     * 
+     *
+     * @param bool|null $ageValidation
+     *
+     * @return self
+     */
+    public function setAgeValidation(?bool $ageValidation) : self
+    {
+        $this->initialized['ageValidation'] = true;
+        $this->ageValidation = $ageValidation;
+        return $this;
+    }
+    /**
+     * 
+     *
      * @return bool
      */
     public function getCodAvailable() : ?bool
@@ -122,6 +214,138 @@ class ShipmentMethodModel extends \ArrayObject
     {
         $this->initialized['parcelRequired'] = true;
         $this->parcelRequired = $parcelRequired;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string[]|null
+     */
+    public function getDisabledParcelTypes() : ?array
+    {
+        return $this->disabledParcelTypes;
+    }
+    /**
+     * 
+     *
+     * @param string[]|null $disabledParcelTypes
+     *
+     * @return self
+     */
+    public function setDisabledParcelTypes(?array $disabledParcelTypes) : self
+    {
+        $this->initialized['disabledParcelTypes'] = true;
+        $this->disabledParcelTypes = $disabledParcelTypes;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string[]|null
+     */
+    public function getAvailableParcelTypes() : ?array
+    {
+        return $this->availableParcelTypes;
+    }
+    /**
+     * 
+     *
+     * @param string[]|null $availableParcelTypes
+     *
+     * @return self
+     */
+    public function setAvailableParcelTypes(?array $availableParcelTypes) : self
+    {
+        $this->initialized['availableParcelTypes'] = true;
+        $this->availableParcelTypes = $availableParcelTypes;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string[]
+     */
+    public function getCountries() : ?array
+    {
+        return $this->countries;
+    }
+    /**
+     * 
+     *
+     * @param string[] $countries
+     *
+     * @return self
+     */
+    public function setCountries(array $countries) : self
+    {
+        $this->initialized['countries'] = true;
+        $this->countries = $countries;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return float|null
+     */
+    public function getMaxWeight() : ?float
+    {
+        return $this->maxWeight;
+    }
+    /**
+     * 
+     *
+     * @param float|null $maxWeight
+     *
+     * @return self
+     */
+    public function setMaxWeight(?float $maxWeight) : self
+    {
+        $this->initialized['maxWeight'] = true;
+        $this->maxWeight = $maxWeight;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return float[]|null
+     */
+    public function getMaxDimension() : ?array
+    {
+        return $this->maxDimension;
+    }
+    /**
+     * 
+     *
+     * @param float[]|null $maxDimension
+     *
+     * @return self
+     */
+    public function setMaxDimension(?array $maxDimension) : self
+    {
+        $this->initialized['maxDimension'] = true;
+        $this->maxDimension = $maxDimension;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return float|null
+     */
+    public function getMaxPackages() : ?float
+    {
+        return $this->maxPackages;
+    }
+    /**
+     * 
+     *
+     * @param float|null $maxPackages
+     *
+     * @return self
+     */
+    public function setMaxPackages(?float $maxPackages) : self
+    {
+        $this->initialized['maxPackages'] = true;
+        $this->maxPackages = $maxPackages;
         return $this;
     }
 }

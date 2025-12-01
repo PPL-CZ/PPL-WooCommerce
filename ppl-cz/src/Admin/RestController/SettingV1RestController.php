@@ -5,11 +5,9 @@ defined("WPINC") or die();
 use PPLCZ\Admin\CPLOperation;
 use PPLCZ\Admin\Cron\RefreshAboutCron;
 use PPLCZ\Data\AddressData;
-use PPLCZ\Data\CodBankAccountData;
 use PPLCZ\Admin\Errors;
 use PPLCZ\Admin\RestResponse\RestResponse400;
 use PPLCZ\Data\ShipmentData;
-use PPLCZ\Model\Model\BankAccountModel;
 use PPLCZ\Model\Model\MyApi2;
 use PPLCZ\Model\Model\ParcelPlacesModel;
 use PPLCZ\Model\Model\SenderAddressModel;
@@ -20,6 +18,7 @@ use PPLCZ\Serializer;
 use PPLCZ\Setting\ApiSetting;
 use PPLCZ\Setting\MethodSetting;
 use PPLCZ\Setting\PhaseSetting;
+use PPLCZ\Setting\PrintSetting;
 use PPLCZ\Validator\Validator;
 
 class SettingV1RestController extends  PPLRestController
@@ -87,6 +86,18 @@ class SettingV1RestController extends  PPLRestController
             ], [
                 "methods"=>\WP_REST_Server::READABLE,
                 "callback" => [$this, "get_print"],
+                "permission_callback"=>[$this, "check_permission"],
+            ]
+        ]);
+
+        register_rest_route($this->namespace, "/" . $this->base . "/print-order-statuses", [
+            [
+                "methods"=>\WP_REST_Server::EDITABLE,
+                "permission_callback"=>[$this, "check_permission"],
+                "callback" => [$this, "update_print_statuses"],
+            ], [
+                "methods"=>\WP_REST_Server::READABLE,
+                "callback" => [$this, "get_print_statuses"],
                 "permission_callback"=>[$this, "check_permission"],
             ]
         ]);
@@ -162,30 +173,38 @@ class SettingV1RestController extends  PPLRestController
     public function update_print(\WP_REST_Request $request)
     {
         $content = json_decode($request->get_body());
-        $printers = (new CPLOperation())->getAvailableLabelPrinters();
-        foreach ($printers as $v) {
-            if ($v->getCode() === $content) {
-                add_option(pplcz_create_name("print_setting"), $content) || update_option(pplcz_create_name("print_setting"), $content);
-                $resp = new \WP_REST_Response();
-                $resp->set_status(204);
-                return $resp;
-            }
+        if (PrintSetting::setFormat($content))
+        {
+            return new \WP_REST_Response(null, 204);
         }
-
-
-        $resp = new \WP_REST_Response();
-        $resp->set_status(400);
-        return $resp;
+        return new \WP_REST_Response(null, 400);
     }
 
     public function get_print(\WP_REST_Request $request)
     {
-        $printSetting = get_option(pplcz_create_name("print_setting"), "1/PDF/A4/4");
-        $format = (new CPLOperation())->getFormat($printSetting);
+        $setting = PrintSetting::getPrintSetting();
         $resp = new \WP_REST_Response();
-        $resp->set_data($format);
+        $resp->set_data($setting->getFormat());
         return $resp;
 
+    }
+
+    public function get_print_statuses()
+    {
+        $setting = PrintSetting::getPrintSetting();
+        $resp = new \WP_REST_Response();
+        $resp->set_data(array_values($setting->getOrderStatuses()));
+        return $resp;
+    }
+
+    public function update_print_statuses(\WP_REST_Request $request)
+    {
+        $content = $request->get_json_params();
+        if (PrintSetting::setOrderStatuses($content))
+        {
+            return new \WP_REST_Response(null, 204);
+        }
+        return new \WP_REST_Response(null, 400);
     }
 
     public function get_addresses()

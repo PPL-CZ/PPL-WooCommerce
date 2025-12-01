@@ -33,6 +33,34 @@ class AddressModelValidator extends ModelValidator {
 
         }
 
+        if ($model instanceof  RecipientAddressModel)
+        {
+            $name = $model->getName() ?: "";
+            $name = join(' ', preg_split('~\s+~', trim($name)));
+
+
+            if (mb_strlen($name) > 100)
+                $error->add($path . '.name', "{$basePrefix} může být jméno max 100 znaků");
+
+
+            $contact = $model->getContact() ?: "";
+            $contact = join(' ', preg_split('~\s+~', trim($contact)));
+
+
+            if (mb_strlen($contact ?: "") > 50)
+                $error->add($path . '.contact', "{$basePrefix} může být kontakt max 50 znaků");
+
+            if (mb_strlen($model->getStreet() ?: "") > 60)
+            {
+                $error->add($path . '.street', "{$basePrefix} může být ulice max 60 znaků");
+            }
+            if (mb_strlen($model->getCity() ?: "") > 50)
+            {
+                $error->add($path . '.city', "{$basePrefix} může být ulice max 50 znaků");
+            }
+
+        }
+
         if (!self::isZip($model->getCountry(), $model->getZip()))
         {
             $error->add($path . ".zip","{$basePrefix} Je problematické PSČ pro danou zemi");
@@ -52,6 +80,7 @@ class AddressModelValidator extends ModelValidator {
             }
         } else if ($model instanceof RecipientAddressModel) {
            $error->add("$path.phone", "{$basePrefix}  nesmí zůstat prázdné telefonnní číslo");
+
         }
 
         if ($model instanceof SenderAddressModel) {
@@ -60,5 +89,7 @@ class AddressModelValidator extends ModelValidator {
                 $error->add($path . ".addressName", "U odesílatele je potřeba vyplnit název adresy");
             }
         }
+
+
     }
 }

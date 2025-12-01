@@ -53,3 +53,9 @@
 - přizpůsobení pluginu stripe, změny stavu objednávek na základě změn stavu zásilky
 # 1.0.33
 - angličtina v rámci košíku, stavy zásilky volány pomocí do_action - více v action.md
+# 1.0.34
+- přidána nová dodací metoda SBOX - Dodání do parcelboxu (jen)
+- pro tisk možnost vybrat stavy objednávek, které budou zahrnuty
+- v tabulce je zobrazena informace o neukončných balíčcích (vytvořeny, ale neobjednány u PPL.CZ)
+- přidána kontrola balíku podle velikost a počtu a možnost u produktu nastavit, že lze poslat více balíky
+- kontrola velikost jména zákazníka (kontaktu)

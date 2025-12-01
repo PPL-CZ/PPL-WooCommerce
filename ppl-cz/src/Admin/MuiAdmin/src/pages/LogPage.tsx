@@ -18,9 +18,7 @@ import useMarkdownStyle from "./useMarkdownStyle";
 import Autocomplete from "@mui/material/Autocomplete";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import type JSZip from "jszip";
-
-const jszip = import("jszip");
+import  jszip from "jszip"
 
 type ErrorLogItemModel = components['schemas']['ErrorLogItemModel'];
 type SendErrorLogModel = components["schemas"]["SendErrorLogModel"];
@@ -50,12 +48,9 @@ const LogPage = () => {
     const [sending, setSending] = useState(false);
 
     const copy = ()=> {
-
-        jszip.then(x => {
-            const {default: jszip } = x;
-
             const data = new jszip();
-
+            if (sendData?.globalParcelSetting)
+                data.file("globalni_nastaveni_parcel.json", JSON.stringify(sendData!.globalParcelSetting, null, 3));
             if (sendData?.productsSetting)
                 data.file("nastaveni_produktu.json", JSON.stringify(sendData!.productsSetting, null, 3));
             if (sendData?.categorySetting)
@@ -89,7 +84,7 @@ const LogPage = () => {
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
             })
-        })
+
     }
 
     let temporarySending = false;
@@ -118,6 +113,7 @@ const LogPage = () => {
         }).catch(() => setMessage("Problém s odesláním")).finally(() => setSending(false));
     }
 
+
     const removeItem = (index:number, ev:any) => {
         ev.preventDefault();
         const removeError = sendData?.errors?.[index];
@@ -137,6 +133,14 @@ const LogPage = () => {
         ev.preventDefault();
         const newData = {...sendData!};
         newData.categorySetting = undefined;
+        setSendData(newData);
+    }
+
+
+    const removeGlobal = (ev: any) => {
+        ev.preventDefault();
+        const newData = {...sendData!};
+        newData.globalParcelSetting = undefined;
         setSendData(newData);
     }
 
@@ -256,6 +260,11 @@ const LogPage = () => {
                 </> :
                     <div><h3>Nastavení dopravy</h3>
                         Není nastavena doprava</div> : null}
+
+                {sendData?.globalParcelSetting ? <>
+                            <h3>Globální nastavení dopravy (parcelbox) <a href={'#'} style={{ fontWeight: 'normal'}} onClick={removeGlobal}>[Nereportovat]</a></h3>
+                        </> : null}
+
                 {sendData?.categorySetting ?
                     (sendData?.categorySetting.length ? <>
                 <h3>Nastavení kategorií <a href={'#'} style={{ fontWeight: 'normal'}} onClick={removeCategories}>[Nereportovat]</a></h3>{(()=>{

@@ -33,6 +33,12 @@ class ErrorLogModel extends \ArrayObject
     /**
      * 
      *
+     * @var ParcelPlacesModel
+     */
+    protected $globalParcelSetting;
+    /**
+     * 
+     *
      * @var ErrorLogCategorySettingModel[]
      */
     protected $categorySetting;
@@ -118,6 +124,28 @@ class ErrorLogModel extends \ArrayObject
     {
         $this->initialized['shipmentsSetting'] = true;
         $this->shipmentsSetting = $shipmentsSetting;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return ParcelPlacesModel
+     */
+    public function getGlobalParcelSetting() : ?ParcelPlacesModel
+    {
+        return $this->globalParcelSetting;
+    }
+    /**
+     * 
+     *
+     * @param ParcelPlacesModel $globalParcelSetting
+     *
+     * @return self
+     */
+    public function setGlobalParcelSetting(?ParcelPlacesModel $globalParcelSetting) : self
+    {
+        $this->initialized['globalParcelSetting'] = true;
+        $this->globalParcelSetting = $globalParcelSetting;
         return $this;
     }
     /**

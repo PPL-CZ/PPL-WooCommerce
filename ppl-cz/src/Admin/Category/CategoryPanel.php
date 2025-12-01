@@ -4,6 +4,7 @@ namespace PPLCZ\Admin\Category;
 
 use PPLCZ\Admin\Assets\JsTemplate;
 use PPLCZ\Model\Model\CategoryModel;
+use PPLCZ\Model\Model\PackageSizeModel;
 use PPLCZ\Model\Model\ShipmentMethodModel;
 use PPLCZ\Serializer;
 use PPLCZ\Setting\MethodSetting;
@@ -39,10 +40,43 @@ class CategoryPanel {
         $pplDisabledParcelShop = false;
         $pplDisabledAlzaBox = false;
         $pplDisabledTransport = [];
+        $pplConfirmAge15 = false;
+        $pplConfirmAge18 = false;
 
-        if (isset($_POST['pplDisabledTransport'])) {
-            $pplDisabledTransport = sanitize_post(wp_unslash($_POST['pplDisabledTransport']), 'raw');
+
+
+        $xSize = null;
+        $ySize = null;
+        $zSize = null;
+        $weight = null;
+
+        if (isset($_POST['pplSize_xSize'])) {
+            $xSize = intval(sanitize_post(wp_unslash($_POST['pplSize_xSize']), 'raw'));
+            if ($xSize <= 0)
+                $xSize = null;
         }
+
+        if (isset($_POST['pplSize_ySize'])) {
+            $ySize = floatval(sanitize_post(wp_unslash($_POST['pplSize_ySize']), 'raw'));
+            if ($ySize <= 0)
+                $ySize = null;
+        }
+
+        if (isset($_POST['pplSize_zSize'])) {
+            $zSize = floatval(sanitize_post(wp_unslash($_POST['pplSize_zSize']), 'raw'));
+            if ($zSize <= 0)
+                $zSize = null;
+        }
+
+        if (isset($_POST['pplConfirmAge15']))
+            $pplConfirmAge15 = sanitize_post(wp_unslash($_POST['pplConfirmAge15']), 'raw');
+        if (isset($_POST['pplConfirmAge18']))
+            $pplConfirmAge18 = sanitize_post(wp_unslash($_POST['pplConfirmAge18']), 'raw');
+
+        if (isset($_POST['pplDisabledTransport']) && is_array($_POST['pplDisabledTransport'])) {
+            $pplDisabledTransport = map_deep(wp_unslash($_POST['pplDisabledTransport']), 'sanitize_text_field');
+        }
+
         $pplDisabledTransport = wc_clean($pplDisabledTransport);
 
         if (isset($_POST['pplDisabledParcelBox']))
@@ -55,6 +89,17 @@ class CategoryPanel {
             $pplDisabledAlzaBox = sanitize_post(wp_unslash($_POST['pplDisabledAlzaBox']), 'raw');
 
         $model = new CategoryModel();
+
+        if ($xSize || $ySize || $zSize) {
+            $size = new PackageSizeModel();
+            $size->setXSize($xSize);
+            $size->setYSize($ySize);
+            $size->setZSize($zSize);
+            $model->setPplSize($size);
+        }
+
+        $model->setPplConfirmAge15(!!$pplConfirmAge15);
+        $model->setPplConfirmAge18(!!$pplConfirmAge18);
 
         if (is_array($pplDisabledTransport)) {
             $model->setPplDisabledTransport($pplDisabledTransport);
@@ -84,7 +129,11 @@ class CategoryPanel {
 
     public static function render($taxonomy = null)
     {
-            $categoryModel = Serializer::getInstance()->denormalize($taxonomy, CategoryModel::class);
+            $categoryModel = new CategoryModel();
+
+            if ($taxonomy instanceof \WP_Term)
+                $categoryModel = Serializer::getInstance()->denormalize($taxonomy, CategoryModel::class);
+
             if ($taxonomy === "product_cat")
             {
                 echo "PPL";

@@ -148,14 +148,18 @@ class OrderTable {
                 $jsShipments[$key] = Serializer::getInstance()->normalize($shipment, "array");
             }
 
+            $anyError = false;
+
             foreach ($shipments as $key => $shipment) {
                 $tests = new Errors();
                 pplcz_validate($shipment, $tests, "");
-                if ($tests->errors)
+                if ($tests->errors || $shipment->getImportState() === "Error")
                 {
+                    $anyError = true;
                     $jsShipmentsOk[$key] = false;
                 }
                 else {
+
                     $jsShipmentsOk[$key] = true;
                 }
             }
@@ -182,8 +186,13 @@ class OrderTable {
                 }
             }
 
+            $unfinished = count($shipments) > 1 && !$anyError && array_filter($shipments, function($shipment) {
+                return in_array($shipment->getImportState(), [ "None", null, ""], true) ;
+            });
+
             wc_get_template("ppl/admin/order-table-column.php", [
                 "order"=> $order,
+                "unfinished"=> $unfinished,
                 "shipments" => $shipments,
                 "jsShipments" => $jsShipments,
                 "jsShipmentsOk" => $jsShipmentsOk,

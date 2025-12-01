@@ -12,6 +12,7 @@ use PPLCZ\Data\ShipmentData;
 use PPLCZ\Admin\Errors;
 use PPLCZ\Model\Model\ShipmentModel;
 use PPLCZ\Serializer;
+use PPLCZ\Setting\PrintSetting;
 use PPLCZ\ShipmentMethod;
 use PPLCZ\Traits\ParcelDataModelTrait;
 use PPLCZ\Validator\Validator;
@@ -133,9 +134,22 @@ class OrderFilter {
             {
                 case 'none':
                     if (strpos($sql['where'], 'pplczship') === false) {
+
+                        $states = PrintSetting::getPrintSetting()->getOrderStatuses();
+                        global  $wpdb;
+                        if ($states) {
+                            $states = " AND (wp_wc_orders.status IN (" . join(",", array_map(function ($item) use ($wpdb) {
+                                        return $wpdb->prepare("%s", $item);
+                                    }, $states)) . "))";
+                        }
+                        else {
+                            $states = "";
+                        }
+
+
                         $q = ["select pplczship.wc_order_id from {$wpdb->prefix}pplcz_shipment pplczship where (import_state not in ( 'Order', 'Complete') )"];
                         $q[] = "select pplcz_wi.order_id as wc_order_id from {$wpdb->prefix}woocommerce_order_items pplcz_wi join {$wpdb->prefix}woocommerce_order_itemmeta pplcz_woi on pplcz_woi.order_item_id = pplcz_wi.order_item_id  where meta_key = 'method_id' and meta_value like 'pplcz_%' and pplcz_wi.order_id not in (select wc_order_id from {$wpdb->prefix}pplcz_shipment pplczpack)";
-                        $sql['where'] .= sprintf(" AND {$wpdb->prefix}wc_orders.id in (%s) AND (wp_wc_orders.status = 'wc-processing' or wp_wc_orders.status = 'wc-on-hold' ) ", join(" UNION ", $q));
+                        $sql['where'] .= sprintf(" AND {$wpdb->prefix}wc_orders.id in (%s) $states ", join(" UNION ", $q));
                     }
                     break;
                 case 'print':

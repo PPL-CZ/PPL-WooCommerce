@@ -15,8 +15,6 @@ class ShipmentValidator extends ModelValidator
                 || $model instanceof UpdateShipmentModel;
     }
 
-
-
     public function validate($model, $errors, $path)
     {
         if ($model instanceof UpdateShipmentModel) {

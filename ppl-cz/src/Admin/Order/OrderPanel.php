@@ -4,6 +4,7 @@ defined("WPINC") or die();
 
 
 use PPLCZ\Admin\Page\OptionPage;
+use PPLCZ\Setting\PrintSetting;
 use PPLCZCPL\ApiException;
 use PPLCZ\Admin\Assets\JsTemplate;
 use PPLCZ\Admin\CPLOperation;
@@ -84,7 +85,7 @@ class OrderPanel {
 
         JsTemplate::scripts();
         $availablePrinters =  (new CPLOperation())->getAvailableLabelPrinters();
-        $format = (new CPLOperation())->getFormat(get_option(pplcz_create_name("print_setting"), ""));
+        $format = (new CPLOperation())->getFormat(PrintSetting::getPrintSetting()->getFormat());
         wc_get_template("ppl/admin/order-panel.php", [
             "availablePrinters" => $availablePrinters,
             "selectedPrint" => $format,
@@ -431,7 +432,9 @@ class OrderPanel {
                 if ($shipmentId)
                     pplcz_set_shipment_print($shipmentId, $print);
                 else
-                    add_option(pplcz_create_name("print_setting"), $print) || update_option(pplcz_create_name("print_setting"), $print);
+                {
+                    PrintSetting::setFormat($print);
+                }
                 self::rerender();
             }
         }

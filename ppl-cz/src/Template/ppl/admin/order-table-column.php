@@ -80,5 +80,8 @@ foreach ($shipments as $key => $shipment) {
     <?php endif; ?>
     <?php
     endforeach;
+    if ($unfinished) {
+    ?><div>Na objednávce jsou neuzavřené zásilky</div><?php
+    }
     ?>
 </div>

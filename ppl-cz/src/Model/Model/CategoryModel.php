@@ -17,6 +17,18 @@ class CategoryModel extends \ArrayObject
      *
      * @var bool|null
      */
+    protected $pplConfirmAge15;
+    /**
+     * 
+     *
+     * @var bool|null
+     */
+    protected $pplConfirmAge18;
+    /**
+     * 
+     *
+     * @var bool|null
+     */
     protected $pplDisabledParcelBox;
     /**
      * 
@@ -36,6 +48,56 @@ class CategoryModel extends \ArrayObject
      * @var string[]|null
      */
     protected $pplDisabledTransport;
+    /**
+     * 
+     *
+     * @var PackageSizeModel
+     */
+    protected $pplSize;
+    /**
+     * 
+     *
+     * @return bool|null
+     */
+    public function getPplConfirmAge15() : ?bool
+    {
+        return $this->pplConfirmAge15;
+    }
+    /**
+     * 
+     *
+     * @param bool|null $pplConfirmAge15
+     *
+     * @return self
+     */
+    public function setPplConfirmAge15(?bool $pplConfirmAge15) : self
+    {
+        $this->initialized['pplConfirmAge15'] = true;
+        $this->pplConfirmAge15 = $pplConfirmAge15;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return bool|null
+     */
+    public function getPplConfirmAge18() : ?bool
+    {
+        return $this->pplConfirmAge18;
+    }
+    /**
+     * 
+     *
+     * @param bool|null $pplConfirmAge18
+     *
+     * @return self
+     */
+    public function setPplConfirmAge18(?bool $pplConfirmAge18) : self
+    {
+        $this->initialized['pplConfirmAge18'] = true;
+        $this->pplConfirmAge18 = $pplConfirmAge18;
+        return $this;
+    }
     /**
      * 
      *
@@ -122,6 +184,28 @@ class CategoryModel extends \ArrayObject
     {
         $this->initialized['pplDisabledTransport'] = true;
         $this->pplDisabledTransport = $pplDisabledTransport;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return PackageSizeModel
+     */
+    public function getPplSize() : ?PackageSizeModel
+    {
+        return $this->pplSize;
+    }
+    /**
+     * 
+     *
+     * @param PackageSizeModel $pplSize
+     *
+     * @return self
+     */
+    public function setPplSize(?PackageSizeModel $pplSize) : self
+    {
+        $this->initialized['pplSize'] = true;
+        $this->pplSize = $pplSize;
         return $this;
     }
 }

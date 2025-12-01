@@ -9,7 +9,7 @@ if (!isset($shippingAddress))
     return;
 ?>
 <address>
-    <strong>Výdejní místo</strong><br/>
+    <strong><?php echo __("Výdejní místo", "ppl-cz"); ?></strong><br/>
     <?php echo esc_html($shippingAddress->getAccessPointType());?><br/>
     <?php echo esc_html($shippingAddress->getName()) ?><br/>
     <?php echo esc_html($shippingAddress->getStreet()) ?><br/>

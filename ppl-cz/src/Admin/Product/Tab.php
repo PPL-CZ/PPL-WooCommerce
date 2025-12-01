@@ -5,6 +5,7 @@ namespace PPLCZ\Admin\Product;
 defined("WPINC") or die();
 
 use PPLCZ\Admin\Assets\JsTemplate;
+use PPLCZ\Model\Model\PackageSizeModel;
 use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Entity\ProductEntity;
 use PPLCZ\Serializer;
@@ -91,7 +92,50 @@ class Tab {
         if (isset($_POST['pplDisabledAlzaBox']))
             $pplDisabledAlzaBox = sanitize_post(wp_unslash($_POST['pplDisabledAlzaBox']), 'raw');
 
+        $names = array_map(function ($item) {
+            if (preg_match('/pplSizes_(\d+)/', $item, $matches))
+                return intval($matches[1]);
+            return 0;
+        }, array_filter(array_keys($_POST), function($v) {
+           return strpos($v, 'pplSizes_') !== false;
+        }));
+        $maxCountSizes = 0;
 
+        if ($names)
+            $maxCountSizes = max($names);
+
+        $packageSizes = [];
+
+        for ($i = 0; $i <= $maxCountSizes; $i++) {
+            $xSize = $ySize = $zSize = null;
+            if (isset($_POST["pplSizes_{$i}_xSize"])) {
+                $xSize = intval(sanitize_post(wp_unslash($_POST["pplSizes_{$i}_xSize"]), 'raw'));
+                if ($xSize <= 0)
+                    $xSize = null;
+            }
+
+            if (isset($_POST["pplSizes_{$i}_ySize"])) {
+                $ySize = floatval(sanitize_post(wp_unslash($_POST["pplSizes_{$i}_ySize"]), 'raw'));
+                if ($ySize <= 0)
+                    $ySize = null;
+            }
+
+            if (isset($_POST["pplSizes_{$i}_zSize"])) {
+                $zSize = floatval(sanitize_post(wp_unslash($_POST["pplSizes_{$i}_zSize"]), 'raw'));
+                if ($zSize <= 0)
+                    $zSize = null;
+            }
+            if ($xSize || $ySize || $zSize)
+            {
+                $packageSize = new PackageSizeModel();
+                $packageSize->setXSize($xSize);
+                $packageSize->setYSize($ySize);
+                $packageSize->setZSize($zSize);
+                $packageSizes[] = $packageSize;
+            }
+        }
+
+        $model->setPplSizes($packageSizes);
         $model->setPplConfirmAge15(!!$pplConfirmAge15);
         $model->setPplConfirmAge18(!!$pplConfirmAge18);
 

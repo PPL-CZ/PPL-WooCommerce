@@ -7,6 +7,7 @@ use PPLCZ\Data\BatchData;
 use PPLCZ\Setting\ApiSetting;
 use PPLCZ\Setting\MethodSetting;
 use PPLCZ\Setting\PhaseSetting;
+use PPLCZ\Setting\PrintSetting;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentResultChildItemModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentResultItemModel;
 use PPLCZVendor\GuzzleHttp\HandlerStack;
@@ -384,7 +385,7 @@ class CPLOperation
 
         $shipmentApi = new ShipmentBatchApi($client, $configuration);
 
-        $format = ($printFormat ?: get_option(pplcz_create_name("print_setting"), ""));
+        $format = ($printFormat ?: PrintSetting::getPrintSetting()->getFormat());
         $format = $this->getFormat($format);
 
         switch($format) {
@@ -872,7 +873,8 @@ class CPLOperation
                             "orderId" => $shipment->get_wc_order_id(),
                             "packageNumber" => $package->get_shipment_number(),
                             "phase" => $package->get_phase(),
-                            "phase_label" => $package->get_phase_label()
+                            "phaseLabel" => $package->get_phase_label(),
+                            "phase_label" => $package->get_phase_label(),
                         ]);
                     }
                 } else {
@@ -891,6 +893,7 @@ class CPLOperation
                         "orderId" => $shipment->get_wc_order_id(),
                         "packageNumber" => $package->get_shipment_number(),
                         "phase" => $package->get_phase(),
+                        "phaseLabel" => $package->get_phase_label(),
                         "phase_label" => $package->get_phase_label(),
                     ]);
                 }

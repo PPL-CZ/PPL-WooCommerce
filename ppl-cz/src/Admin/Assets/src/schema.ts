@@ -17,12 +17,21 @@ export interface components {
       pplDisabledAlzaBox?: boolean;
       pplDisabledParcelShop?: boolean | null;
       pplDisabledTransport?: string[] | null;
+      pplSizes?: components["schemas"]["PackageSizeModel"][] | null;
     };
     CategoryModel: {
+      pplConfirmAge15?: boolean | null;
+      pplConfirmAge18?: boolean | null;
       pplDisabledParcelBox?: boolean | null;
       pplDisabledAlzaBox?: boolean;
       pplDisabledParcelShop?: boolean | null;
       pplDisabledTransport?: string[] | null;
+      pplSize?: components["schemas"]["PackageSizeModel"];
+    };
+    PackageSizeModel: {
+      xSize?: number | null;
+      ySize?: number | null;
+      zSize?: number | null;
     };
     ParcelDataModel: {
       name?: string | null;
@@ -201,6 +210,7 @@ export interface components {
       disabledByWeight?: boolean | null;
       disabledByRules?: boolean | null;
       disabledByCountry?: boolean;
+      disabledBySize?: boolean | null;
       enabledParcelCountries?: string[] | null;
       ageRequired?: boolean | null;
       codPayment?: string | null;
@@ -275,8 +285,16 @@ export interface components {
     ShipmentMethodModel: {
       code: string;
       title: string;
+      description: string;
+      ageValidation: boolean | null;
       codAvailable: boolean;
       parcelRequired: boolean;
+      disabledParcelTypes?: string[] | null;
+      availableParcelTypes?: string[] | null;
+      countries: string[];
+      maxWeight: number | null;
+      maxDimension?: number[] | null;
+      maxPackages: number | null;
     };
     NewCollectionModel: {
       sendDate: string;
@@ -301,6 +319,10 @@ export interface components {
       telephone?: string | null;
       note?: string | null;
       email?: string | null;
+    };
+    PrintSettingModel: {
+      format?: string;
+      orderStatuses?: string[];
     };
     ShipmentMethodSettingModel: {
       code: string;
@@ -368,6 +390,7 @@ export interface components {
       mail?: string | null;
       info?: string | null;
       shipmentsSetting?: components["schemas"]["ErrorLogShipmentSettingModel"][] | null;
+      globalParcelSetting?: components["schemas"]["ParcelPlacesModel"];
       categorySetting?: components["schemas"]["ErrorLogCategorySettingModel"][];
       productsSetting?: components["schemas"]["ErrorLogProductSettingModel"][];
       orders?: unknown[];

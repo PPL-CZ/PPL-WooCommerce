@@ -1,6 +1,7 @@
 <?php
 namespace PPLCZ\Setting;
 
+use PPLCZ\Admin\CPLOperation;
 use PPLCZ\Model\Model\ParcelPlacesModel;
 use PPLCZ\Model\Model\ShipmentMethodModel;
 
@@ -52,8 +53,10 @@ class MethodSetting
             "PRIV" => "PRID",
             "CONN" => "COND",
             "SMAR" => "SMAD",
-            "SMEU" => "SMED"
+            "SMEU" => "SMED",
+            "SBOX" => "SBOD"
         ];
+
         if (isset($methods[$code]))
             return $methods[$code];
         return null;
@@ -69,12 +72,27 @@ class MethodSetting
         return null;
     }
 
+    private static $_methods = null;
+
     /**
      * @return ShipmentMethodModel[]
      */
     public static function getMethods()
     {
+        if (self::$_methods !== null) return self::$_methods;
+
         $output = [];
+
+        $description = [
+            "PRID" => "Doprava v rámci České republiky na adresu",
+            "SMAD" => "Doprava v rámci České republiky na výdejní místo",
+            "SBOD" => "Doprava v rámci České republiky pouze do ParcelBoxu (váha omezena do 10 kg a rozměry max 50×40×38cm)",
+            "SMED" => "Doprava v rámci Polska, Německa, Slovenska na výdejní místo",
+            "COND" => "Doprava v rámci EU na adresu",
+            "COPD" => "Doprava mimo EU v rámci Evropy",
+        ];
+
+
 
         $methods = [
             "PRIV"=> "PPL Parcel CZ Private", // cz
@@ -83,15 +101,42 @@ class MethodSetting
             "SMEU" => "PPL Parcel Smart Europe", // necz
             "CONN" => "PPL Parcel Connect", // necz,
 
-            "COPL" => "PPL Parcel Connect Plus"
+            "COPL" => "PPL Parcel Connect Plus",
+
+            "SBOX" => "PPL Parcel CZ Smart To Box"
         ];
 
         foreach ($methods as $key => $value) {
             $method = new ShipmentMethodModel();
+
             $method->setCode($key);
             $method->setTitle($value);
+            $method->setDescription($description[substr($key, 0, 3) . 'D']);
             $method->setCodAvailable(false);
-            $method->setParcelRequired(in_array($key, ["SMAR", "SMEU"], true));
+            $method->setParcelRequired(in_array($key, ["SMAR", "SMEU", "SBOX"], true));
+            $method->setAgeValidation(null);
+
+            if (in_array($key, ["SMAR", "PRIV"], true)) {
+                $method->setAgeValidation(true);
+            } else if ($key === "SBOX") {
+                $method->setAgeValidation(false);
+                $method->setMaxWeight(10);
+                $method->setMaxDimension([50, 40, 38 ]);
+            } else if (in_array($key, ["SMEU", "CONN"], true)) {
+                $method->setMaxPackages(1);
+            }
+
+            if($method->getParcelRequired())
+            {
+                $method->setDisabledParcelTypes([]);
+                $method->setAvailableParcelTypes(["ParcelBox", "ParcelShop", "AlzaBox"]);
+
+                if ($method->getCode() === "SBOX") {
+                    $method->setDisabledParcelTypes([ "AlzaBox", "ParcelShop"]);
+                    $method->setAvailableParcelTypes(["ParcelBox"]);
+                    $method->setMaxPackages(1);
+                }
+            }
             $output[] = $method;
         }
 
@@ -99,7 +144,8 @@ class MethodSetting
             "PRID"=> "PPL Parcel CZ Private - dobírka", // cz
             "SMAD" => "PPL Parcel CZ Smart - dobírka", // cz, VM
             "SMED" => "PPL Parcel Smart Europe - dobírka", // necz
-            "COND" => "PPL Parcel Connect - dobírka", // necz
+            "COND" => "PPL Parcel Connect - dobírka", // necz,
+            "SBOD" => "PPL Parcel CZ Smart To Box - dobírka"
         ];
 
         foreach ($codMethods as $key => $value) {
@@ -107,11 +153,83 @@ class MethodSetting
             $method->setCode($key);
             $method->setTitle($value);
             $method->setCodAvailable(true);
-            $method->setParcelRequired(in_array($key, ["SMAD", "SMED"], true));
+            $method->setDescription($description[$key]);
+            $method->setParcelRequired(in_array($key, ["SMAD", "SMED", "SBOD"], true));
+            $method->setAgeValidation(null);
+
+            if (in_array($key, ["SMAD", "PRID"], true)) {
+                $method->setAgeValidation(true);
+            } else if ($key === "SBOD") {
+                $method->setAgeValidation(false);
+                $method->setMaxWeight(10);
+                $method->setMaxDimension([50, 40, 38 ]);
+                $method->setMaxPackages(1);
+            }else if (in_array($key, ["SMED", "COND"], true)) {
+                $method->setMaxPackages(1);
+            }
+
+            if($method->getParcelRequired())
+            {
+                $method->setAvailableParcelTypes(["ParcelBox", "ParcelShop", "AlzaBox"]);
+                $method->setDisabledParcelTypes([]);
+                if ($method->getCode() === "SBOD") {
+                    $method->setAvailableParcelTypes(["ParcelBox"]);
+                    $method->setDisabledParcelTypes([ "AlzaBox", "ParcelShop"]);
+                }
+            }
+
             $output[] = $method;
         }
 
-        return $output;
+        foreach ($output as $value)
+        {
+            $code = $value->getCode();
+            $countries = [];
+            if (in_array($code, ['SMAR',"SMAD", 'PRIV', 'PRID', "SBOX", "SBOD" ]))
+                $countries = ["CZ"];
+            else if (in_array($code,['SMEU',"SMED", 'CONN', 'COND']))
+                $countries = self::getEuCountries();
+            else {
+                $countries = require __DIR__ . '/../config/countries.php';
+                $countries = array_diff(array_keys($countries), self::getEuCountries());
+            }
+            $value->setCountries($countries);
+        }
+
+        return self::$_methods = $output;
+    }
+
+    public static function getEuCountries()
+    {
+        return [
+            'AT', // Rakousko
+            'BE', // Belgie
+            'BG', // Bulharsko
+            'HR', // Chorvatsko
+            'CY', // Kypr
+            'CZ', // Česká republika
+            'DK', // Dánsko
+            'EE', // Estonsko
+            'FI', // Finsko
+            'FR', // Francie
+            'DE', // Německo
+            'GR', // Řecko
+            'HU', // Maďarsko
+            'IE', // Irsko
+            'IT', // Itálie
+            'LV', // Lotyšsko
+            'LT', // Litva
+            'LU', // Lucembursko
+            'MT', // Malta
+            'NL', // Nizozemsko
+            'PL', // Polsko
+            'PT', // Portugalsko
+            'RO', // Rumunsko
+            'SK', // Slovensko
+            'SI', // Slovinsko
+            'ES', // Španělsko
+            'SE', // Švédsko
+        ];
     }
 
     public static function getMethodForCountry($country, $method)
@@ -126,7 +244,7 @@ class MethodSetting
             $codes = [
                 'PRIV' => 'PRIV', 'PRID'=> "PRID", 'SMAR'=> 'SMAR', 'SMAD'=> 'SMAD',
                 'SMEU' => "SMAR", "SMED" => "SMAD", "CONN" => "PRIV", 'COND'=> "PRID",
-                "COPL" => "PRIV"
+                "COPL" => "PRIV", "SBOX" => "SBOX", "SBOD" => "SBOD"
             ];
             if (isset($codes[$method]))
                 return $codes[$method];
@@ -135,37 +253,7 @@ class MethodSetting
         }
         else
         {
-            $eu_countries = [
-                'AT', // Rakousko
-                'BE', // Belgie
-                'BG', // Bulharsko
-                'HR', // Chorvatsko
-                'CY', // Kypr
-                'CZ', // Česká republika
-                'DK', // Dánsko
-                'EE', // Estonsko
-                'FI', // Finsko
-                'FR', // Francie
-                'DE', // Německo
-                'GR', // Řecko
-                'HU', // Maďarsko
-                'IE', // Irsko
-                'IT', // Itálie
-                'LV', // Lotyšsko
-                'LT', // Litva
-                'LU', // Lucembursko
-                'MT', // Malta
-                'NL', // Nizozemsko
-                'PL', // Polsko
-                'PT', // Portugalsko
-                'RO', // Rumunsko
-                'SK', // Slovensko
-                'SI', // Slovinsko
-                'ES', // Španělsko
-                'SE', // Švédsko
-            ];
-
-            if (in_array($country, $eu_countries, true))
+            if (in_array($country, self::getEuCountries(), true))
             {
                 $codes = [
                     "COPL" => "CONN",
@@ -180,7 +268,7 @@ class MethodSetting
             }
             else
             {
-                if (in_array($method, ['COPL', "PRIV", "SMAR", "CONN", "SMEU"], true))
+                if (in_array($method, ['COPL', "PRIV", "CONN"], true))
                     return "COPL";
                 return null;
             }
