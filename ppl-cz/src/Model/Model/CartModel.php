@@ -69,6 +69,12 @@ class CartModel extends \ArrayObject
     /**
      * 
      *
+     * @var bool|null
+     */
+    protected $disabledBySize;
+    /**
+     * 
+     *
      * @var string[]|null
      */
     protected $enabledParcelCountries;
@@ -334,6 +340,28 @@ class CartModel extends \ArrayObject
     {
         $this->initialized['disabledByCountry'] = true;
         $this->disabledByCountry = $disabledByCountry;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return bool|null
+     */
+    public function getDisabledBySize() : ?bool
+    {
+        return $this->disabledBySize;
+    }
+    /**
+     * 
+     *
+     * @param bool|null $disabledBySize
+     *
+     * @return self
+     */
+    public function setDisabledBySize(?bool $disabledBySize) : self
+    {
+        $this->initialized['disabledBySize'] = true;
+        $this->disabledBySize = $disabledBySize;
         return $this;
     }
     /**

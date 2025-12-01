@@ -125,6 +125,8 @@ class LogV1RestController extends PPLRestController
         add_action('phpmailer_init', function($phpmailer) use ($textMessage, $logErrors, $inputError) {
             $phpmailer->AltBody = $textMessage;
             $phpmailer->addStringAttachment($logErrors, "zprava_a_logy.txt", "base64", "text/plain");
+            if ($inputError->getGlobalParcelSetting())
+                $phpmailer->addStringAttachment(wp_json_encode(pplcz_normalize($inputError->getGlobalParcelSetting()), JSON_PRETTY_PRINT), "globalni_nastaveni_parcel.json", "base64", "application/json");
             if ($inputError->getCategorySetting())
                 $phpmailer->addStringAttachment(wp_json_encode(pplcz_normalize($inputError->getCategorySetting()), JSON_PRETTY_PRINT), "nastaveni_kategorii.json", "base64", "application/json");
             if ($inputError->getProductsSetting())

@@ -18,7 +18,7 @@ class ShipmentSettingDenormalizer implements DenormalizerInterface
     public function denormalize($data, string $type, ?string $format = null, array $context = [])
     {
         $currencies  = include __DIR__ . '/../config/currencies.php';
-        $currencies = array_unique(array_merge([ get_option( 'woocommerce_currency' )],array_values($currencies)));
+        $currencies = array_unique(array_merge([ get_option( 'woocommerce_currency' )], array_values($currencies)));
 
         if ($type === ShipmentMethodSettingModel::class) {
             /**
@@ -27,6 +27,7 @@ class ShipmentSettingDenormalizer implements DenormalizerInterface
             $shipment = new ShipmentMethodSettingModel();
 
             $shipment->setCode(str_replace(pplcz_create_name(""), '', $data->id));
+
             $method = array_filter(MethodSetting::getMethods(), function($item) use($shipment) {
                 return $item->getCode() === $shipment->getCode();
             });
@@ -50,10 +51,16 @@ class ShipmentSettingDenormalizer implements DenormalizerInterface
             $shipment->setDisablePayments($formFields['disablePayments'] ?: []);
             $shipment->setCostByWeight($formFields["cost_by_weight"] === 'yes' );
 
-            $shipment->setDisabledAlzaBox(!$parcelBoxesRequired || $formFields["disabledAlzaBox"] === 'yes' );
-            $shipment->setDisabledParcelBox(!$parcelBoxesRequired || $formFields["disabledParcelBox"] === 'yes' );
-            $shipment->setDisabledParcelShop(!$parcelBoxesRequired || $formFields["disabledParcelShop"] === 'yes' );
-
+            if ($shipment->getCode() === "SBOX") {
+                $shipment->setDisabledAlzaBox(true);
+                $shipment->setDisabledParcelShop(true);
+                $shipment->setDisabledParcelBox(false);
+            }
+            else {
+                $shipment->setDisabledAlzaBox(!$parcelBoxesRequired || $formFields["disabledAlzaBox"] === 'yes');
+                $shipment->setDisabledParcelBox(!$parcelBoxesRequired || $formFields["disabledParcelBox"] === 'yes');
+                $shipment->setDisabledParcelShop(!$parcelBoxesRequired || $formFields["disabledParcelShop"] === 'yes');
+            }
 
             if ($parcelBoxesRequired)
                 $savedDisabledParcel = isset($formFields['disabledParcelCountries']) ? $formFields['disabledParcelCountries'] : [];
@@ -113,7 +120,9 @@ class ShipmentSettingDenormalizer implements DenormalizerInterface
                     }
                 }
             }
+
             $weight =  get_option($data->get_instance_option_weight_key());
+
             if (is_array($weight))
             {
                 try {
@@ -152,8 +161,6 @@ class ShipmentSettingDenormalizer implements DenormalizerInterface
             }
 
             return $shipment;
-        } else {
-
         }
     }
 

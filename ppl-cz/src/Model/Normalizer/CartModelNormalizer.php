@@ -107,6 +107,13 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
             $object->setDisabledByCountry($data['disabledByCountry']);
             unset($data['disabledByCountry']);
         }
+        if (\array_key_exists('disabledBySize', $data) && $data['disabledBySize'] !== null) {
+            $object->setDisabledBySize($data['disabledBySize']);
+            unset($data['disabledBySize']);
+        }
+        elseif (\array_key_exists('disabledBySize', $data) && $data['disabledBySize'] === null) {
+            $object->setDisabledBySize(null);
+        }
         if (\array_key_exists('enabledParcelCountries', $data) && $data['enabledParcelCountries'] !== null) {
             $values = array();
             foreach ($data['enabledParcelCountries'] as $value) {
@@ -226,6 +233,9 @@ class CartModelNormalizer implements DenormalizerInterface, NormalizerInterface,
         }
         if ($object->isInitialized('disabledByCountry') && null !== $object->getDisabledByCountry()) {
             $data['disabledByCountry'] = $object->getDisabledByCountry();
+        }
+        if ($object->isInitialized('disabledBySize') && null !== $object->getDisabledBySize()) {
+            $data['disabledBySize'] = $object->getDisabledBySize();
         }
         if ($object->isInitialized('enabledParcelCountries') && null !== $object->getEnabledParcelCountries()) {
             $values = array();

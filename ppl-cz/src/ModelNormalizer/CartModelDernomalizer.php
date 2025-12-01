@@ -13,6 +13,7 @@ use PPLCZ\Model\Model\ShipmentMethodSettingCurrencyModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingModel;
 use PPLCZ\Serializer;
 use PPLCZ\Setting\MethodSetting;
+use PPLCZ\Utils\BoxPacker;
 use PPLCZ\Validator\CartValidator;
 use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use PPLCZ\Front\Validator\ParcelShopValidator;
@@ -73,6 +74,7 @@ class CartModelDernomalizer implements DenormalizerInterface
         $shipmentCartModel->setDisabledByCountry(false);
         $shipmentCartModel->setAgeRequired(false);
         $shipmentCartModel->setDisabledByRules(false);
+        $shipmentCartModel->setDisabledBySize(false);
 
         $parcelPlacesSetting = MethodSetting::getGlobalParcelboxesSetting();
 
@@ -228,8 +230,8 @@ class CartModelDernomalizer implements DenormalizerInterface
 
         if (!$serviceCode) {
             $shipmentCartModel->setDisabledByCountry(true);
-        }
-        else if (CartValidator::ageRequired(WC()->cart, $serviceCode)) {
+            return $shipmentCartModel;
+        } else if (CartValidator::ageRequired(WC()->cart, $serviceCode)) {
             $shipmentCartModel->setAgeRequired(true);
             $shipmentCartModel->setParcelBoxEnabled(false);
             $shipmentCartModel->setAlzaBoxEnabled(false);
@@ -259,7 +261,7 @@ class CartModelDernomalizer implements DenormalizerInterface
             $shipmentCartModel->setDisableCod(false);
 
         $maxCodPrice = array_values(array_filter($limits['COD'], function ($item) use ($country, $codServiceCode, $currency) {
-            if ($item['product'] === $codServiceCode && $item['currency'] === $currency && $item['country'] === $country) {
+            if ($item['product'] === $codServiceCode && $item['currency'] === $currency) {
                 return true;
             }
             return false;
@@ -277,7 +279,7 @@ class CartModelDernomalizer implements DenormalizerInterface
             || !isset($maxCodPrice[0]['max'])
             || $maxCodPrice[0]['max'] === ''
             || $maxCodPrice[0]['max'] === null
-            || $total >=  $maxCodPrice[0]['max']) {
+            || $total >= $maxCodPrice[0]['max']) {
             $shipmentCartModel->setDisableCod(true);
             if ($currencySetting->getCostOrderFree() != null
                 && $currencySetting->getCostOrderFree() <= $total) {
@@ -322,14 +324,71 @@ class CartModelDernomalizer implements DenormalizerInterface
 
         $shipmentCartModel->setDisabledByProduct(false);
 
+        $method = MethodSetting::getMethod($serviceCode);
+
+
+        if ($method->getMaxWeight() && $totalWeight > $method->getMaxWeight()) {
+            $shipmentCartModel->setDisabledByWeight(true);
+        }
+
+        $packagesSizes = [];
+
         foreach (WC()->cart->get_cart() as $key => $cart_item) {
             $product_id = $cart_item['product_id'];
-            $product = new \WC_Product($product_id);
+            $quantity = $cart_item['quantity'];
+            $product = $cart_item['data'] instanceof \WC_Product ? $cart_item['data'] : new \WC_Product($product_id);
+
+            $productSize = [];
+
+            $length = $product->get_length();
+            $width = $product->get_width();
+            $height = $product->get_height();
+
+            if ($length || $width || $height) {
+                $productSize = array_values(array_filter([floatval($length), floatval($width), floatval($height)]));
+                $max = max($length, $width, $height);
+                if ($max > 0) {
+                    while ( count($productSize) < 3) {
+                        $productSize[] = floatval($max);
+                    }
+                    $productSize['name'] = $product->get_name();
+                    $productSize['qty'] = $quantity;
+                }
+                else {
+                    $productSize = [];
+                }
+            }
+
             /**
              * @var ProductModel $productModel
              * @var CategoryModel $categoryModel
              */
             $productModel = Serializer::getInstance()->denormalize($product, ProductModel::class);
+
+            $pplSizes = [];
+
+            if ($method->getMaxDimension()) {
+
+                if ($productModel->getPplSizes()) {
+                    foreach ($productModel->getPplSizes() as $pplSize) {
+                        if ($pplSize) {
+                            $current = array_values(array_filter([floatval($pplSize->getYSize()), floatval($pplSize->getZSize()), floatval($pplSize->getXSize())]));
+                            $max = floatval(max($current));
+                            if ($max > 0) {
+                                while (count($current) < 3) {
+                                    $current[] = $max;
+                                }
+                                $current['name'] = $product->get_name();
+                                $current['qty'] = $quantity;
+                                $pplSizes[] = $current;
+                            }
+                        }
+                    }
+                }
+                if (!$pplSizes && $productSize)
+                    $pplSizes[] = $productSize;
+            }
+
 
             if (in_array($codServiceCode, $productModel->getPplDisabledTransport() ?? [], true)) {
                 $shipmentCartModel->setDisableCod(true);
@@ -340,9 +399,14 @@ class CartModelDernomalizer implements DenormalizerInterface
                 break;
             }
 
-            $shipmentCartModel->setParcelBoxEnabled( !$productModel->getPplDisabledParcelBox() && $shipmentCartModel->getParcelBoxEnabled() );
-            $shipmentCartModel->setParcelShopEnabled(!$productModel->getPplDisabledParcelShop() && $shipmentCartModel->getParcelShopEnabled() );
-            $shipmentCartModel->setAlzaBoxEnabled(!$productModel->getPplDisabledAlzaBox() && $shipmentCartModel->getAlzaBoxEnabled() );
+            $ageProductValidation = false;
+            if (in_array($method->getAgeValidation(), [true, false], true) && ($productModel->getPplConfirmAge18() || $productModel->getPplConfirmAge15())) {
+                $ageProductValidation = true;
+            }
+
+            $shipmentCartModel->setParcelBoxEnabled(!$ageProductValidation && !$productModel->getPplDisabledParcelBox() && $shipmentCartModel->getParcelBoxEnabled());
+            $shipmentCartModel->setParcelShopEnabled(!$productModel->getPplDisabledParcelShop() && $shipmentCartModel->getParcelShopEnabled());
+            $shipmentCartModel->setAlzaBoxEnabled(!$ageProductValidation && !$productModel->getPplDisabledAlzaBox() && $shipmentCartModel->getAlzaBoxEnabled());
 
             $get_parents = $product->get_category_ids();
             $ids = [];
@@ -362,27 +426,47 @@ class CartModelDernomalizer implements DenormalizerInterface
                 $term = get_term($category_id);
                 $categoryModel = Serializer::getInstance()->denormalize($term, CategoryModel::class);
 
+                if ($method->getMaxDimension() && !$pplSizes && $categoryModel->getPplSize()) {
+                    $size = $categoryModel->getPplSize();
+                    $current = array_values(array_filter([floatval($size->getYSize()), floatval($size->getZSize()), floatval($size->getXSize())]));
+                    $max = max($size->getYSize(), $size->getZSize(), $size->getXSize());
+                    if ($max > 0) {
+                        while (count($current) < 3) {
+                            $current[] = floatval($max);
+                        }
+
+                        $current['name'] = $product->get_name();
+                        $current['qty'] = $quantity;
+                    }
+                    if ($current) {
+                        $packagesSizes[] = $current;
+                    }
+                }
+
                 if (in_array($codServiceCode, $categoryModel->getPplDisabledTransport() ?? [], true)) {
                     $shipmentCartModel->setDisableCod(true);
                 }
+
                 if (in_array($serviceCode, $categoryModel->getPplDisabledTransport() ?? [], true)) {
                     $shipmentCartModel->setDisabledByProduct(true);
                     break 2;
                 }
 
-                $shipmentCartModel->setParcelBoxEnabled(!$categoryModel->getPplDisabledParcelBox() && $shipmentCartModel->getParcelBoxEnabled() );
-                $shipmentCartModel->setParcelShopEnabled(!$categoryModel->getPplDisabledParcelShop() && $shipmentCartModel->getParcelShopEnabled() );
-                $shipmentCartModel->setAlzaBoxEnabled(!$categoryModel->getPplDisabledAlzaBox() && $shipmentCartModel->getAlzaBoxEnabled() );
+                $ageProductValidation = false;
+                if (in_array($method->getAgeValidation(), [true, false], true) && ($categoryModel->getPplConfirmAge18() || $categoryModel->getPplConfirmAge15())) {
+                    $ageProductValidation = true;
+                }
+
+                $shipmentCartModel->setParcelBoxEnabled(!$ageProductValidation && !$categoryModel->getPplDisabledParcelBox() && $shipmentCartModel->getParcelBoxEnabled());
+                $shipmentCartModel->setParcelShopEnabled(!$categoryModel->getPplDisabledParcelShop() && $shipmentCartModel->getParcelShopEnabled());
+                $shipmentCartModel->setAlzaBoxEnabled(!$ageProductValidation && !$categoryModel->getPplDisabledAlzaBox() && $shipmentCartModel->getAlzaBoxEnabled());
             }
+
+            $packagesSizes = array_merge($packagesSizes, $pplSizes);
+
         }
 
-        if (!$shipmentCartModel->getParcelShopEnabled() && !$shipmentCartModel->getParcelBoxEnabled() && !$shipmentCartModel->getAlzaBoxEnabled() && $shipmentCartModel->getParcelRequired())
-        {
-            $shipmentCartModel->setDisabledByRules(true);
-        }
-
-        if (!$shipmentCartModel->getParcelShopEnabled() && $shipmentCartModel->getAgeRequired())
-        {
+        if (!$shipmentCartModel->getParcelShopEnabled() && !$shipmentCartModel->getParcelBoxEnabled() && !$shipmentCartModel->getAlzaBoxEnabled() && $shipmentCartModel->getParcelRequired()) {
             $shipmentCartModel->setDisabledByRules(true);
         }
 
@@ -391,13 +475,48 @@ class CartModelDernomalizer implements DenormalizerInterface
             && !$shipmentCartModel->getDisabledByCountry()
         );
 
+        if ($method->getMaxDimension() && $packagesSizes) {
+            $sizes = $method->getMaxDimension();
+            $max = max($sizes);
+            if ($max > 0) {
+                while (count($sizes) < 3) {
+                    $sizes[] = $max;
+                }
+
+                $boxPacker = new BoxPacker();
+
+
+                $boxPacker->addBox("max", floatval($sizes[0]), floatval($sizes[1]), floatval($sizes[2]));
+
+                if ($method->getMaxPackages())
+                    $boxPacker->setMaxPackages($method->getMaxPackages());
+
+                foreach ($packagesSizes as $package) {
+                    $boxPacker->addItem($package['name'], floatval($package[0]), floatval($package[1]), floatval($package[2]), floatval($package['qty']));
+                }
+                $boxPacker->setStackingMode("all");
+                $resolved = $boxPacker->pack();
+                if (!$resolved || !$resolved['success']) {
+                    $shipmentCartModel->setDisabledBySize(true);
+                }
+                else
+                {
+                    foreach ($resolved['boxes'] as $box)
+                    {
+                        if ($box['metrics']['shape_efficiency'] < 65) {
+                            $shipmentCartModel->setDisabledBySize(true);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         // kupony
         $coupons = WC()->cart->get_applied_coupons();
-        foreach ($coupons as $coupon)
-        {
+        foreach ($coupons as $coupon) {
             $coupon = new \WC_Coupon($coupon);
-            if ($coupon->get_id() && $coupon->get_free_shipping())
-            {
+            if ($coupon->get_id() && $coupon->get_free_shipping()) {
                 $shipmentCartModel->setCost(0);
             }
         }
@@ -425,8 +544,8 @@ class CartModelDernomalizer implements DenormalizerInterface
                         }
                     }
                 }
-                $shipmentCartModel->setTaxableName($default_shipping_tax_class);
 
+                $shipmentCartModel->setTaxableName($default_shipping_tax_class);
 
                 $priceWithDph = \WC_Tax::calc_shipping_tax($shipmentCartModel->getCost(), \WC_Tax::get_shipping_tax_rates());
                 $selectedWeightPrice = $shipmentCartModel->getCost();
@@ -446,11 +565,10 @@ class CartModelDernomalizer implements DenormalizerInterface
                 $shipmentCartModel->setCost($selectedWeightPrice);
             }
 
-            if ($shipmentCartModel->getCodFee())
-            {
+            if ($shipmentCartModel->getCodFee()) {
                 $codFeeDPH = \WC_Tax::calc_shipping_tax($shipmentCartModel->getCodFee(), \WC_Tax::get_shipping_tax_rates());
 
-                if($codFeeDPH){
+                if ($codFeeDPH) {
                     $first = reset($codFeeDPH);
                     $codFee = $shipmentCartModel->getCodFee();
                     if ($first && $isPriceWithDph) {
@@ -464,11 +582,7 @@ class CartModelDernomalizer implements DenormalizerInterface
                     $shipmentCartModel->setCodFeeDPH($costDPH);
                     $shipmentCartModel->setCodFee($codFee);
                 }
-
             }
-
-            //   $shipmentCartModel->setTaxes(honta)
-          //  $shipmentCartModel->setCost($priceWithDph ?: 0);
         }
 
         // -------------------------------------------------------------------------------------------------------------------

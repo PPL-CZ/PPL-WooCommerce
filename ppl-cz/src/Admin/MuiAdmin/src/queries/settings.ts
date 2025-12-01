@@ -90,6 +90,48 @@ export const useLabelPrintSettingMutation = () => {
   });
 };
 
+
+export const usePrintOrderStatesSettingQuery = () => {
+  return useQuery({
+    queryKey: ["print-order-states-setting"],
+    queryFn: async () => {
+      const conn = baseConnectionUrl();
+      return fetch(`${conn.url}/ppl-cz/v1/setting/print-order-statuses`, {
+        method: "GET",
+        headers: {
+          "X-WP-Nonce": conn.nonce,
+        },
+      }).then(x => x.json() as Promise<string[]>);
+    },
+  });
+};
+
+export const usePrintOrderStatesSettingMutation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ["print-order-states-setting"],
+    mutationFn: async (data: { printState: string }) => {
+      const conn = baseConnectionUrl();
+      return fetch(`${conn.url}/ppl-cz/v1/setting/print-order-statuses`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "X-WP-Nonce": conn.nonce,
+        },
+        body: JSON.stringify({
+          format: data.printState,
+        }),
+      });
+    },
+    onSuccess: () => {
+      qc.refetchQueries({
+        queryKey: [`print-order-states-setting`],
+      });
+    },
+  });
+};
+
+
 export const useQueryShipmentStates = () =>
   useQuery({
     queryKey: ["phase-shipments"],

@@ -32,7 +32,7 @@ const PackageForm = (props: {
         />
       </TableCell>
       <TableCell>
-        {["PRIV", "PRID", "SMAR", "SMAD"].indexOf(serviceCode || "") > -1 ? (
+        {["PRIV", "PRID", "SMAR", "SMAD", "COPL"].indexOf(serviceCode || "") > -1 ? (
           <IconButton
             size="small"
             onClick={e => {

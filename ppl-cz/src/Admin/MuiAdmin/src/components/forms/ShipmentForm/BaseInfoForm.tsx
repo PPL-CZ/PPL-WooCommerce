@@ -26,6 +26,7 @@ import { ValidationErrorException } from "../../../queries/types";
 import SavingProgress from "../../SavingProgress";
 import SaveInfo from "./SaveInfo";
 import { useUpdateShipmentMutation } from "../../../queries/useShipmentQueries";
+import Typography from "@mui/material/Typography";
 
 type UpdateShipmentModel = components["schemas"]["UpdateShipmentModel"];
 type ShipmentModel = components["schemas"]["ShipmentModel"];
@@ -171,6 +172,7 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
                 <Box p={1}>
                   <FormLabel>PPL služba</FormLabel>
                   <ShipmentMethodController control={control} name={"serviceCode"} />
+                  <Typography mt={1}>{data?.find(x => x.code === serviceCode)?.description ?? null}</Typography>
                 </Box>
                 <Box p={1}>
                   <FormLabel>Poznámka</FormLabel>
@@ -198,7 +200,7 @@ const BaseInfoForm = (props: { data: ShipmentModel; onFinish?: () => void; onCha
                     }}
                   />
                 </Box>
-                {serviceCode && ["SMEU", "SMED", "CONN", "COND", "COPL"].indexOf(serviceCode) > -1 ? null : (
+                {serviceCode && data?.find(x => x.code === serviceCode)?.ageValidation !== true ? null : (
                   <Box p={1}>
                     <FormLabel>Kontrola věku příjemce</FormLabel>
                     <Controller

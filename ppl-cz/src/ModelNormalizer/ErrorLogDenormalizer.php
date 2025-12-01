@@ -15,6 +15,7 @@ use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\ShipmentMethodSettingModel;
 use PPLCZ\Model\Model\ShipmentModel;
 use PPLCZ\Setting\ApiSetting;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -272,6 +273,8 @@ class ErrorLogDenormalizer implements DenormalizerInterface
         }
 
         $data->setCategorySetting($output);
+
+        $data->setGlobalParcelSetting(MethodSetting::getGlobalParcelboxesSetting());
 
         $data->setOrders([]);
 

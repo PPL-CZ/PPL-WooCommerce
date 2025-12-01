@@ -1,33 +1,82 @@
 import {render, useMemo, useState} from "@wordpress/element";
-import {useForm, Controller} from "react-hook-form";
+import {useForm, Controller, useFieldArray, useFormContext, FormProvider} from "react-hook-form";
 
-import { components } from "../schema";
-import {CSSProperties} from "react";
+import {components} from "../schema";
+import type {CSSProperties} from "react";
 
 type Data = components["schemas"]["ProductModel"];
 type ShipmentMethodModel = components["schemas"]["ShipmentMethodModel"];
+type PackageModel = components["schemas"]["PackageSizeModel"];
 
-const Tab = (props: { data:  Data, methods: ShipmentMethodModel[], pplNonce: string })=> {
-    const { register, control } = useForm<Data & {pplNonce: string }>({
-        defaultValues: {...(props.data ||{}), pplNonce: props.pplNonce },
+const Package = (props: {
+    position: number,
+    remove: (index: number) => void
+}) => {
+    const {register} = useFormContext<Data>()
+
+    const inputSize = {
+        display: "inline",
+        width: '5em'
+    }
+
+    return <tr>
+        <td>
+            <input id={`pplXSize`} size={7} style={inputSize}
+                   type={"number"} {...register(`pplSizes.${props.position}.xSize`)}/></td>
+        <td>
+            <input id={`pplYSize`} size={7} style={inputSize}
+                   type={"number"} {...register(`pplSizes.${props.position}.ySize`)}/>
+        </td>
+        <td>
+            <input id={`pplZSize`} size={7} style={inputSize}
+                   type={"number"} {...register(`pplSizes.${props.position}.zSize`)}/>
+        </td>
+        <td>
+            <a href={'#'} onClick={(ev) => {
+                ev.preventDefault();
+                props.remove(props.position);
+            }}>[x]</a>
+        </td>
+    </tr>
+
+}
+
+const Tab = (props: { data: Data, methods: ShipmentMethodModel[], pplNonce: string }) => {
+    const formCtx = useForm<Data & { pplNonce: string }>({
+        defaultValues: {...(props.data || {}), pplNonce: props.pplNonce},
     });
+
+    const {register, control,} = formCtx;
+
     const float: CSSProperties = {
         float: "none",
         width: "auto"
     }
 
-    const methods = useMemo(()=> {
-        const methods  = props.methods.map(x => x);
-        methods.sort((x,y) => {
+    const methods = useMemo(() => {
+        const methods = props.methods.map(x => x);
+        methods.sort((x, y) => {
             return x.title.localeCompare(y.title);
         });
         return methods;
-    },[props.methods])
+    }, [props.methods])
 
+    const {fields, append, remove} = useFieldArray({
+        control,
+        name: "pplSizes"
+    })
 
-    return <p className={"form-field"}>
+    const thStyle = {
+        textAlign: "left"
+    }
+
+    return <div className={"options_group"} style={{
+        paddingLeft: '162px',
+        paddingTop: '1em',
+        paddingBottom: '1em'
+    }}>
         <div>
-        <label style={float}><strong>Věkové omezení (pouze v případě ČR se tato služba poskytuje)</strong></label>
+            <label style={float}><strong>Věkové omezení (pouze v případě ČR se tato služba poskytuje)</strong></label>
         </div>
         <input type={"hidden"} {...register("pplNonce")} />
         <label style={float} htmlFor={"pplConfirmAge15"}>
@@ -55,6 +104,38 @@ const Tab = (props: { data:  Data, methods: ShipmentMethodModel[], pplNonce: str
                        type={"checkbox"} {...register('pplDisabledParcelShop')}/>
                 &nbsp; Obchody</label>
         </div>
+
+        <FormProvider {...formCtx} children={ <div>
+            <label style={float}><strong>Produkt lze případně rozdělit na menší balíčky</strong></label>
+            <div style={{
+                marginLeft: '-150px'
+            }}>
+                {fields.length ?
+                    <table>
+                        <thead>
+                        <tr>
+                            <th style={thStyle}>Šířka (cm)</th>
+                            <th style={thStyle}>Výška (cm)</th>
+                            <th style={thStyle}>Hloubka (cm)</th>
+                            <th/>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {fields.map((item, index) => {
+                            return <Package position={index} remove={remove}/>
+                        })}
+                        </tbody>
+                    </table> : null}
+                <div>
+                    <a href={'#'} onClick={ev => {
+                        ev.preventDefault();
+                        append({xSize: null, ySize: null, zSize: null});
+                    }}>Přidat řádek</a>
+                </div>
+            </div>
+        </div>}/>
+
+
         <label style={float}><strong>Seznam zakázaných metod</strong></label><br/>
         {methods.map(shipment => {
             return <Controller
@@ -81,7 +162,7 @@ const Tab = (props: { data:  Data, methods: ShipmentMethodModel[], pplNonce: str
                 }}
             />
         })}
-    </p>
+    </div>
 }
 
 export default function product_tab(element, props) {

@@ -31,12 +31,28 @@
               "type": "string"
             },
             "nullable": true
+          },
+          "pplSizes" :
+          {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PackageSizeModel"
+            }
           }
         }
       },
       "CategoryModel": {
         "type": "object",
         "properties": {
+          "pplConfirmAge15": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "pplConfirmAge18": {
+            "type": "boolean",
+            "nullable": true
+          },
           "pplDisabledParcelBox": {
             "type": "boolean",
             "nullable": true
@@ -55,6 +71,27 @@
               "type": "string"
             },
             "nullable": true
+          },
+          "pplSize" :
+          {
+            "$ref": "#/components/schemas/PackageSizeModel"
+          }
+        }
+      },
+      "PackageSizeModel": {
+        "type": "object",
+        "properties": {
+          "xSize": {
+            "nullable": true,
+            "type": "number"
+          },
+          "ySize": {
+            "nullable": true,
+            "type": "number"
+          },
+          "zSize": {
+            "nullable": true,
+            "type": "number"
           }
         }
       },
@@ -784,6 +821,10 @@
             "type": "boolean",
             "nullable": false
           },
+          "disabledBySize": {
+            "type": "boolean",
+            "nullable": true
+          },
           "enabledParcelCountries": {
             "type": "array",
             "items": {
@@ -1099,7 +1140,12 @@
           "code",
           "title",
           "codAvailable",
-          "parcelRequired"
+          "parcelRequired",
+          "countries",
+          "description",
+          "ageValidation",
+          "maxWeight",
+          "maxPackages"
         ],
         "properties": {
           "code": {
@@ -1108,11 +1154,56 @@
           "title": {
             "type": "string"
           },
+          "description": {
+            "type": "string"
+          },
+          "ageValidation": {
+            "type": "boolean",
+            "nullable": true
+          },
           "codAvailable": {
-            "type": "boolean"
+            "type": "boolean",
+            "nullable": false
           },
           "parcelRequired": {
-            "type": "boolean"
+            "type": "boolean",
+            "nullable": false
+          },
+          "disabledParcelTypes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "availableParcelTypes": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxWeight": {
+            "type": "number",
+            "nullable": true
+          },
+          "maxDimension": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "number",
+              "nullable": false
+            }
+          },
+          "maxPackages": {
+            "type": "number",
+            "nullable": true
           }
         }
       },
@@ -1210,6 +1301,27 @@
           "email": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "PrintSettingModel" : {
+        "type": "object",
+        "required": [
+          "print",
+          "statuses"
+        ],
+        "properties": {
+          "format": {
+            "type": "string",
+            "nullable": false
+          },
+          "orderStatuses": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "nullable": false
+            },
+            "nullable": false
           }
         }
       },
@@ -1475,6 +1587,9 @@
             "items": {
               "$ref": "#/components/schemas/ErrorLogShipmentSettingModel"
             }
+          },
+          "globalParcelSetting": {
+            "$ref": "#/components/schemas/ParcelPlacesModel"
           },
           "categorySetting": {
             "type": "array",

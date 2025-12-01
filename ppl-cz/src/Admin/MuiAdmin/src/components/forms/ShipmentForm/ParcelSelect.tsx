@@ -7,6 +7,7 @@ import MapIcon from "@mui/icons-material/Map";
 import SavingProgress from "../../SavingProgress";
 import SaveInfo from "./SaveInfo";
 import { useUpdateShipmentParcelMutation } from "../../../queries/useShipmentQueries";
+import {useQueryShipmentMethods} from "../../../queries/codelists";
 
 type ParcelAddressModel = components["schemas"]["ParcelAddressModel"];
 type UpdateShipmentParcelModel = components["schemas"]["UpdateShipmentParcelModel"];
@@ -26,12 +27,24 @@ const ParcelSelect = (props: {
     props.onChange(shipmentId);
   });
 
+  const data = useQueryShipmentMethods();
+
   const onClick = () => {
     const recipient = props.shipment.recipient;
-    const map: { address?: string; country?: string; parcelShop?: boolean } = {};
+    const map: { address?: string; country?: string; parcelShop?: boolean, hiddenPoints?: string[] } = {};
     map.address = [recipient?.street, recipient?.city, recipient?.city].filter(x => x).join(", ");
     if (props.shipment.recipient?.country) map.country = props.shipment.recipient.country;
     if (props.shipment.age) map.parcelShop = true;
+
+    if (data)
+    {
+        const disabledParcelTypes = data.find(x => x.code === props.shipment.serviceCode)?.disabledParcelTypes;
+        if (disabledParcelTypes) {
+            map.hiddenPoints = disabledParcelTypes;
+        }
+    }
+
+
 
     // @ts-ignore
     PplMap(async (accessPoint) => {

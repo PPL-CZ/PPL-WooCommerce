@@ -8,6 +8,7 @@ use PPLCZ\Data\BatchDataStore;
 use PPLCZ\Model\Model\BatchModel;
 use PPLCZ\Model\Model\PrepareShipmentBatchItemModel;
 use PPLCZ\Model\Model\ShipmentWithAdditionalModel;
+use PPLCZ\Setting\PrintSetting;
 use PPLCZCPL\Model\EpsApiInfrastructureWebApiModelProblemJsonModel;
 use PPLCZ\Admin\CPLOperation;
 use PPLCZ\Data\ShipmentData;
@@ -284,7 +285,7 @@ class ShipmentBatchV1Controller extends  PPLRestController
 
         if ($print)
         {
-            add_option(pplcz_create_name("print_setting"), $print) || update_option(pplcz_create_name("print_setting"), $print);
+            PrintSetting::setFormat($print);
         }
 
         $shipmentIds = $data->getShipmentId();

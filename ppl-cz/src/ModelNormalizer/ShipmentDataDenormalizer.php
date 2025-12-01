@@ -4,6 +4,7 @@ namespace PPLCZ\ModelNormalizer;
 
 defined("WPINC") or die();
 
+use PPLCZ\Model\Model\CategoryModel;
 use PPLCZ\Model\Model\ShipmentMethodModel;
 use PPLCZ\Setting\MethodSetting;
 use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -72,6 +73,7 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
             if ($code !== $method2->getCode()) {
                 $method2 = MethodSetting::getMethod($code);
             }
+
 
             return [$code, $method2->getTitle(), $method2->getCodAvailable(), $method2->getParcelRequired()];
         }
@@ -245,6 +247,7 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
                     $founded->set_valid(false);
                     $founded->save();
                 }
+
                 $founded = Serializer::getInstance()->denormalize($founded, ParcelAddressModel::class);
                 $shipmentModel->setParcel($founded);
                 $shipmentModel->setHasParcel(true);
@@ -256,21 +259,50 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
         foreach ($data->get_items() as $item) {
             if ($item instanceof \WC_Order_Item_Product)
             {
-
                 $product = new \WC_Product($item->get_product_id());
                 /**
                  * @var ProductModel $age
                  */
-                $age = Serializer::getInstance()->denormalize($product, ProductModel::class);
+                $age = pplcz_denormalize($product, ProductModel::class);
                 if ($age->getPplConfirmAge18()) {
                     $shipmentModel->setAge("18");
                 } else if ($age->getPplConfirmAge15()) {
                     if ($shipmentModel->getAge() < 18)
                         $shipmentModel->setAge("15");
                 }
+                if ($shipmentModel->getAge() == "18")
+                    break;
 
+                $get_parents = $product->get_category_ids();
+                $ids = [];
+
+                while ($get_parents) {
+                    $curId = array_shift($get_parents);
+                    if (in_array($curId, $ids)) {
+                        continue;
+                    }
+                    $ids[] = $curId;
+                    $parId = wp_get_term_taxonomy_parent_id($curId, 'product_cat');
+                    if ($parId)
+                        $get_parents[] = $parId;
+                }
+
+                foreach ($ids as $category_id) {
+                    $term = get_term($category_id);
+                    $age = pplcz_denormalize($term, CategoryModel::class);
+
+                    if ($age->getPplConfirmAge18()) {
+                        $shipmentModel->setAge("18");
+                    } else if ($age->getPplConfirmAge15()) {
+                        if ($shipmentModel->getAge() < 18)
+                            $shipmentModel->setAge("15");
+                    }
+                    if ($shipmentModel->getAge() == "18")
+                        break;
+                }
             }
         }
+
 
         $packageModel = new PackageModel();
         $packageModel->setReferenceId("{$data->get_id()}");

@@ -66,6 +66,10 @@ class SendErrorLogModelNormalizer implements DenormalizerInterface, NormalizerIn
         elseif (\array_key_exists('shipmentsSetting', $data) && $data['shipmentsSetting'] === null) {
             $object->setShipmentsSetting(null);
         }
+        if (\array_key_exists('globalParcelSetting', $data)) {
+            $object->setGlobalParcelSetting($this->denormalizer->denormalize($data['globalParcelSetting'], 'PPLCZ\\Model\\Model\\ParcelPlacesModel', 'json', $context));
+            unset($data['globalParcelSetting']);
+        }
         if (\array_key_exists('categorySetting', $data)) {
             $values_1 = array();
             foreach ($data['categorySetting'] as $value_1) {
@@ -130,6 +134,9 @@ class SendErrorLogModelNormalizer implements DenormalizerInterface, NormalizerIn
                 $values[] = $this->normalizer->normalize($value, 'json', $context);
             }
             $data['shipmentsSetting'] = $values;
+        }
+        if ($object->isInitialized('globalParcelSetting') && null !== $object->getGlobalParcelSetting()) {
+            $data['globalParcelSetting'] = $this->normalizer->normalize($object->getGlobalParcelSetting(), 'json', $context);
         }
         if ($object->isInitialized('categorySetting') && null !== $object->getCategorySetting()) {
             $values_1 = array();

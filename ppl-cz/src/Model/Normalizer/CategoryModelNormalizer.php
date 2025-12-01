@@ -41,6 +41,20 @@ class CategoryModelNormalizer implements DenormalizerInterface, NormalizerInterf
         if (null === $data || false === \is_array($data)) {
             return $object;
         }
+        if (\array_key_exists('pplConfirmAge15', $data) && $data['pplConfirmAge15'] !== null) {
+            $object->setPplConfirmAge15($data['pplConfirmAge15']);
+            unset($data['pplConfirmAge15']);
+        }
+        elseif (\array_key_exists('pplConfirmAge15', $data) && $data['pplConfirmAge15'] === null) {
+            $object->setPplConfirmAge15(null);
+        }
+        if (\array_key_exists('pplConfirmAge18', $data) && $data['pplConfirmAge18'] !== null) {
+            $object->setPplConfirmAge18($data['pplConfirmAge18']);
+            unset($data['pplConfirmAge18']);
+        }
+        elseif (\array_key_exists('pplConfirmAge18', $data) && $data['pplConfirmAge18'] === null) {
+            $object->setPplConfirmAge18(null);
+        }
         if (\array_key_exists('pplDisabledParcelBox', $data) && $data['pplDisabledParcelBox'] !== null) {
             $object->setPplDisabledParcelBox($data['pplDisabledParcelBox']);
             unset($data['pplDisabledParcelBox']);
@@ -70,6 +84,10 @@ class CategoryModelNormalizer implements DenormalizerInterface, NormalizerInterf
         elseif (\array_key_exists('pplDisabledTransport', $data) && $data['pplDisabledTransport'] === null) {
             $object->setPplDisabledTransport(null);
         }
+        if (\array_key_exists('pplSize', $data)) {
+            $object->setPplSize($this->denormalizer->denormalize($data['pplSize'], 'PPLCZ\\Model\\Model\\PackageSizeModel', 'json', $context));
+            unset($data['pplSize']);
+        }
         foreach ($data as $key => $value_1) {
             if (preg_match('/.*/', (string) $key)) {
                 $object[$key] = $value_1;
@@ -83,6 +101,12 @@ class CategoryModelNormalizer implements DenormalizerInterface, NormalizerInterf
     public function normalize($object, $format = null, array $context = array())
     {
         $data = array();
+        if ($object->isInitialized('pplConfirmAge15') && null !== $object->getPplConfirmAge15()) {
+            $data['pplConfirmAge15'] = $object->getPplConfirmAge15();
+        }
+        if ($object->isInitialized('pplConfirmAge18') && null !== $object->getPplConfirmAge18()) {
+            $data['pplConfirmAge18'] = $object->getPplConfirmAge18();
+        }
         if ($object->isInitialized('pplDisabledParcelBox') && null !== $object->getPplDisabledParcelBox()) {
             $data['pplDisabledParcelBox'] = $object->getPplDisabledParcelBox();
         }
@@ -98,6 +122,9 @@ class CategoryModelNormalizer implements DenormalizerInterface, NormalizerInterf
                 $values[] = $value;
             }
             $data['pplDisabledTransport'] = $values;
+        }
+        if ($object->isInitialized('pplSize') && null !== $object->getPplSize()) {
+            $data['pplSize'] = $this->normalizer->normalize($object->getPplSize(), 'json', $context);
         }
         foreach ($object as $key => $value_1) {
             if (preg_match('/.*/', (string) $key)) {

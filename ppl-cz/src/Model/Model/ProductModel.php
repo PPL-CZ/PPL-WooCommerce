@@ -51,6 +51,12 @@ class ProductModel extends \ArrayObject
     /**
      * 
      *
+     * @var PackageSizeModel[]|null
+     */
+    protected $pplSizes;
+    /**
+     * 
+     *
      * @return bool|null
      */
     public function getPplConfirmAge15() : ?bool
@@ -178,6 +184,28 @@ class ProductModel extends \ArrayObject
     {
         $this->initialized['pplDisabledTransport'] = true;
         $this->pplDisabledTransport = $pplDisabledTransport;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return PackageSizeModel[]|null
+     */
+    public function getPplSizes() : ?array
+    {
+        return $this->pplSizes;
+    }
+    /**
+     * 
+     *
+     * @param PackageSizeModel[]|null $pplSizes
+     *
+     * @return self
+     */
+    public function setPplSizes(?array $pplSizes) : self
+    {
+        $this->initialized['pplSizes'] = true;
+        $this->pplSizes = $pplSizes;
         return $this;
     }
 }

@@ -1,8 +1,8 @@
 <?php
 namespace PPLCZ\ModelCPLNormalizer;
 
+use PPLCZCPL\Model\EpsApiMyApi2WebModelsOrderBatchOrderModelSender;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchRecipientAddressModel;
-use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentModelSender;
 use PPLCZ\Data\AddressData;
 use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
@@ -11,8 +11,8 @@ class CPLBatchAddressDenormalizer implements DenormalizerInterface
 
     public function denormalize($data, string $type, ?string $format = null, array $context = [])
     {
-        if ($data instanceof AddressData && $type === EpsApiMyApi2WebModelsShipmentBatchShipmentModelSender::class) {
-            $sender = new EpsApiMyApi2WebModelsShipmentBatchShipmentModelSender();
+        if ($data instanceof AddressData && $type === EpsApiMyApi2WebModelsOrderBatchOrderModelSender::class) {
+            $sender = new EpsApiMyApi2WebModelsOrderBatchOrderModelSender();
             $sender->setName($data->get_name());
             $sender->setCity($data->get_city());
             $sender->setStreet($data->get_street());
@@ -26,13 +26,46 @@ class CPLBatchAddressDenormalizer implements DenormalizerInterface
 
         if ($data instanceof AddressData && $type === EpsApiMyApi2WebModelsShipmentBatchRecipientAddressModel::class) {
             $recepient = new EpsApiMyApi2WebModelsShipmentBatchRecipientAddressModel();
-            $recepient->setName($data->get_name());
-            $recepient->setContact($data->get_contact());
+
+            $name = preg_split("~\s+~", trim($data->get_name() ?: ""));
+            $add = [];
+
+            while ($name)
+            {
+                $add[] = array_shift($name);
+                if (mb_strlen(join(' ', $add)) < 50)
+                {
+                    $recepient->setName(join (' ', $add));
+                }
+                else
+                {
+                    $name = array_merge([array_pop($add)], $name);
+                    break;
+                }
+            }
+
+            $add = [];
+
+            while ($name)
+            {
+                $add[] = array_shift($name);
+                if (mb_strlen(join(' ', $add)) < 50)
+                {
+                    $recepient->setName2(join (' ', $add));
+                }
+                else
+                {
+                    $name = array_merge(array_pop($add), $name);
+                    break;
+                }
+            }
+
+            $recepient->setContact(trim($data->get_contact() ?: ""));
             $recepient->setPhone($data->get_phone());
             $recepient->setEmail($data->get_mail());
-            $recepient->setCity($data->get_city());
+            $recepient->setCity(trim($data->get_city() ?: ""));
             $recepient->setZipCode($data->get_zip());
-            $recepient->setStreet($data->get_street());
+            $recepient->setStreet(trim($data->get_street() ?: ""));
             $recepient->setCountry($data->get_country());
             return $recepient;
         }
@@ -41,7 +74,7 @@ class CPLBatchAddressDenormalizer implements DenormalizerInterface
 
     public function supportsDenormalization($data, string $type, ?string $format = null)
     {
-        return $data instanceof AddressData && $type === EpsApiMyApi2WebModelsShipmentBatchShipmentModelSender::class
+        return $data instanceof AddressData && $type === EpsApiMyApi2WebModelsOrderBatchOrderModelSender::class
             || $data instanceof AddressData && $type === EpsApiMyApi2WebModelsShipmentBatchRecipientAddressModel::class;
     }
 }

@@ -1,11 +1,11 @@
 <?php
 namespace PPLCZ\ModelCPLNormalizer;
 
+use PPLCZCPL\Model\EpsApiMyApi2WebModelsOrderBatchOrderModelSender;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchRecipientAddressModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentModelCashOnDelivery;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentModelInsurance;
-use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentModelSender;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentModelShipmentSet;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentModelSpecificDelivery;
 use PPLCZ\Data\AddressData;
@@ -45,7 +45,7 @@ class CPLBatchShipmentDenormalizer implements DenormalizerInterface
                         $data->save();
                     }
                 }
-                $shipmentBatch->setSender(Serializer::getInstance()->denormalize(new AddressData($data->get_sender_address_id()), EpsApiMyApi2WebModelsShipmentBatchShipmentModelSender::class));
+                $shipmentBatch->setSender(Serializer::getInstance()->denormalize(new AddressData($data->get_sender_address_id()), EpsApiMyApi2WebModelsOrderBatchOrderModelSender::class));
                 $shipmentBatch->setRecipient(Serializer::getInstance()->denormalize(new AddressData($data->get_recipient_address_id()), EpsApiMyApi2WebModelsShipmentBatchRecipientAddressModel::class));
 
                 if ($data->get_has_parcel())

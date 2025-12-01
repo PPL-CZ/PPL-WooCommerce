@@ -17,19 +17,6 @@ use PPLCZ\Setting\MethodSetting;
 
 class ShipmentMethod extends \WC_Shipping_Method {
 
-
-    public static function methodsDescriptions()
-    {
-        return [
-            "PRIV" => "Doprava v rámci České republiky na adresu",
-            "SMAR" => "Doprava v rámci České republiky na výdejní místo",
-            "SMEU" => "Doprava v rámci Polska, Německa, Slovenska na výdejní místo",
-            "CONN" => "Doprava v rámci EU na adresu",
-            "COPL" => "Doprava mimo EU v rámci Evropy"
-        ];
-    }
-
-
     public function isCOD($paymentCode)
     {
         $cod = @$this->get_instance_option("codPayment");
@@ -78,7 +65,7 @@ class ShipmentMethod extends \WC_Shipping_Method {
             $method = MethodSetting::getMethod($pplId);
             if ($method) {
                 $this->title = $this->method_title = $method->getTitle();
-                $this->method_description = self::methodsDescriptions()[$pplId];
+                $this->method_description = $method->getDescription();
             }
         }
 
@@ -138,35 +125,41 @@ class ShipmentMethod extends \WC_Shipping_Method {
         $method = MethodSetting::getMethod($id);
 
         if ($method->getParcelRequired()) {
+            if ($method->getCode() !== 'SBOX') {
+                $form_fields["disabledParcelBox"] = array(
+                    "title" => esc_html__('Nepoužívat parcelboxy', 'ppl-cz'),
+                    'type' => 'checkbox',
+                    'default' => '',
+                    'desc_tip' => true
+                );
 
-            $form_fields["disabledParcelBox"] = array(
-                "title" => esc_html__('Nepoužívat parcelboxy', 'ppl-cz'),
-                'type' => 'checkbox',
-                'default' => '',
-                'desc_tip' => true
-            );
+                $form_fields["disabledAlzaBox"] = array(
+                    "title" => esc_html__('Nepoužívat alzaboxy', 'ppl-cz'),
+                    'type' => 'checkbox',
+                    'default' => '',
+                    'desc_tip' => true
+                );
 
-            $form_fields["disabledAlzaBox"] = array(
-                "title" => esc_html__('Nepoužívat alzaboxy', 'ppl-cz'),
-                'type' => 'checkbox',
-                'default' => '',
-                'desc_tip' => true
-            );
-
-            $form_fields["disabledParcelShop"] = array(
-                "title" => esc_html__('Nepoužívat parcelshopy', 'ppl-cz'),
-                'type' => 'checkbox',
-                'default' => '',
-                'desc_tip' => true
-            );
+                $form_fields["disabledParcelShop"] = array(
+                    "title" => esc_html__('Nepoužívat parcelshopy', 'ppl-cz'),
+                    'type' => 'checkbox',
+                    'default' => '',
+                    'desc_tip' => true
+                );
+            }
 
             $parcelCountries = pplcz_get_parcel_countries();
 
-            $allowedCoutries = $this->get_allowed_countries();
-            foreach ($parcelCountries as $countryKey => $_ )
+            if ($method->getCode() !== "SBOX") {
+                $allowedCoutries = $this->get_allowed_countries();
+                foreach ($parcelCountries as $countryKey => $_) {
+                    if (!in_array($countryKey, $allowedCoutries, true))
+                        unset($parcelCountries[$countryKey]);
+                }
+            }
+            else
             {
-                if (!in_array($countryKey, $allowedCoutries, true))
-                    unset($parcelCountries[$countryKey]);
+                $parcelCountries = [];
             }
 
             $parcelCountries[""] = "Nevybráno";
@@ -285,14 +278,17 @@ class ShipmentMethod extends \WC_Shipping_Method {
 
     public static function shipping_methods($shippings)
     {
+        $methods = array_filter(MethodSetting::getMethods(), function($item) {
+            return !$item->getCodAvailable();
+        });
+        foreach ($methods as $item)
+        {
+            if ($item->getCodAvailable())
+                continue;
+            $shippings[pplcz_create_name($item->getCode())] = new ShipmentMethod($item->getCode());
+        }
+        return $shippings;
 
-        return array_merge($shippings, [
-            pplcz_create_name("PRIV" )=> new ShipmentMethod("PRIV"),
-            pplcz_create_name("SMAR") =>  new ShipmentMethod("SMAR"),
-            pplcz_create_name("SMEU")=>  new ShipmentMethod("SMEU"),
-            pplcz_create_name("CONN") => new ShipmentMethod("CONN"),
-            pplcz_create_name("COPL") => new ShipmentMethod("COPL"),
-        ]);
     }
 
     public function get_allowed_countries()
@@ -366,10 +362,11 @@ class ShipmentMethod extends \WC_Shipping_Method {
         if ($cartData->getDisabledByProduct())
             return;
 
-        if ($cartData->getDisabledByCountry())
-            return;
 
         if ($cartData->getDisabledByRules())
+            return;
+
+        if ($cartData->getDisabledBySize())
             return;
 
 
