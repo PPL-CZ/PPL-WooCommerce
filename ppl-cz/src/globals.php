@@ -70,10 +70,10 @@ function pplcz_get_parcel_countries()
     $countries_obj = new \WC_Countries();
 
     $get_countries = $countries_obj->get_allowed_countries();
-    $output = [];
 
     foreach ($get_countries as $key => $v) {
-        if (!in_array($key, ['PL', "CZ", "SK", "DE"]))
+        $mapCountries = ['CZ', 'SK', 'PL', 'DE', 'NL', 'RO', 'BG', 'HU', 'AT'];
+        if (!in_array($key, $mapCountries, true))
             unset($get_countries[$key]);
     }
 
