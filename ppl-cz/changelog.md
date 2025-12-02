@@ -59,3 +59,5 @@
 - v tabulce je zobrazena informace o neukončných balíčcích (vytvořeny, ale neobjednány u PPL.CZ)
 - přidána kontrola balíku podle velikost a počtu a možnost u produktu nastavit, že lze poslat více balíky
 - kontrola velikost jména zákazníka (kontaktu)
+# 1.0.35
+- přidány další země pro výběr dopravy do parcelboxu/parcelshopu
