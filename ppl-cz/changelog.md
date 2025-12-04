@@ -61,3 +61,5 @@
 - kontrola velikost jména zákazníka (kontaktu)
 # 1.0.35
 - přidány další země pro výběr dopravy do parcelboxu/parcelshopu
+# 1.0.36
+- úprava velikost phase_label, status_label
