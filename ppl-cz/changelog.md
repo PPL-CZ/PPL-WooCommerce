@@ -63,3 +63,5 @@
 - přidány další země pro výběr dopravy do parcelboxu/parcelshopu
 # 1.0.36
 - úprava velikost phase_label, status_label
+# 1.0.37
+- možnost sledování i stavu Canceled (Deleted)
