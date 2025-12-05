@@ -550,7 +550,7 @@ class CPLOperation
             $shipmentBatchApi = new ShipmentBatchApi($client, $configuration);
 
 
-            $batchData = $shipmentBatchApi->getShipmentBatchWithHttpInfo($item);
+            $batchData = $shipmentBatchApi->getShipmentBatchWithHttpInfo($item, "cs-CZ");
 
             $batchData = $batchData[0];
             $shipments = ShipmentData::read_remote_batch_shipments($item);
@@ -678,7 +678,7 @@ class CPLOperation
         $ev = new EpsApiMyApi2WebModelsOrderEventCancelOrderEventModel();
         $ev->setNote("Zrušeno na vyžádání");
         try {
-            $order->orderCancelPost(null, $collection->get_reference_id(), null, null, null, $ev);
+            $order->orderCancelPost(null, $collection->get_reference_id(), "cs-CZ", null, null, $ev);
             $collection->set_state("Canceled");
             $collection->save();
         }
@@ -760,7 +760,7 @@ class CPLOperation
 
         $content = $accessPointApi->shipmentGetWithHttpInfo($min, 0, array_map(function ($item) {
             return (new PackageData($item))->get_shipment_number();
-        }, $shipments));
+        }, $shipments),null, null, null, null, null, null, "cs-CZ");
 
         $data = $content[0];
 
@@ -852,7 +852,8 @@ class CPLOperation
                         $shipment = new ShipmentData($shipmentId);
                         $order = new \WC_Order($shipment->get_wc_order_id());
                         $phases = array_filter(PhaseSetting::getPhases()->getPhases(), function ($item) use ($data) {
-                            return $item->getCode() === $data['phase'];
+                            return $item->getCode() === $data['phase']
+                                    || $item->getCode() === 'Deleted' && $data['phase'] === 'Canceled';
                         });
                         $phases = reset($phases);
                         if ($phases)

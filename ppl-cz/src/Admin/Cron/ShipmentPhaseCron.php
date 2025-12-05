@@ -19,7 +19,12 @@ class ShipmentPhaseCron {
             return $item->getCode();
         }, array_filter(PhaseSetting::getPhases()->getPhases(), function ($item) {
             return $item->getWatch();
-        })) ;
+        }));
+
+        if (in_array('Canceled', $phases, true))
+        {
+            $phases[] = 'Deleted';
+        }
 
         $from = (new \DateTime())->sub(new \DateInterval("PT120M"));
         $lastUpdate = (new \DateTime())->sub(new \DateInterval("P16D"));

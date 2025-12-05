@@ -4,6 +4,7 @@ import { Link, List, ListItemButton, Menu } from "@mui/material";
 import { useCancelShipment, useTestState } from "../../../queries/useBatchQueries";
 import { makePrintUrl } from "../../../connection";
 import { useFormContext } from "react-hook-form";
+import {useTableStyle} from "./styles";
 
 type PackageModel = components["schemas"]["PackageModel"];
 type ShipmentWithAdditionalModel = components["schemas"]["ShipmentWithAdditionalModel"];
@@ -28,18 +29,21 @@ const Package = (props: {
 
   const { watch } = useFormContext<CreteLabelShipmentItems>();
   const print = watch("labelPrintSetting");
+  const style = useTableStyle();
 
   if (!props.package.shipmentNumber || !props.batchRemoteId) return null;
 
   return (
     <>
       <Link
+        title={props.package.phaseLabel || "Objednáno"}
         href={"#"}
         onClick={e => {
           e.preventDefault();
           setAnchorEl(e.target as HTMLElement);
           setShowMenu(true);
         }}
+        className={style.classes.ellipsis}
       >
         {props.package.shipmentNumber} ({props.package.phaseLabel || "Objednáno"})
       </Link>

@@ -26,6 +26,8 @@ class PhaseSetting
     public static function getPhases()
     {
         $phases = include __DIR__ . '/../config/shipment_phases.php';
+        unset($phases['Deleted']);
+
         $phases = array_map(function ($item, $key) {
             $output = new \PPLCZ\Model\Model\ShipmentPhaseModel();
             $output->setCode($key);

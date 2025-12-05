@@ -29,5 +29,13 @@ export const useTableStyle = makeStyles()(theme => {
         cursor: "pointer",
       },
     },
+    ellipsis: {
+      maxWidth: '20em',
+      whiteSpace: "nowrap",
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      display: 'block'
+
+    }
   };
 });
