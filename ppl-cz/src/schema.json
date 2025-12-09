@@ -165,6 +165,19 @@
           }
         }
       },
+      "GlobalSettingModel": {
+        "type": "object",
+        "properties": {
+          "useOrderNumberInPackages" : {
+            "type": "boolean",
+            "nullable": false
+          },
+          "useOrderNumberInVariableSymbol": {
+            "type": "boolean",
+            "nullable": false
+          }
+        }
+      },
       "ParcelPlacesModel": {
         "type": "object",
         "properties": {

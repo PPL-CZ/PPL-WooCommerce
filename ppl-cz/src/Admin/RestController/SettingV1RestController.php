@@ -8,6 +8,7 @@ use PPLCZ\Data\AddressData;
 use PPLCZ\Admin\Errors;
 use PPLCZ\Admin\RestResponse\RestResponse400;
 use PPLCZ\Data\ShipmentData;
+use PPLCZ\Model\Model\GlobalSettingModel;
 use PPLCZ\Model\Model\MyApi2;
 use PPLCZ\Model\Model\ParcelPlacesModel;
 use PPLCZ\Model\Model\SenderAddressModel;
@@ -120,6 +121,19 @@ class SettingV1RestController extends  PPLRestController
         register_rest_route($this->namespace, '/' . $this->base. "/shipment-phases", [
             "methods" => \WP_REST_Server::EDITABLE,
             "callback" => [$this, "set_phase"],
+            "permission_callback"=>[$this, "check_permission"],
+        ]);
+
+        register_rest_route($this->namespace, '/' . $this->base. "/global-settings", [
+            "methods" => \WP_REST_Server::READABLE,
+            "callback" => [$this, "get_globalsettings"],
+            "permission_callback"=>[$this, "check_permission"],
+
+        ]);
+
+        register_rest_route($this->namespace, '/' . $this->base. "/global-settings", [
+            "methods" => \WP_REST_Server::EDITABLE,
+            "callback" => [$this, "update_globalsettings"],
             "permission_callback"=>[$this, "check_permission"],
         ]);
     }
@@ -321,6 +335,37 @@ class SettingV1RestController extends  PPLRestController
         $setting = pplcz_denormalize($data, ParcelPlacesModel::class);
 
         MethodSetting::setGlobalParcelboxesSetting($setting);
+
+        pplcz_set_update_setting();
+
+        $response = new \WP_REST_Response();
+        $response->set_status(204);
+        return $response;
+    }
+
+    public function get_globalsettings(\WP_REST_Request $request)
+    {
+
+        $places = MethodSetting::getGlobalSetting();
+
+        $places = pplcz_normalize($places);
+
+        $response = new \WP_REST_Response();
+        $response->set_data($places);
+
+
+        return $response;
+    }
+
+    public function update_globalsettings(\WP_REST_Request $request)
+    {
+        $data = $request->get_json_params();
+        /**
+         * @var GlobalSettingModel $setting
+         */
+        $setting = pplcz_denormalize($data, GlobalSettingModel::class);
+
+        MethodSetting::setGlobalSetting($setting);
 
         pplcz_set_update_setting();
 

@@ -16,6 +16,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import SavingProgress from "../SavingProgress";
 import { useMyApiQuery, useMyApiMutation, MyApiError } from "../../queries/settings";
+import GlobalSettingForm from "./GlobalSettingsForm";
 
 type MyApiModel = components["schemas"]["MyApi2"];
 
@@ -139,6 +140,7 @@ const MyApi = () => {
           </Box>
         )}
       </Box>
+      <GlobalSettingForm/>
     </Card>
   );
 };
