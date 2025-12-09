@@ -63,6 +63,7 @@ class ParcelValidator extends ModelValidator
                         else
                             $errors->add("$path.hasParcel", "Služba není určena pro dopravu v rámci České republiky");
                     }
+
                 }
                 if ($parcelid) {
                     $parcelData = new ParcelData($parcelid);
@@ -75,7 +76,13 @@ class ParcelValidator extends ModelValidator
                         if (!in_array($country, $method->getCountries(), true)) {
                             $errors->add("$path.hasParcel", "Výdejní místo je mimo dosah dané služby");
                         }
+                        $country = $this->getValue($model, "recipient.country");
+                        if ($country && $parcelData->get_country() !== $country)
+                        {
+                            $errors->add("$path.hasParcel", "Neshoduje se země příjemce a parcelshop/boxu");
+                        }
                     }
+
                 }
             }
 

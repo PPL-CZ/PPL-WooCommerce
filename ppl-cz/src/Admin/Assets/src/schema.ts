@@ -51,6 +51,10 @@ export interface components {
         longitude?: number | null;
       }) | null;
     };
+    GlobalSettingModel: {
+      useOrderNumberInPackages?: boolean;
+      useOrderNumberInVariableSymbol?: boolean;
+    };
     ParcelPlacesModel: {
       disabledByStripe?: boolean | null;
       disabledParcelBox?: boolean | null;

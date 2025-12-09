@@ -76,12 +76,28 @@ class ShipmentValidator extends ModelValidator
             }
 
             $code = $this->getValue($model, 'serviceCode');
+
             if ($code) {
-                if (in_array($code, ["SMEU", "CONN", "SMED", "COND"])
-                    && count($model->getPackages()) > 1) {
-                    $errors->add("$path.packages", "Počet balíčku může být pouze 1");
+
+                $method = MethodSetting::getMethod($code);
+                if ($method)
+                {
+                    if ($method->getMaxPackages() && $model->getPackages() && $method->getMaxPackages() < count($model->getPackages()))
+                        $errors->add("$path.packages", "Počet balíčku může být pouze {$method->getMaxPackages()}");
+
+                    $countries = $method->getCountries();
+                    $recipient = $model->getRecipient();
+                    if ($recipient)
+                        if (!in_array($recipient->getCountry(), $countries, true))
+                        {
+                            $errors->add("$path.packages", "Nepovolená země {$recipient->getCountry()} pro tuto dopravu ");
+                        }
                 }
+
+
+
             }
+
 
 
         }

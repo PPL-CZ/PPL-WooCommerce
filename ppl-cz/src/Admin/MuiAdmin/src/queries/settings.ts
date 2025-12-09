@@ -5,6 +5,7 @@ import { UnknownErrorException, ValidationErrorException } from "./types";
 
 type SenderAddressModel = components["schemas"]["SenderAddressModel"];
 type SyncPhasesModel = components["schemas"]["SyncPhasesModel"];
+type GlobalSettingModel = components["schemas"]["GlobalSettingModel"];
 
 export const useSenderAddressesQuery = () => {
   const { data } = useQuery({
@@ -196,6 +197,56 @@ export const useParcelPlacesMutation = () => {
     },
   });
 };
+
+
+/**
+ * Query pro získání globálního nastavení
+ */
+export const useGlobalSettingQuery = () => {
+  return useQuery({
+    queryKey: ["globalsetting"],
+    queryFn: async () => {
+      const baseUrl = baseConnectionUrl();
+      return fetch(`${baseUrl.url}/ppl-cz/v1/setting/global-settings`, {
+        headers: {
+          "X-WP-Nonce": baseUrl.nonce,
+        },
+      }).then(x => x.json() as Promise<GlobalSettingModel>);
+    },
+  });
+};
+
+/**
+ * Mutation pro aktualizaci globálního nastavení
+ */
+export const useGlobalSettingMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: GlobalSettingModel) => {
+      const baseUrl = baseConnectionUrl();
+      await fetch(`${baseUrl.url}/ppl-cz/v1/setting/global-settings`, {
+        method: "PUT",
+        headers: {
+          "X-WP-Nonce": baseUrl.nonce,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }).then(async x => {
+        if (x.status === 204) {
+          return true;
+        }
+        throw new Error("Failed to update parcel places");
+      });
+    },
+    onSuccess: () => {
+      queryClient.refetchQueries({
+        queryKey: ["globalsetting"],
+      });
+    },
+  });
+};
+
 
 /**
  * Query pro získání API přístupových údajů

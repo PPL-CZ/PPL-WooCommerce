@@ -4,9 +4,46 @@ namespace PPLCZ\Setting;
 use PPLCZ\Admin\CPLOperation;
 use PPLCZ\Model\Model\ParcelPlacesModel;
 use PPLCZ\Model\Model\ShipmentMethodModel;
+use PPLCZ\Model\Model\GlobalSettingModel;
 
 class MethodSetting
 {
+
+    public static function getGlobalSetting()
+    {
+        $globalSetting = new GlobalSettingModel();
+
+        $key1 = pplcz_create_name("use_order_number_in_packages");
+        $key2 = pplcz_create_name("use_order_number_in_variable_number");
+
+        $value1 = get_option($key1);
+
+        if ($value1 !== 'yes' && $value1 !== 'no')
+            $value1 = 'no';
+        $globalSetting->setUseOrderNumberInPackages($value1 === 'yes');
+
+        $value2 = get_option($key2);
+
+        if ($value2 !== 'yes' && $value2 !== 'no')
+            $value2 = 'no';
+
+        $globalSetting->setUseOrderNumberInVariableSymbol($value2 === 'yes');
+
+        return $globalSetting;
+
+    }
+
+    public static function setGlobalSetting(GlobalSettingModel $globalSettingModel)
+    {
+        $key1 = pplcz_create_name("use_order_number_in_packages");
+        $key2 = pplcz_create_name("use_order_number_in_variable_number");
+
+        $value1 = $globalSettingModel->getUseOrderNumberInPackages() ? 'yes': 'no';
+        $value2 = $globalSettingModel->getUseOrderNumberInVariableSymbol() ? 'yes': 'no';
+
+        add_option($key1, $value1) || update_option($key1, $value1);
+        add_option($key2, $value2) || update_option($key2, $value2);
+    }
 
     public static function getGlobalParcelboxesSetting()
     {
@@ -207,7 +244,6 @@ class MethodSetting
             'BG', // Bulharsko
             'HR', // Chorvatsko
             'CY', // Kypr
-            'CZ', // Česká republika
             'DK', // Dánsko
             'EE', // Estonsko
             'FI', // Finsko

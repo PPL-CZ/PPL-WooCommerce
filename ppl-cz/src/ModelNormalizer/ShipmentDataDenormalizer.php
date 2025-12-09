@@ -182,7 +182,6 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
 
     }
 
-
     private function OrderToModel(\WC_Order $data, array $context = [])
     {
         $shipmentModel = new ShipmentModel();
@@ -197,7 +196,7 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
 
         // $dm = gmdate("ymd");
         $count = 10 - strlen("");
-        $variable = str_pad($data->get_id(), $count, "0", STR_PAD_LEFT);
+
 
         $shipmentModel->setReferenceId($data->get_id() . '#' . gmdate("YdmHis"));
         $shipmentModel->setImportErrors([]);
@@ -210,7 +209,20 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
             $shipmentModel->setServiceName($title);
 
         if ($isCod) {
-            $shipmentModel->setCodVariableNumber($variable);
+            $variableNumber = apply_filters("pplcz_variable_number", "", $data->get_id());
+
+            if (!$variableNumber)
+            {
+                if (MethodSetting::getGlobalSetting()->getUseOrderNumberInVariableSymbol())
+                    $variableNumber = $data->get_order_number();
+                else
+                    $variableNumber = str_pad($data->get_id(), $count, "0", STR_PAD_LEFT);
+            }
+
+            if (strlen($variableNumber) > 10)
+                $variableNumber = "";
+
+            $shipmentModel->setCodVariableNumber($variableNumber);
             $shipmentModel->setCodValue($data->get_total(""));
             $shipmentModel->setCodValueCurrency($data->get_currency());
         }
@@ -305,7 +317,17 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
 
 
         $packageModel = new PackageModel();
-        $packageModel->setReferenceId("{$data->get_id()}");
+
+        $packageReference = apply_filters("pplcz_package_reference", [], $data->get_id(), 1);
+
+        if (!$packageReference) {
+            if (MethodSetting::getGlobalSetting()->getUseOrderNumberInPackages())
+                $packageReference = [$data->get_order_number()];
+            else
+                $packageReference = [$data->get_id()];
+        }
+
+        $packageModel->setReferenceId(reset($packageReference));
 
         $shipmentModel->setPackages([
             $packageModel
@@ -556,19 +578,6 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
             else
                 $shipment->set_sender_address_id($sender->getSenderId());
         }
-        return $shipment;
-    }
-
-    public function UpdateBankAccountToData(UpdateShipmentBankAccountModel $sender, $context)
-    {
-        /**
-         * @var ShipmentData $shipment
-         */
-        if (!isset($context["data"]))
-            throw new \Exception("Undefined shipment");
-
-
-
         return $shipment;
     }
 

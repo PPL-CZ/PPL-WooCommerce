@@ -65,3 +65,6 @@
 - úprava velikost phase_label, status_label
 # 1.0.37
 - možnost sledování i stavu Canceled (Deleted)
+# 1.0.38
+- pro zjištění reference pro zásilku se používá filtr `pplcz_package_reference` (viz action.md) nebo get_order_number
+- upřesnění validací
