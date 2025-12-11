@@ -2,7 +2,6 @@
 namespace PPLCZ\Admin\Order;
 defined("WPINC") or die();
 
-
 use PPLCZ\Admin\Assets\JsTemplate;
 use PPLCZ\Data\ShipmentData;
 use PPLCZ\Admin\Errors;
@@ -120,6 +119,7 @@ class OrderTable {
 
     private static $jsInitTab = false;
 
+
     public static function render_column($column_name, $order)
     {
 
@@ -129,16 +129,19 @@ class OrderTable {
 
             $shipments = ShipmentData::read_order_shipments($order->get_id());
 
-            if (!$shipments && !self::hasPPLShipment($order))
+            if (!$shipments && !self::hasPPLShipment($order)) {
                 return;
-
+            }
+            /**
+             * @var ShipmentModel $shipment
+             */
             foreach ($shipments as $key => $shipment) {
-                $shipments[$key] = Serializer::getInstance()->denormalize($shipment, ShipmentModel::class);
+                $shipments[$key] = pplcz_denormalize($shipment, ShipmentModel::class);
             }
 
             if (!$shipments) {
                 if(self::hasPPLShipment($order)) {
-                    $shipments = [Serializer::getInstance()->denormalize($order, ShipmentModel::class)];
+                    $shipments = [pplcz_denormalize($order, ShipmentModel::class)];
                 }
             }
 
@@ -190,6 +193,24 @@ class OrderTable {
                 return in_array($shipment->getImportState(), [ "None", null, ""], true) ;
             });
 
+            if (isset($_REQUEST['acp_export_action']) && $_REQUEST['acp_export_action'] === 'acp_export_listscreen_export')
+            {
+                $output = [];
+                foreach ($shipments as $shipment)
+                {
+                    $packages = $shipment->getPackages();
+                    if ($packages) {
+                        foreach ($packages as $package) {
+                            $shipmentNumber = $package->getShipmentNumber();
+                            if ($shipmentNumber)
+                                $output[] = $shipmentNumber;
+                        }
+                    }
+                }
+                echo join(', ', $output);
+                return;
+            }
+
             wc_get_template("ppl/admin/order-table-column.php", [
                 "order"=> $order,
                 "unfinished"=> $unfinished,
@@ -199,14 +220,13 @@ class OrderTable {
                 "wcOrderUrl" => $uri,
             ]);
         }
+
     }
 
 
 
     public static function register()
     {
-        // manage_{$post->post_type}_posts_custom_column - ?render
-        //
         add_action("manage_shop_order_posts_columns", [self::class, 'custom_columns'], 20, 1);
         add_filter("woocommerce_shop_order_list_table_columns" , [self::class, "custom_columns"], 10, 1 );
 

@@ -68,3 +68,5 @@
 # 1.0.38
 - pro zjištění reference pro zásilku se používá filtr `pplcz_package_reference` (viz action.md) nebo get_order_number
 - upřesnění validací
+# 1.0.38
+- úprava pro export objednávek v rámci admincolumnpro
