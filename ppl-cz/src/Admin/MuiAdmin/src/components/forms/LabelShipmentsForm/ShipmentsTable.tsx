@@ -34,7 +34,7 @@ export const ShipmentsTable = ({
   const draggedPosition = useRef<number | null>(null);
   const styles = useTableStyle();
   const [flashId, setFlashId] = useState<number | null>(null);
-  const locked = isLocked && !!fields?.[0]?.shipment?.batchRemoteId;
+  const locked = isLocked || !!fields?.[0]?.shipment?.batchRemoteId;
   const hasManyRows = fields?.length > 1;
 
   return (

@@ -583,6 +583,7 @@ class CPLOperation
                     }
                     if ($package) {
                         $package = reset($package);
+                        $packages = array_diff($packages, [$package]);
                         $package->ignore_lock();
                         $package->set_wc_order_id($shipment->get_wc_order_id());
                         if ($batchItem->getLabelUrl()) {
@@ -626,6 +627,7 @@ class CPLOperation
 
                         if ($package) {
                             $package = reset($package);
+                            $packages = array_diff($packages, [$package]);
                             $package->ignore_lock();
 
                             if ($relatedItem->getLabelUrl()) {

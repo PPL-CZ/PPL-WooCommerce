@@ -68,3 +68,7 @@
 # 1.0.38
 - pro zjištění reference pro zásilku se používá filtr `pplcz_package_reference` (viz action.md) nebo get_order_number
 - upřesnění validací
+# 1.0.39
+- přidána metoda clear_log_hash do LogV1RestController.php pro mazání hashe souvisejícího s aktuálně mazaným logem
+- upraveno generování štítků
+- upraveno chování košíku (woo komponenty)
