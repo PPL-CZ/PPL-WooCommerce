@@ -50,16 +50,48 @@ class LogV1RestController extends PPLRestController
 
     public function delete_error(\WP_REST_Request $request)
     {
-
         $id = $request->get_param("id");
 
         $data = new LogData($id);
-        if ($data->get_id())
+        if ($data->get_id()) {
+            $hash = $data->get_errorhash();
             $data->delete(true);
+
+            if ($hash) {
+                $this->clear_log_hash($hash);
+            }
+        }
 
         $resp = new \WP_REST_Response();
         $resp->set_status(204);
         return $resp;
+    }
+
+    /**
+     * Remove error hash from WordPress options
+     *
+     * @param string $hash Error hash to remove
+     * @return void
+     */
+    protected function clear_log_hash($hash)
+    {
+        $hashes = get_option(pplcz_create_name("error_log_hashes"), '');
+        $count = get_option(pplcz_create_name("error_log"), 0);
+
+        $hashArray = array_filter(
+            explode("\n", $hashes),
+            function($h) use ($hash) {
+                return trim($h) !== $hash;
+            }
+        );
+
+        update_option(
+            pplcz_create_name("error_log_hashes"),
+            implode("\n", $hashArray)
+        );
+
+        $newCount = max(0, intval($count) - 1);
+        update_option(pplcz_create_name("error_log"), $newCount);
     }
 
     public function get_log (\WP_REST_Request $request)

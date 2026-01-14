@@ -46,8 +46,11 @@ export const useBatchShipment = (batchId: string) => {
         headers: {
           "X-WP-nonce": baseUrl.nonce,
         },
-      }).then(x => x.json());
-      return data as ShipmentWithAdditionalModel[];
+      }).then(x => x.text());
+
+      const jsondata = JSON.parse(data);
+      jsondata.refresher = new Date();
+      return jsondata as ShipmentWithAdditionalModel[];
     },
   });
 };
@@ -73,7 +76,10 @@ export const useRemoveShipmentFromBatch = (batchId: string) => {
 
 export const useRefreshBatch = (batchId: string) => {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: ["batchs-" + batchId] });
+  return () => {
+    return queryClient.refetchQueries({ queryKey: ["batchs-" + batchId] });
+
+  }
 };
 
 export const useReorderShipmentInBatch = (batchId: string) => {

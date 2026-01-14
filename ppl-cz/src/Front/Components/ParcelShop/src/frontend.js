@@ -9,15 +9,15 @@ const { registerPlugin } = window.wp.plugins;
 
 const getShippingRate = (cart) =>
 {
-	return cart?.shipping_rates?.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
+	return cart.shipping_rates.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
 }
 
-const metaData = (cart) => {
+const getMetaData = (cart) => {
 	return getShippingRate(cart)?.meta_data;
 }
 
 const getMetaValue = (cart, key) => {
-	return metaData(cart)?.find(x => x.key === key)?.value;
+	return getMetaData(cart)?.find(x => x.key === key)?.value;
 }
 
 const isMapAllowed = (cart) => !!parseInt(getMetaValue(cart, "mapEnabled"));
@@ -32,7 +32,7 @@ const getHiddenPoints = (cart) => {
 		AlzaBox: "alzaBoxEnabled"
 	}
 
-	const meta = metaData(cart) || [];
+	const meta = getMetaData(cart) || [];
 
 	return Object.entries(allowParcels).filter(([key, metaKey]) => {
 		return !meta.some((x) => x.key === metaKey && x.value);
@@ -46,7 +46,7 @@ const getAllowedCountries = (cart) => getMetaValue(cart, "enabledParcelCountries
 
 
 const parcelShopSelected = (cart) => {
-	return cart?.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
+	return cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
 }
 
 const ParcelShop = (props) => {
@@ -71,9 +71,9 @@ const ParcelShop = (props) => {
 const restyle = (idsValues, cart, parcelShopBoxSelected)=> {
 
 	const text = idsValues.map(x => {
-		const finded = cart?.shipping_rates?.find(y => y.rate_id === x);
+		const finded = cart.shipping_rates.find(y => y.rate_id === x);
 
-		if (!finded.rate_id.startsWith("pplcz_")) {
+		if (!finded?.rate_id.startsWith("pplcz_")) {
 			return "";
 		}
 		const classNameSet = {
@@ -118,139 +118,149 @@ const restyle = (idsValues, cart, parcelShopBoxSelected)=> {
 	const style = document.getElementById("ppl-shipping-images") || document.createElement("style");
 
 	if (!style.id) {
+		style.id = "ppl-shipping-images";
 		document.head.appendChild(style);
 	}
 
 	style.innerHTML = text;
 }
 
-const Block = (props) => {
+// Vnitřní komponenta - zde už máme jistotu, že cart a payment existují
+const BlockContent = ({ cart, payment, parcelShopBoxSelected }) => {
 
-	//const { checkoutExtensionData } = props;
-
-	const { cart : storeCard, payment } = useSelect((select)=> ({
-		cart: select("wc/store/cart").getCartData(), // kde najdu konkrétní metody?
-		payment: select("wc/store/payment").getActivePaymentMethod()
-	}));
-
-	const idsValues = [...new Set(storeCard?.shippingRates?.reduce((acc, x) => {
-		return acc.concat(x.shipping_rates?.map(y => y.rate_id) || []);
-	}, []).sort() || [])].sort();
-
-	const firstShippingMethod = storeCard?.shippingRates?.[0];
-	const rateId = firstShippingMethod.shipping_rates.find(x => x.selected === true && x.method_id.indexOf("pplcz_") > -1);
-	const shippingAddress = firstShippingMethod.destination;
-	const parcelShopBoxSelected = parcelShopSelected(storeCard);
+	const firstShippingMethod = cart.shippingRates[0];
+	const rateId = firstShippingMethod?.shipping_rates.find(x => x.selected === true && x.method_id.indexOf("pplcz_") > -1);
+	const shippingAddress = firstShippingMethod?.destination;
 	const onUpdateComponent = useRef(false);
 
 	const { parcelRequired, mapAllowed, hiddenPoints, allowedCountries, mapSetting} = useMemo(() => {
 
-			const parcelRequired = isParcelRequired(firstShippingMethod);
-			const mapAllowed = isMapAllowed(firstShippingMethod);
+		const parcelRequired = isParcelRequired(firstShippingMethod);
+		const mapAllowed = isMapAllowed(firstShippingMethod);
 
-			const hiddenPoints = getHiddenPoints(firstShippingMethod);
-			const allowedCountries = getAllowedCountries(firstShippingMethod);
+		const hiddenPoints = getHiddenPoints(firstShippingMethod);
+		const allowedCountries = getAllowedCountries(firstShippingMethod);
 
-			let address = '';
-			let country = '';
+		let address = '';
+		let country = '';
 
-			if(shippingAddress){
-				address = [
-					[shippingAddress.address_1, shippingAddress.address_2].filter(x=>x).join(' '),
-					[shippingAddress.postcode, shippingAddress.city].filter(x=>x).join(' ')
-				].filter(x => x).join(', ');
-				country = shippingAddress.country?.toLowerCase() || '';
-			}
-			if (parcelShopBoxSelected) {
-				address = [
-					parcelShopBoxSelected.street,
-					[parcelShopBoxSelected.zipCode, parcelShopBoxSelected.city].filter(x => x).join(' ')
-				].filter(x => x).join(', ');
-				country = parcelShopBoxSelected.country || '';
-			}
-			const mapSetting = {
-				address,
-				country,
-				hiddenPoints: hiddenPoints.length ? hiddenPoints.join(',') : null,
-				countries: allowedCountries.map(c => c.toLowerCase()).join(',')
-			};
+		if(shippingAddress){
+			address = [
+				[shippingAddress.address_1, shippingAddress.address_2].filter(x=>x).join(' '),
+				[shippingAddress.postcode, shippingAddress.city].filter(x=>x).join(' ')
+			].filter(x => x).join(', ');
+			country = shippingAddress.country?.toLowerCase() || '';
+		}
+		if (parcelShopBoxSelected) {
+			address = [
+				parcelShopBoxSelected.street,
+				[parcelShopBoxSelected.zipCode, parcelShopBoxSelected.city].filter(x => x).join(' ')
+			].filter(x => x).join(', ');
+			country = parcelShopBoxSelected.country || '';
+		}
+		const mapSetting = {
+			address,
+			country,
+			hiddenPoints: hiddenPoints.length ? hiddenPoints.join(',') : null,
+			countries: allowedCountries.map(c => c.toLowerCase()).join(',')
+		};
 
-
-
-			return { parcelRequired, mapAllowed, hiddenPoints, allowedCountries, mapSetting };
+		return { parcelRequired, mapAllowed, hiddenPoints, allowedCountries, mapSetting };
 	}, [rateId]);
 
 	window.pplczLastPplMapData = mapSetting;
 
-
-
-	const isCart =Array.from(document.getElementsByTagName("meta")).some(x => {
+	const isCart = Array.from(document.getElementsByTagName("meta")).some(x => {
 		return x.property === 'pplcz:cart' && x.content === "1";
 	});
 
 	const hideComponent = !parcelRequired || !mapAllowed || isCart;
 
+	const savingData = (parcelShop) => {
+		extensionCartUpdate({
+			namespace: 'pplcz_parcelshop',
+			data: {
+				"parcel-shop": parcelShop
+			}
+		});
+	}
+
 	useEffect(() => {
-
-			if (!onUpdateComponent.current) {
-				onUpdateComponent.current = true;
-				return;
-			}
-			if (parcelRequired && !parcelShopBoxSelected && !hideComponent) {
-				PplMap(savingData, {...mapSetting});
-			}
-
+		if (!onUpdateComponent.current) {
+			onUpdateComponent.current = true;
+			return;
+		}
+		if (parcelRequired && !parcelShopBoxSelected && !hideComponent) {
+			PplMap(savingData, {...mapSetting});
+		}
 	}, [parcelRequired, parcelShopBoxSelected]);
-
-	useEffect( () => {
-			if (firstShippingMethod)
-				restyle(idsValues, firstShippingMethod, parcelShopBoxSelected);
-
-	}, [...idsValues, parcelShopBoxSelected?.accessPointType])
 
 	if (hideComponent)
 		return null;
 
-	const savingData = (parcelShop) => {
-
-                extensionCartUpdate({
-                    namespace: 'pplcz_parcelshop',
-                    data: {
-                        "parcel-shop": parcelShop
-                    }
-                });
-
-            }
-
-
-
 	let messages = [];
 
-console.log(parcelRequired, mapSetting, savingData)
 	if (parcelRequired && !parcelShopBoxSelected)
 		messages.push(<li key={"ageControl"}>{__("Pro dodání zboží je nutno vybrat jedno z výdejních míst", "ppl-cz")}</li>);
 
 	return (
-		<>
-			<div>
-				<ParcelShop  cart={storeCard} parcelRequired={parcelRequired}/> <a href="#withCard" className={"pplcz-select-parcelshop"} onClick={e => {
+		<div>
+			<ParcelShop cart={cart} parcelRequired={parcelRequired}/>
+			<a href="#withCard" className={"pplcz-select-parcelshop"} onClick={e => {
 				e.preventDefault();
-				PplMap(savingData, {...mapSetting } );
-			}}>{__("Výběr výdejního místa", "ppl-cz")}</a> {parcelShopBoxSelected ? <> / <a href={"#"} className={"pplcz-clear-map"} onClick={e=>{
-				e.preventDefault();
-				onUpdateComponent.current = false;
-				savingData(null);
+				PplMap(savingData, {...mapSetting});
+			}}>{__("Výběr výdejního místa", "ppl-cz")}</a>
 
-			}}>{__("Zrušit výběr", "ppl-cz")}</a></> : null} <br/>
-				{messages ? <ul>{messages}</ul>:null}
-			</div>
-		</>)
+			{parcelShopBoxSelected && (
+				<> / <a href={"#"} className={"pplcz-clear-map"} onClick={e => {
+					e.preventDefault();
+					onUpdateComponent.current = false;
+					savingData(null);
+				}}>{__("Zrušit výběr", "ppl-cz")}</a></>
+			)}
+			<br/>
+			{messages.length > 0 && <ul>{messages}</ul>}
+		</div>
+	);
+}
+
+// Wrapper komponenta - načte data a předá je dál
+const Block = (props) => {
+
+	const { cart, payment } = useSelect((select) => ({
+		cart: select("wc/store/cart").getCartData(),
+		payment: select("wc/store/payment").getActivePaymentMethod()
+	}));
+
+	// Bezpečně získáme hodnoty pro restyle
+	const firstShippingMethod = cart?.shippingRates?.[0];
+	const parcelShopBoxSelected = cart ? parcelShopSelected(cart) : null;
+
+	const idsValues = useMemo(() => {
+		if (!cart?.shippingRates?.length) return [];
+		return [...new Set(cart.shippingRates.reduce((acc, x) => {
+			return acc.concat(x.shipping_rates?.map(y => y.rate_id) || []);
+		}, []))].sort();
+	}, [cart?.shippingRates]);
+
+	// Restyle se volá vždy, když máme potřebná data
+	useEffect(() => {
+		if (firstShippingMethod?.shipping_rates?.length) {
+			restyle(idsValues, firstShippingMethod, parcelShopBoxSelected);
+		}
+	}, [idsValues, firstShippingMethod, parcelShopBoxSelected?.accessPointType]);
+
+	// Guard - pokud nemáme data, nevykreslíme BlockContent
+	if (!cart || !payment || !cart.shippingRates?.length) {
+		return null;
+	}
+
+	return <BlockContent cart={cart} payment={payment} parcelShopBoxSelected={parcelShopBoxSelected} />;
 }
 
 const options = {
 	metadata,
 	component: Block
 };
-
 
 registerCheckoutBlock(options);

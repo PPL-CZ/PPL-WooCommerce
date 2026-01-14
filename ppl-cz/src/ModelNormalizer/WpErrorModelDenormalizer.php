@@ -19,7 +19,7 @@ class WpErrorModelDenormalizer implements DenormalizerInterface
         foreach ($data->errors as $key =>$values)
         {
             $errorModel = new WpErrorModel();
-            $errorModel->setKey($key);
+            $errorModel->setKey(trim($key, '.'));
             $errorModel->setValues($values);
             $output[] = $errorModel;
         }

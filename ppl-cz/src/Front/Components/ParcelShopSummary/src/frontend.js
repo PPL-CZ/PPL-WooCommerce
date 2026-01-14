@@ -5,18 +5,20 @@ import {useEffect} from "@wordpress/element";
 import { __ } from '@wordpress/i18n';
 
 import "./fontend.css";
-const getShippingRate = (shipment) => {
-	return shipment?.shipping_rates?.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected); }
 
-const getMetaValue = (shipment, key) => {
-	return getShippingRate(shipment)?.meta_data?.find(x => x.key === key).value;
+const getShippingRate = (shipment) => {
+	return shipment.shipping_rates.find(x => x.rate_id.indexOf("pplcz_") > -1 && x.selected);
 }
 
-const getParcelShop = (cart) => cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"]
+const getMetaValue = (shipment, key) => {
+	return getShippingRate(shipment)?.meta_data?.find(x => x.key === key)?.value;
+}
 
-const isMapAllowed = (shipment) => !!parseInt(getMetaValue(shipment, "mapEnabled"))
+const getParcelShop = (cart) => cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
 
-const isParcelShopRequired = (shipment) => !!parseInt(getMetaValue(shipment, "parcelRequired"))
+const isMapAllowed = (shipment) => !!parseInt(getMetaValue(shipment, "mapEnabled"));
+
+const isParcelShopRequired = (shipment) => !!parseInt(getMetaValue(shipment, "parcelRequired"));
 
 const ParcelShop = ({parcelShop}) => {
 	if (!parcelShop) return null;
@@ -26,7 +28,7 @@ const ParcelShop = ({parcelShop}) => {
 			<strong>{__("Výdejní místo", "ppl-cz")}</strong><br/>
 			<span>{parcelShop.name}</span> <a href={"#"} onClick={e => {
 			e.preventDefault();
-			PplMap(()=>{}, { lat:  parcelShop?.gps.latitude, lng: parcelShop?.gps.longitude});
+			PplMap(()=>{}, { lat: parcelShop?.gps?.latitude, lng: parcelShop?.gps?.longitude});
 		}}>[{__("na mapě", "ppl-cz")}]</a><br/>
 			<span>{parcelShop.street}</span><br/>
 			<span>{parcelShop.zipCode} {parcelShop.city}</span><br/>
@@ -34,17 +36,12 @@ const ParcelShop = ({parcelShop}) => {
 	)
 }
 
-const Block = () => {
+// Vnitřní komponenta - zde už máme jistotu, že cart a payment existují
+const BlockContent = ({ cart, payment }) => {
 
+	const shipment = cart.shippingRates[0];
 
-	const { cart, payment } = useSelect((select)=> ({
-		cart: select("wc/store/cart").getCartData(),
-		payment: select("wc/store/payment").getActivePaymentMethod()
-	}));
-
-	const shipment = cart?.shippingRates?.[0];
-
-	const shipping_rate = shipment && isMapAllowed(shipment)? getShippingRate(shipment) : undefined;
+	const shipping_rate = shipment && isMapAllowed(shipment) ? getShippingRate(shipment) : undefined;
 
 	const parcelShopRequired = isParcelShopRequired(shipment);
 
@@ -57,22 +54,45 @@ const Block = () => {
 		const className = "wc-block-components-shipping-address-hide-send-address";
 		if (shipping_rate && parcelShopRequired && parcelShop)
 		{
-			document.body.className += " " + className;
+			document.body.classList.add(className);
 		} else {
-			document.body.className = document.body.className.split(/\s+/g).filter(x => x !== className).join(" ");
+			document.body.classList.remove(className);
 		}
 
-	}, [shipping_rate?.rate_id, parcelShopRequired]);
+		// Cleanup při unmount
+		return () => {
+			document.body.classList.remove(className);
+		};
+
+	}, [shipping_rate?.rate_id, parcelShopRequired, parcelShop]);
 
 
 	if (!shipment || !shipping_rate || !parcelShopRequired || !parcelShop)
 		return null;
 
-	return <div className={'wp-block-woocommerce-checkout-order-summary-shipping-block wc-block-components-totals-wrapper'}>
-		<div className={"wc-block-components-totals-item"}>
-			<ParcelShop parcelShop={parcelShop}/>
+	return (
+		<div className={'wp-block-woocommerce-checkout-order-summary-shipping-block wc-block-components-totals-wrapper'}>
+			<div className={"wc-block-components-totals-item"}>
+				<ParcelShop parcelShop={parcelShop}/>
+			</div>
 		</div>
-	</div>
+	);
+}
+
+// Wrapper komponenta - načte data a předá je dál
+const Block = () => {
+
+	const { cart, payment } = useSelect((select) => ({
+		cart: select("wc/store/cart").getCartData(),
+		payment: select("wc/store/payment").getActivePaymentMethod()
+	}));
+
+	// Guard - pokud nemáme data, nevykreslíme nic
+	if (!cart || !payment || !cart.shippingRates?.length) {
+		return null;
+	}
+
+	return <BlockContent cart={cart} payment={payment} />;
 }
 
 const options = {

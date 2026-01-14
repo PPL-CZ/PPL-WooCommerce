@@ -3,6 +3,9 @@ import { fetchRefreshLabels } from "../../../queries/useLabelQueries";
 
 import { CreteLabelShipmentItems } from "./types";
 import {makePrintUrl} from "../../../connection";
+import {components} from "../../../schema";
+
+type RefreshShipmentBatchReturnModel = components["schemas"]["RefreshShipmentBatchReturnModel"];
 
 export const refreshLabels = async (
   batchId: string,
@@ -10,7 +13,7 @@ export const refreshLabels = async (
   printForm: string,
   controller: AbortController,
   setValue: UseFormSetValue<CreteLabelShipmentItems>
-) => {
+): Promise<[URL, RefreshShipmentBatchReturnModel ]|null> => {
   try {
     while (true) {
       const result = await fetchRefreshLabels(batchId, shipmentId, controller);
@@ -20,12 +23,13 @@ export const refreshLabels = async (
           // @ts-ignore
           setValue(`items.${index}.shipment`, x);
         });
+
         if (result.data.batchs?.length
-            && result.data.shipments?.some(x => x.packages?.some(x => x.shipmentNumber))
+            && result.data.shipments?.some(x => x.packages?.some(x => x.shipmentNumber || x.importError))
         ) {
           const a = document.createElement("a");
           a.href = result.data.batchs[0];
-          return new URL( makePrintUrl(result.data.batchs[0], null, null, printForm));
+          return [new URL( makePrintUrl(result.data.batchs[0], null, null, printForm)), result.data];
         }
       }
 

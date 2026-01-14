@@ -82,6 +82,19 @@ export const useLabelCreationProcess = ({
             );
           } catch (e) {
             onRefresh?.(values.map(x => x?.shipment?.orderId || 0).filter(x => !!x));
+
+              await new Promise<void>((res)=> {
+                setTimeout(async ()=> {
+                  try {
+                    await refreshBatch();
+                  }
+                  catch (e)
+                  {
+                  }
+                  res();
+                }, 1000);
+              })
+
             setErrorMessage("Při vytváření zásilek došlo k chybě");
             setMessage("");
             setCreate(false);
@@ -94,19 +107,30 @@ export const useLabelCreationProcess = ({
           setStep(3);
           setMessage("Čekáme na vytvoření etiket");
           try {
-            const url = await refreshLabels(
-              batchId,
-              values.map(x => x.shipment.id!),
-              printState,
-              controller,
-              setValue
-            );
-            await refreshBatch();
-            setMessage("");
-            if (url) {
-              setUrl(url);
-            } else {
-              setErrorMessage("Při získávání skupinového tisku došlo k chybě");
+            let lastUrl:URL|null = null;
+            while (true) {
+              const url = await refreshLabels(
+                  batchId,
+                  values.map(x => x.shipment.id!),
+                  printState,
+                  controller,
+                  setValue
+              );
+              if (url && lastUrl !== url[0]) {
+                await refreshBatch();
+                lastUrl = url[0];
+              }
+              setMessage("");
+              if (url) {
+                setUrl(url[0]);
+                if (url[1] && url[1]?.shipments?.every(x => x.packages?.every(x => x.shipmentNumber || x.importError)))
+                {
+                  break;
+                }
+              } else {
+                setErrorMessage("Při získávání skupinového tisku došlo k chybě");
+                break;
+              }
             }
             onRefresh?.(values.map(x => x?.shipment.orderId || 0).filter(x => !!x));
           } catch (e) {

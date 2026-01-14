@@ -68,22 +68,36 @@ export const LabelShipmentForm = (props: {
 
   // Initialize errors from models
   useEffect(() => {
-    props.models.forEach((x, index) => {
-      if (x.errors?.length) {
-        const error = x.errors.shift();
-        setError(`items.${index}`, {
-          type: "server",
-          message: error?.values[0],
+    const tim = setTimeout(() => {
+        props.models.forEach((x, index) => {
+          if (x.errors?.length ) {
+            const error = x.errors.shift();
+            setError(`items.${index}`, {
+              type: "server",
+              message: error?.values[0],
+            });
+          }
+          if (x.shipment.importErrors?.length)
+          {
+            const error = x.shipment.importErrors;
+            setError(`items.${index}`, {
+              type: "server",
+              message: error[0],
+            });
+          }
         });
-      }
-    });
-  }, [props.models, setError]);
+    }, 500);
+
+    return () => {
+      clearTimeout(tim);
+    }
+  }, [values, props.models, setError]);
 
   // Set locked state
   useEffect(() => {
     if (
       props.models[0]?.shipment.lock &&
-      (!props.models[0]?.shipment.batchRemoteId || !props.models[0]?.shipment?.packages?.[0].shipmentNumber)
+      (!props.models[0]?.shipment.batchRemoteId || !props.models.every(x => x.shipment.packages?.every(y => y.shipmentNumber || y.importError)))
     ) {
       labelCreationProcess.setLocked(true);
     }
@@ -110,7 +124,7 @@ export const LabelShipmentForm = (props: {
           <PrintFormatSelector
             printUrl={printUrl}
             availablePrinters={availableValues.data || []}
-            isCreating={labelCreationProcess.create || !!labelCreationProcess.locked}
+            isCreating={labelCreationProcess.create || labelCreationProcess.locked}
             errorMessage={labelCreationProcess.errorMessage}
             onCreate={handleCreate}
           />
