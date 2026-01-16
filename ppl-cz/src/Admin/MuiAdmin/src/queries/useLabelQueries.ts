@@ -46,7 +46,7 @@ export const fetchCreateLabels = async (
   shipmentId: number[],
   printSetting: string,
   controller: AbortController
-): Promise<{ status: number; data?: ShipmentModel[] }> => {
+): Promise<{ status: number; data?: ShipmentModel[], error?: string }> => {
   const conn = baseConnectionUrl();
 
   const response = await fetch(`${conn.url}/ppl-cz/v1/shipment/batch/${batchId}/create-labels`, {
@@ -68,7 +68,22 @@ export const fetchCreateLabels = async (
     return { status: 204 };
   }
 
-  throw new Error("Problém s vytvořením štítků");
+  if (response.status === 500)
+  {
+    try {
+      const r = await response.json();
+      return {
+        status: 500,
+        error: JSON.stringify(r)
+      }
+    }
+    catch (e)
+    {
+
+    }
+  }
+
+  throw new Error("Problém s vytvořením štítků" );
 };
 
 /**

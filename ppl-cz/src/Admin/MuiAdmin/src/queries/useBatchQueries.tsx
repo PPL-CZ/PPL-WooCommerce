@@ -61,18 +61,26 @@ export const useRemoveShipmentFromBatch = (batchId: string) => {
     mutationKey: ["batchs-remove-" + batchId],
     mutationFn: async (variables: { shipment_id: number }) => {
       const baseUrl = baseConnectionUrl();
-      await fetch(`${baseUrl.url}/ppl-cz/v1/shipment/batch/${batchId}/shipment/${variables.shipment_id}`, {
+      const result = await fetch(`${baseUrl.url}/ppl-cz/v1/shipment/batch/${batchId}/shipment/${variables.shipment_id}`, {
         method: "DELETE",
         headers: {
           "X-WP-nonce": baseUrl.nonce,
         },
       });
+
+      if (result.status < 300)
+        return;
+
+      const data = await result.text();
+      throw new Error(JSON.stringify(JSON.parse(data)));
     },
     onSuccess: (data, error, context) => {
       queryClient.invalidateQueries({ queryKey: ["batchs-" + batchId] });
     },
   });
 };
+
+
 
 export const useRefreshBatch = (batchId: string) => {
   const queryClient = useQueryClient();

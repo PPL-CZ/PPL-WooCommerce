@@ -28,6 +28,9 @@ const createLabels = async (
 
   if (result.status === 204) return true;
 
+  if (result.status === 500)
+    throw new Error(result.error);
+
   throw new Error("Problém s přípravou zásilek");
 };
 

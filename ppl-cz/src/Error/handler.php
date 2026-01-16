@@ -105,6 +105,54 @@ function pplcz_error_handler ($errno, $errstr, $errfile, $errline) {
     $resolve = false;
 }
 
+
+function pplcz_exception_handler($exception, $ignoreAdd = false)
+{
+    static $resolve;
+    if ($resolve)
+        return;
+    $resolve = true;
+
+    $path = realpath(__DIR__ . '/../..');
+    $trace = $exception->getTraceAsString();
+    $file = $exception->getFile();
+
+    $inplugin = strpos($file, $path) !== false || strpos($trace, $path) !== false;
+
+    if ($inplugin)
+    {
+        $error = get_class($exception) . ': ' . $exception->getMessage() . "\n";
+        $error .= "File: " . $file . "(" . $exception->getLine() . ")\n";
+        $error .= "Stack trace:\n" . $trace;
+
+        $hash = sha1($error);
+        $max = get_option(pplcz_create_name("error_log"));
+        $hashes = get_option(pplcz_create_name("error_log_hashes"));
+
+        if (($ignoreAdd || intval($max) < 100) && strpos("$hashes" ?: '', $hash) === false) {
+            global $wpdb;
+            $show_errors = $wpdb->show_errors;
+            $wpdb->hide_errors();
+            try {
+                $logdata = new \PPLCZ\Data\LogData();
+                $logdata->set_message($error);
+                $logdata->set_errorhash($hash);
+                $logdata->set_timestamp(date('Y-m-d H:i:s'));
+                $logdata->save();
+                pplcz_add_log_to_options($logdata->get_id(), $logdata->get_errorhash());
+            } catch (\Throwable $ex) {
+                // Tiché selhání
+            }
+            $wpdb->show_errors = $show_errors;
+        }
+    }
+
+    $resolve = false;
+
+    // Znovu vyhodit výjimku pro standardní zpracování PHP
+    // throw $exception;
+}
+
 function pplcz_shutdown_handler()
 {
     static $resolve;

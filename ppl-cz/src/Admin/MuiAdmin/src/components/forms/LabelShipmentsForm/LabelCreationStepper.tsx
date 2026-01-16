@@ -31,7 +31,12 @@ export const LabelCreationStepper = ({ step, errorMessage, message, printUrl }: 
           </Stepper>
         </Box>
       ) : null}
-      {errorMessage ? <Alert severity="warning">{errorMessage}</Alert> : null}
+      {errorMessage ? <Alert severity="warning">{errorMessage.split(/\r?\n/g).reduce((acc, item,i) => {
+        if (acc.length)
+          acc.push(<br key={'br-' + i}/>)
+        acc.push(item);
+        return acc;
+      }, [] as any[])}</Alert> : null}
       {message ? <Alert severity="success">{message}</Alert> : null}
     </Box>
   );

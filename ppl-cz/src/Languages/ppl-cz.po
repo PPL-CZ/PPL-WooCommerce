@@ -70,5 +70,6 @@ msgstr "COD fee"
 msgid "na mapě"
 msgstr "on the map"
 
-
+msgid "Vybrané výdejní místo se nepodařilo najít"
+msgstr "The selected pickup location could not be found"
 

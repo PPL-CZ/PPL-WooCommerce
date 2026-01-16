@@ -37,13 +37,13 @@ class BatchDataStore extends PPLDataStore
         }
         else
         {
-            $rows = $wpdb->get_results("select * from {$wpdb->prefix}pplcz_batch where ppl_batch_id  in (select batch_local_id from {$wpdb->prefix}pplcz_shipment) and created_at > now() - INTERVAL 5 DAY  order by ppl_batch_id desc", ARRAY_A);
-            if (count($rows) < 20) {
+            $rows = $wpdb->get_results("select * from {$wpdb->prefix}pplcz_batch where ppl_batch_id  in (select batch_local_id from {$wpdb->prefix}pplcz_shipment) and created_at > now() - INTERVAL 100 DAY  order by ppl_batch_id desc", ARRAY_A);
+            if (count($rows) < 100) {
                 $ids = array_map(function ($item){
                     return $item['ppl_batch_id'];
                 }, $rows);
-                foreach ($wpdb->get_results("select * from {$wpdb->prefix}pplcz_batch where ppl_batch_id  in (select batch_local_id from {$wpdb->prefix}pplcz_shipment)  order by ppl_batch_id desc limit 20", ARRAY_A) as $row) {
-                    if (count($rows) < 20) {
+                foreach ($wpdb->get_results("select * from {$wpdb->prefix}pplcz_batch where ppl_batch_id  in (select batch_local_id from {$wpdb->prefix}pplcz_shipment)  order by ppl_batch_id desc limit 100", ARRAY_A) as $row) {
+                    if (count($rows) < 100) {
                         if (!in_array($row['ppl_batch_id'], $ids, true))
                             $rows[] = $row;
                         continue;

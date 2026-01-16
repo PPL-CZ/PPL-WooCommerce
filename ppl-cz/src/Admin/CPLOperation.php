@@ -10,6 +10,7 @@ use PPLCZ\Setting\PhaseSetting;
 use PPLCZ\Setting\PrintSetting;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentResultChildItemModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentResultItemModel;
+use PPLCZVendor\GuzzleHttp\BodySummarizer;
 use PPLCZVendor\GuzzleHttp\HandlerStack;
 use PPLCZCPL\Api\AccessPointApi;
 use PPLCZCPL\Api\AddressWhisperApi;
@@ -34,6 +35,7 @@ use PPLCZCPL\Model\EpsApiMyApi2WebModelsOrderEventCancelOrderEventModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchCreateShipmentBatchModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentShipmentModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentTrackAndTraceItemModel;
+use PPLCZVendor\GuzzleHttp\Middleware;
 use PPLCZVendor\Psr\Http\Message\RequestInterface;
 use PPLCZ\Data\AddressData;
 use PPLCZ\Data\CollectionData;
@@ -111,7 +113,7 @@ class CPLOperation
         delete_option(pplcz_create_name("access_token"));
     }
 
-    public function getAccessToken()
+    public function getAccessToken($timeout = 0)
     {
         $content = get_option(pplcz_create_name("access_token"));
 
@@ -120,7 +122,7 @@ class CPLOperation
             list($a, $b, $c) = explode(".", $content);
             if ($b) {
                 $b = json_decode(base64_decode($b), true);
-                if ($b["exp"] > time() - 40) {
+                if ($b["exp"] > (time() - 40)) {
                     return $content;
                 }
             }
@@ -150,11 +152,11 @@ class CPLOperation
 
         $url = self::ACCESS_TOKEN_URL ;
 
-        $response = wp_remote_post($url, [
+        $response = wp_remote_post($url, array_merge([
             "method" => "POST",
             "headers" => $headers,
             "body" =>  http_build_query($content),
-        ]);
+        ], $timeout ? ['timeout' => $timeout] : []));
 
         if ($response && !($response instanceof \WP_Error) && isset($response['http_response']) && $response['http_response']->get_status() === 200) {
             if ($content) {
@@ -178,9 +180,10 @@ class CPLOperation
         return null;
     }
 
-    public function createClientAndConfiguration()
+    public function createClientAndConfiguration($timeout = 0)
     {
         $handler = HandlerStack::create();
+        $handler->push(Middleware::httpErrors(new BodySummarizer(1024)), 'http_errors');
         $handler->push(function ( $handler) {
             return function (RequestInterface $request, array $options) use ($handler) {
                 if ($request->getMethod() === "GET" || $request->getMethod() === "OPTIONS" || $request->getMethod() === "HEAD") {
@@ -198,9 +201,9 @@ class CPLOperation
         });
 
 
-        $client = new \PPLCZVendor\GuzzleHttp\Client([
+        $client = new \PPLCZVendor\GuzzleHttp\Client(array_merge([
             "handler" => $handler
-        ]);
+        ], $timeout ? ['timeout' => $timeout] : []));
 
         $configuration = new Configuration();
 
@@ -915,13 +918,14 @@ class CPLOperation
         }
     }
 
-    public function findParcel($code)
+    public function findParcel($code, $timeout = 0)
     {
-        $accessToken = $this->getAccessToken();
+        $accessToken = $this->getAccessToken($timeout);
         if (!$accessToken)
             return null;
 
-        list($client, $configuration) = $this->createClientAndConfiguration();
+        list($client, $configuration) = $this->createClientAndConfiguration($timeout);
+
 
         $accessPointApi = new AccessPointApi($client, $configuration);
         $founded = $accessPointApi->accessPointGet(100,0, $code);

@@ -5,17 +5,20 @@ import ListItemButton from "@mui/material/ListItemButton";
 import Menu from "@mui/material/Menu";
 import { MoreVert } from "@mui/icons-material";
 import { tableConfig } from "./tableConfig";
+import {Divider} from "@mui/material";
 
 interface ItemActionsMenuProps {
   position: number;
   isLocked: boolean;
   onRemove: () => void;
+  onMove: (move: number) => void;
   onShowDetail: () => void;
 }
 
-export const ItemActionsMenu = ({ position, isLocked, onRemove, onShowDetail }: ItemActionsMenuProps) => {
+export const ItemActionsMenu = ({ position, isLocked, onRemove, onMove, onShowDetail }: ItemActionsMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -37,6 +40,11 @@ export const ItemActionsMenu = ({ position, isLocked, onRemove, onShowDetail }: 
     handleClose();
   };
 
+  const handleMove = (position:number) => {
+    onMove(position);
+    handleClose();
+  }
+
   return (
     <>
       <IconButton id={`${position}`} size={tableConfig.icon.size} onClick={handleOpen}>
@@ -51,13 +59,23 @@ export const ItemActionsMenu = ({ position, isLocked, onRemove, onShowDetail }: 
       >
         <List component="nav">
           {!isLocked ? (
-            <ListItemButton onClick={handleRemove}>
-              Vyřadit z tisku
-            </ListItemButton>
+              <>
+                <ListItemButton onClick={handleRemove}>
+                  Vyřadit z tisku
+                </ListItemButton>
+              </>
           ) : null}
           <ListItemButton onClick={handleShowDetail}>
             Detail
           </ListItemButton>
+          <Divider />
+          <ListItemButton onClick={() => handleMove(-1)}>
+            Přesunout zásilku a zásilky nad do jiné dávky
+          </ListItemButton>
+          <ListItemButton onClick={() => handleMove(1)}>
+            Přesunout zásilku a zásilky pod do jiné dávky
+          </ListItemButton>
+
         </List>
       </Menu>
     </>

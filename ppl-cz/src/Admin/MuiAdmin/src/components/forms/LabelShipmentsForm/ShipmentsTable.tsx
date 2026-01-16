@@ -13,6 +13,7 @@ import { tableConfig } from "./tableConfig";
 import { useRef, useState } from "react";
 import { useTableStyle } from "./styles";
 import { Alert } from "@mui/material";
+import {useRefreshBatch} from "../../../queries/useBatchQueries";
 
 interface ShipmentsTableProps {
   batchId: string;
@@ -36,7 +37,7 @@ export const ShipmentsTable = ({
   const [flashId, setFlashId] = useState<number | null>(null);
   const locked = isLocked || !!fields?.[0]?.shipment?.batchRemoteId;
   const hasManyRows = fields?.length > 1;
-
+  const refreshData = useRefreshBatch(batchId);
   return (
     <>
       {!locked && hasManyRows ? (
@@ -73,6 +74,7 @@ export const ShipmentsTable = ({
                 setFlashId={setFlashId}
                 draggedPosition={draggedPosition}
                 move={move}
+                refreshData={() => refreshData()}
               />
             ))}
           </TableBody>
