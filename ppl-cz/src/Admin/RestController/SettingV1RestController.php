@@ -186,8 +186,8 @@ class SettingV1RestController extends  PPLRestController
 
     public function update_print(\WP_REST_Request $request)
     {
-        $content = json_decode($request->get_body());
-        if (PrintSetting::setFormat($content))
+        $content = json_decode($request->get_body(), true);
+        if ($content && isset($content['format']) && PrintSetting::setFormat($content['format']))
         {
             return new \WP_REST_Response(null, 204);
         }

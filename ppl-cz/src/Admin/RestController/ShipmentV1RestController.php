@@ -229,6 +229,7 @@ class ShipmentV1RestController extends PPLRestController
             $parcel = $founded;
         $parcel->save();
         $shipment->set_parcel_id($parcel->get_id());
+        $shipment->set_import_errors(null);
         $shipment->save();
 
         $resp = new \WP_REST_Response();
@@ -248,6 +249,7 @@ class ShipmentV1RestController extends PPLRestController
         if ($shipment instanceof \WP_REST_Response)
             return $shipment;
         $shipment->set_sender_address_id($sender->getSenderId());
+        $shipment->set_import_errors(null);
         $shipment->save();
         $resp = new \WP_REST_Response();
         $resp->set_status(204);

@@ -12,8 +12,8 @@ const SelectPrintWidget = (props: {
         code: string
     }>
 }) => {
-    return <ModalO>
-        <Box p={2}>
+    return <ModalO width={'min'}>
+        <Box p={2} >
             <SelectPrint onChange={props.onChange} value={props.value} optionals={props.optionals}/>
         </Box>
         <Box p={2}>

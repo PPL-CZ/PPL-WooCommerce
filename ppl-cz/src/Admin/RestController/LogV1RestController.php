@@ -78,16 +78,16 @@ class LogV1RestController extends PPLRestController
         $hashes = get_option(pplcz_create_name("error_log_hashes"), '');
         $count = get_option(pplcz_create_name("error_log"), 0);
 
-        $hashArray = array_filter(
-            explode("\n", $hashes),
+        $hashArray = array_filter(array_filter(
+            preg_split("/(\r?\n)+/", $hashes),
             function($h) use ($hash) {
                 return trim($h) !== $hash;
             }
-        );
+        ));
 
         update_option(
             pplcz_create_name("error_log_hashes"),
-            implode("\n", $hashArray)
+            join("\n", $hashArray)
         );
 
         $newCount = max(0, intval($count) - 1);

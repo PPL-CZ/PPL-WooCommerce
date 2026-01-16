@@ -72,3 +72,8 @@
 - přidána metoda clear_log_hash do LogV1RestController.php pro mazání hashe souvisejícího s aktuálně mazaným logem
 - upraveno generování štítků
 - upraveno chování košíku (woo komponenty)
+# 1.0.40
+- doplnění zobrazení chyb při generování štítku
+- přidány obrázky pro woo components
+- validace vydejního místa v košíku
+- přidání logování

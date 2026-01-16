@@ -40,6 +40,7 @@ export const SelectBatchForm = ({ onContinue, items }: SelectBatchFormProps) => 
   }, [freeBatches, isLoading]);
 
   const handleGoToBatch = async (batchId?: string) => {
+      setSaving(true);
     try {
       const id = await addShipments.mutateAsync({
         batchId,
@@ -55,6 +56,7 @@ export const SelectBatchForm = ({ onContinue, items }: SelectBatchFormProps) => 
   };
 
   const handleStayOnPage = async (batchId?: string) => {
+      setSaving(true);
     try {
       await addShipments.mutateAsync({
         batchId,
@@ -154,10 +156,10 @@ export const SelectBatchForm = ({ onContinue, items }: SelectBatchFormProps) => 
                       }
                   />
                   <Stack direction="row" spacing={1}>
-                      <Button variant="contained" size="small" onClick={() => handleGoToBatch()}>
+                      <Button disabled={saving} variant="contained" size="small" onClick={() => handleGoToBatch()}>
                           Přidat k tisku a připravit tisk
                       </Button>
-                      <Button variant="outlined" size="small" onClick={() => handleStayOnPage()}>
+                      <Button disabled={saving} variant="outlined" size="small" onClick={() => handleStayOnPage()}>
                           Přidat k tisku a zůstat na stránce
                       </Button>
                   </Stack>

@@ -1,6 +1,7 @@
 <?php
 namespace PPLCZ\Validator;
 
+use PPLCZ\Admin\CPLOperation;
 use PPLCZ\Model\Model\ProductModel;
 use PPLCZ\Model\Model\CartModel;
 use PPLCZ\Proxy\ApiCartProxy;
@@ -8,6 +9,8 @@ use PPLCZ\Serializer;
 use PPLCZ\Setting\MethodSetting;
 use PPLCZ\ShipmentMethod;
 use PPLCZ\Traits\ParcelDataModelTrait;
+use PPLCZCPL\ApiException;
+use WpOrg\Requests\Exception;
 
 class CartValidator extends ModelValidator {
 
@@ -22,6 +25,8 @@ class CartValidator extends ModelValidator {
         return false;
     }
 
+    private static $accessPoints = [];
+
     public function validate($model, $errors, $path)
     {
 
@@ -33,7 +38,7 @@ class CartValidator extends ModelValidator {
          */
         $shippingMethod = pplcz_get_cart_shipping_method();
         if (!$shippingMethod)
-            return;
+            return $errors;
 
 
         /**
@@ -41,9 +46,31 @@ class CartValidator extends ModelValidator {
          */
         $data = pplcz_denormalize($shippingMethod->get_meta_data(), CartModel::class);
 
-
         $parcel = pplcz_get_cart_parceldata();
+
         if ($parcel) {
+            if (!isset(self::$accessPoints[$parcel->getCode()])) {
+                self::$accessPoints[$parcel->getCode()] = true;
+                try {
+                    $cpl = new CPLOperation();
+                    self::$accessPoints[$parcel->getCode()] = true;
+                    $testparcel = $cpl->findParcel($parcel->getCode(), 10);
+                    if (!$testparcel)
+                        self::$accessPoints[$parcel->getCode()] = false;
+                } catch (\Exception $ex2) {
+                    if ($ex2 instanceof ApiException && $ex2->getCode() === 404) {
+                        self::$accessPoints[$parcel->getCode()] = false;
+                    }
+                }
+            }
+
+            if (!self::$accessPoints[$parcel->getCode()])
+            {
+                $errors->add("parcelshop-disabled-shop", __("Vybrané výdejní místo se nepodařilo najít", "ppl-cz"));
+                return $errors;
+            }
+
+
             switch ($parcel->getAccessPointType()) {
                 case 'ParcelShop':
                     if (!$data->getParcelShopEnabled())
@@ -73,8 +100,8 @@ class CartValidator extends ModelValidator {
             $errors->add("parcelshop-missing", __("Je potřeba vybrat výdejní místo pro doručení zásilky", "ppl-cz"));
         }
 
-        if (static::ageRequired($model->cart, $shippingMethod)
-            && (!$parcel || $parcel->getAccessPointType() !== 'ParcelShop'))
+        if (static::ageRequired($model->cart, $shippingMethod) // pozaduji vek
+            && ($parcel && $parcel->getAccessPointType() !== 'ParcelShop')) // vybrana parcela a neni to obchod
         {
             $errors->add("parcelshop-age-required", __("Z důvodu kontroly věku je nutné vybrat obchod, ne výdejní box", "ppl-cz"));
         }
@@ -100,6 +127,7 @@ class CartValidator extends ModelValidator {
                 $errors->add("parcelshop-shippingzip-required", __("Země kontaktní (doručovací) adresy je jiná, než výdejního místa", "ppl-cz"));
             }
         }
+
         return $errors;
     }
 

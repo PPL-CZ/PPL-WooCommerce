@@ -73,10 +73,15 @@ class ShipmentBatchV1Controller extends  PPLRestController
         ]);
 
 
-
         register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/shipment/(?P<shipmentId>\d+)", [
             "methods"=> \WP_REST_Server::DELETABLE,
             "callback"=>[$this, "remove_batch_shipment"],
+            "permission_callback"=>[$this, "check_permission"],
+        ]);
+
+        register_rest_route($this->namespace, "/" . $this->base . "/(?P<id>\d+)/shipment/(?P<shipmentId>\d+)/unlock", [
+            "methods"=> \WP_REST_Server::EDITABLE,
+            "callback"=>[$this, "unlock_batch_shipment"],
             "permission_callback"=>[$this, "check_permission"],
         ]);
 
@@ -158,11 +163,54 @@ class ShipmentBatchV1Controller extends  PPLRestController
             $resp->set_status(404);
             return $resp;
         }
+
         $resp->set_status(204);
-        $shipment->set_batch_local_id(null);
-        $shipment->save();
+
+        try {
+            $shipment->set_batch_local_id(null);
+            $shipment->save();
+        }
+        catch (\Exception $ex)
+        {
+            pplcz_exception_handler($ex, true);
+            $resp->set_status(500);
+            $resp->set_data($ex->getMessage());
+        }
+
         return $resp;
     }
+
+    public function unlock_batch_shipment(\WP_REST_Request $request)
+    {
+
+        $shipemntId = $request->get_param("shipmentId");
+        $shipment = new ShipmentData($shipemntId);
+
+        $resp = new WP_REST_Response();
+        $resp->set_status(404);
+
+        if (!$shipment->get_id())
+        {
+            $resp = new WP_REST_Response();
+            return $resp;
+        }
+
+
+        try {
+            $shipment->unlock();
+            $shipment->save();
+            $resp->set_status(204);
+        }
+        catch (\Exception $ex)
+        {
+            pplcz_exception_handler($ex, true);
+            $resp->set_status(500);
+            $resp->set_data($ex->getMessage());
+        }
+
+        return $resp;
+    }
+
 
     public function reorder(\WP_REST_Request $request )
     {
@@ -296,9 +344,18 @@ class ShipmentBatchV1Controller extends  PPLRestController
         if (array_diff($shipmentIds, $batchShipmentIds) || array_diff($batchShipmentIds, $shipmentIds))
             return new \WP_REST_Response(null, 400);
 
+        $resp = new \WP_REST_Response();
+
+        if (count($shipmentIds) > 100)
+        {
+            $resp->set_status(500);
+            $resp->set_data("Maximální počet zásilek je 100");
+            return $resp;
+
+        }
 
         $cpl = new CPLOperation();
-        $resp = new \WP_REST_Response();
+
         $resp->set_status(204);
 
         try {
@@ -307,6 +364,10 @@ class ShipmentBatchV1Controller extends  PPLRestController
         catch (\Exception $exception)
         {
             $resp->set_status(500);
+            if ($exception->getCode() === 400)
+                $resp->set_data("V některých zásilkách jsou chyby");
+            else
+                $resp->set_data($exception->getMessage());
             return $resp;
         }
         $output = [];

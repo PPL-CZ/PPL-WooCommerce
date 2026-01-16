@@ -80,6 +80,7 @@ export const useLabelCreationProcess = ({
               setError,
               setValue
             );
+
           } catch (e) {
             onRefresh?.(values.map(x => x?.shipment?.orderId || 0).filter(x => !!x));
 
@@ -95,7 +96,7 @@ export const useLabelCreationProcess = ({
                 }, 1000);
               })
 
-            setErrorMessage("Při vytváření zásilek došlo k chybě");
+            setErrorMessage(`Při vytváření zásilek došlo k chybě\n${e}`);
             setMessage("");
             setCreate(false);
             setLocked(false);

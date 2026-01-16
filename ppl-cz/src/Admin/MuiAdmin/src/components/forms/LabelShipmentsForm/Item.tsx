@@ -1,4 +1,4 @@
-import { Fragment, MutableRefObject, useCallback, useRef, useState } from "react";
+import {Fragment, MutableRefObject, useCallback, useEffect, useRef, useState} from "react";
 import { components } from "../../../schema";
 import IconButton from "@mui/material/IconButton";
 import TableCell from "@mui/material/TableCell";
@@ -6,10 +6,11 @@ import TableRow from "@mui/material/TableRow";
 import { UseFieldArrayMove, useFormContext, useFormState } from "react-hook-form";
 import WindowIcon from "@mui/icons-material/OpenInBrowser";
 import { useTableStyle } from "./styles";
+
 import {
-  useRefreshBatch,
-  useRemoveShipmentFromBatch,
-  useReorderShipmentInBatch,
+    useRefreshBatch,
+    useRemoveShipmentFromBatch,
+    useReorderShipmentInBatch,
 } from "../../../queries/useBatchQueries";
 import CreateShipmentWidget from "../../widgets/CreateShipmentWidget";
 import Package from "./package";
@@ -17,8 +18,15 @@ import { makeOrderUrl } from "../../../connection";
 import { useDrag, useDrop } from "react-dnd";
 import { ItemActionsMenu } from "./ItemActionsMenu";
 import { tableConfig } from "./tableConfig";
+import SelectBatchWidget from "../../widgets/SelectBatchWidget";
+import ModalO from "../../Modal";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 type ShipmentWithAdditionalModel = components["schemas"]["ShipmentWithAdditionalModel"];
+type PrepareShipmentBatchModel = components["schemas"]["PrepareShipmentBatchModel"];
+
 
 const Item = (props: {
   batchId: string;
@@ -30,6 +38,7 @@ const Item = (props: {
   setFlashId: (flashId: number | null) => void;
   move: UseFieldArrayMove;
   draggedPosition: MutableRefObject<number | null>;
+  refreshData: () => void
 }) => {
   const {
     classes: { trError, hoverSelected, dragUsed },
@@ -43,6 +52,33 @@ const Item = (props: {
 
   const { watch, getValues } = useFormContext<{ items: ShipmentWithAdditionalModel[] }>();
   const { errors } = useFormState();
+
+
+  const [ moveShipment, setMoveShipment ] = useState(0);
+  const [ shipments, setShipments] = useState<PrepareShipmentBatchModel>({ items: [] });
+
+  const [error, setError] = useState<any>(null);
+
+  useEffect(() => {
+    if (moveShipment) {
+        const values = getValues();
+
+        const items = values.items.filter((x, pos) => {
+            if (moveShipment > 0)
+                return props.position <= pos;
+            return props.position >= pos;
+        }).map(x => ({
+            shipmentId: x.shipment.id!
+        }));
+        setShipments({
+            items
+        })
+    }
+    else if (shipments.items?.length)
+    {
+        setShipments({ items: []});
+    }
+  }, [moveShipment, props.position]);
 
   let className = "";
 
@@ -154,6 +190,7 @@ const Item = (props: {
             }}
           />
         ) : null}
+        {props.position+1}.
         {model.shipment.lock || props.isLocked ? null : (
           <>
             <button data-component-id="moveable" className={style.classes.draggable} ref={handleRef}>
@@ -175,7 +212,7 @@ const Item = (props: {
             <WindowIcon fontSize={tableConfig.icon.fontSize} />
           </IconButton>
         ) : null}{" "}
-        {basicData.shipment.id ? `(${basicData.shipment.id})` : null}
+        {/*{basicData.shipment.id ? `(${basicData.shipment.id})` : null} */}
       </TableCell>
       <TableCell data-component-id="adresa" sx={tableConfig.body.cell}>
         {basicData.shipment.hasParcel
@@ -230,15 +267,50 @@ const Item = (props: {
           <ItemActionsMenu
             position={props.position}
             isLocked={!!model.shipment.lock || props.isLocked}
-            onRemove={() => {
-              removeShipmentFromBatch.mutateAsync({
-                shipment_id: model.shipment.id!,
-              });
+            onMove={(move) => {
+                setMoveShipment(move)
+            }}
+            onRemove={async () => {
+                try {
+                    await removeShipmentFromBatch.mutateAsync({
+                        shipment_id: model.shipment.id!,
+                    })
+                }
+                catch (e) {
+                    setError(e);
+                }
             }}
             onShowDetail={() => {
               setEdit(model.shipment.id!);
             }}
           />
+            {shipments.items?.length ? <SelectBatchWidget items={shipments} onClose={()=> {
+                setMoveShipment(0);
+                setShipments({ items: []});
+                props.refreshData();
+            }} />: null}
+            {error ? <ModalO
+
+                onClose={() => {
+                    setError(null)
+                }}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box p={2}>
+                    {`${error}`}
+                </Box>
+                    <Box p={2}>
+                        <Button
+                            onClick={e => {
+                                e.preventDefault();
+                                setError(null);
+                            }}
+                        >
+                            Zavřít
+                        </Button>
+                    </Box>
+            </ModalO>: null}
         </TableCell>
       )}
     </TableRow>

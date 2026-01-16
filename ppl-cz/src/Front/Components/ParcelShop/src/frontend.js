@@ -77,34 +77,38 @@ const restyle = (idsValues, cart, parcelShopBoxSelected)=> {
 			return "";
 		}
 		const classNameSet = {
-			"background-size": "auto 2em",
+			"background-size": "auto 1em",
+			"background-position": "center center",
 			"background-repeat": "no-repeat",
 			"display": "inline-block",
 			"content": "''",
-			"height": "2em"
+			"height": "1em",
+			"vertical-align": "middle"
 		}
 
-		let image = `${parcelshop_block_frontend.assets_url}/ppldhl_4084x598.png`;
+		let image = `${parcelshop_block_frontend.assets_url}/small_logo.png`;
 
 		if (finded.meta_data.some(x => x.key === "parcelRequired" && x.value == 1 || x.key ==="mapEnabled" && x.value == 1)) {
-			image = `${parcelshop_block_frontend.assets_url}/vydejnimista_1329x500.png`
+			image = `${parcelshop_block_frontend.assets_url}/small_logo.png`
 			if (finded.selected) {
 				if (parcelShopBoxSelected?.accessPointType === "ParcelShop") {
-					image = `${parcelshop_block_frontend.assets_url}/parcelshop_2609x1033.png`
+					image = `${parcelshop_block_frontend.assets_url}/small_logo.png`
 				} else if (parcelShopBoxSelected?.accessPointType === "ParcelBox") {
-					image = `${parcelshop_block_frontend.assets_url}/parcelbox_2625x929.png`
+					image = `${parcelshop_block_frontend.assets_url}/small_logo.png`
 				}
 			}
 		}
 
 		classNameSet["background-image"] = `url('${image}')`;
-
+		/*
 		const matched = image.match(/_([0-9]+)x([0-9]+)\./)
-		const s = 2* matched[1] / matched[2] ;
-
+		const s = matched[1] / matched[2]  + 1;
 		classNameSet["width"] = s + "em";
+		*/
 
-		const className =  cart.shipping_rates.length !== 1 ? `.wc-block-components-shipping-rates-control  input[value=${x}]+div:before`: `.wc-block-components-shipping-rates-control  .wc-block-components-radio-control__label:before`;
+		classNameSet["width"] = "2em";
+
+		const className =  cart.shipping_rates.length !== 1 ? `.wc-block-components-shipping-rates-control #radio-control-0-${x.replace(":", "\\:")}__label::after`: `.wc-block-components-shipping-rates-control  .wc-block-components-radio-control__label:before`;
 		if (cart.shipping_rates.length === 1)
 		{
 			classNameSet.display = "block";
@@ -244,11 +248,13 @@ const Block = (props) => {
 	}, [cart?.shippingRates]);
 
 	// Restyle se volá vždy, když máme potřebná data
+
 	useEffect(() => {
 		if (firstShippingMethod?.shipping_rates?.length) {
 			restyle(idsValues, firstShippingMethod, parcelShopBoxSelected);
 		}
 	}, [idsValues, firstShippingMethod, parcelShopBoxSelected?.accessPointType]);
+
 
 	// Guard - pokud nemáme data, nevykreslíme BlockContent
 	if (!cart || !payment || !cart.shippingRates?.length) {
