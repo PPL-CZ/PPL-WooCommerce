@@ -77,3 +77,5 @@
 - přidány obrázky pro woo components
 - validace vydejního místa v košíku
 - přidání logování
+# 1.0.41
+- úprava validace výdejního místa v košíku

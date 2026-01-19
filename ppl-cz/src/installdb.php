@@ -196,12 +196,14 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
   `hidden` tinyint(4) NOT NULL,
   `lock` tinyint(4) NOT NULL,
   PRIMARY KEY (`ppl_parcel_id`),
-  UNIQUE KEY `code` (`code`)
+  UNIQUE KEY `code_country` (`code`, `country`)
 ) $charset_collate";
 
     dbDelta($sql);
 
-
+    $suppress = $wpdb->suppress_errors(true);
+    @$wpdb->query("ALTER TABLE {$wpdb->prefix}pplcz_parcel DROP INDEX `code`");
+    $wpdb->suppress_errors($suppress);
 
     $suppress = $wpdb->suppress_errors(true);
     @$wpdb->query("select * from {$wpdb->prefix}woocommerce_ppl_shipment limit 0");

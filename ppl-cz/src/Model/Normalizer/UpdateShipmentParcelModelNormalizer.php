@@ -48,6 +48,13 @@ class UpdateShipmentParcelModelNormalizer implements DenormalizerInterface, Norm
         elseif (\array_key_exists('parcelCode', $data) && $data['parcelCode'] === null) {
             $object->setParcelCode(null);
         }
+        if (\array_key_exists('parcelCountry', $data) && $data['parcelCountry'] !== null) {
+            $object->setParcelCountry($data['parcelCountry']);
+            unset($data['parcelCountry']);
+        }
+        elseif (\array_key_exists('parcelCountry', $data) && $data['parcelCountry'] === null) {
+            $object->setParcelCountry(null);
+        }
         if (\array_key_exists('hasParcel', $data) && $data['hasParcel'] !== null) {
             $object->setHasParcel($data['hasParcel']);
             unset($data['hasParcel']);
@@ -69,6 +76,9 @@ class UpdateShipmentParcelModelNormalizer implements DenormalizerInterface, Norm
     {
         $data = array();
         $data['parcelCode'] = $object->getParcelCode();
+        if ($object->isInitialized('parcelCountry') && null !== $object->getParcelCountry()) {
+            $data['parcelCountry'] = $object->getParcelCountry();
+        }
         if ($object->isInitialized('hasParcel') && null !== $object->getHasParcel()) {
             $data['hasParcel'] = $object->getHasParcel();
         }

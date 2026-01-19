@@ -53,10 +53,12 @@ class CartValidator extends ModelValidator {
                 self::$accessPoints[$parcel->getCode()] = true;
                 try {
                     $cpl = new CPLOperation();
-                    self::$accessPoints[$parcel->getCode()] = true;
-                    $testparcel = $cpl->findParcel($parcel->getCode(), 10);
-                    if (!$testparcel)
-                        self::$accessPoints[$parcel->getCode()] = false;
+                    $accessToken = $cpl->getAccessToken();
+                    if ($accessToken) {
+                        $testparcel = $cpl->findParcel($parcel->getCode(), $parcel->getCountry(), 10);
+                        if (!$testparcel)
+                            self::$accessPoints[$parcel->getCode()] = false;
+                    }
                 } catch (\Exception $ex2) {
                     if ($ex2 instanceof ApiException && $ex2->getCode() === 404) {
                         self::$accessPoints[$parcel->getCode()] = false;

@@ -918,7 +918,7 @@ class CPLOperation
         }
     }
 
-    public function findParcel($code, $timeout = 0)
+    public function findParcel($code, $country, $timeout = 0)
     {
         $accessToken = $this->getAccessToken($timeout);
         if (!$accessToken)
@@ -928,7 +928,9 @@ class CPLOperation
 
 
         $accessPointApi = new AccessPointApi($client, $configuration);
-        $founded = $accessPointApi->accessPointGet(100,0, $code);
+
+        $founded =  $accessPointApi->accessPointGet(100,0, $code, $country);
+
         if (is_array($founded) && isset($founded[0])) {
             return $founded[0];
         }

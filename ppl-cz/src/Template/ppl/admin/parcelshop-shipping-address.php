@@ -13,8 +13,8 @@ defined("WPINC") or die();
     <?php
     $podminky = join(", ", array_filter([
         "Typ ". esc_html($shippingAddress->getAccessPointType()),
-        $shippingAddress->getActiveCardPayment() ? "Platba kartou" : null,
-        $shippingAddress->getActiveCashPayment() ? "Hotově" : null,
+        $shippingAddress->getActiveCardPayment() ? "Je možná platba kartou" : null,
+        $shippingAddress->getActiveCashPayment() ? "Je možná platba hotově" : null,
     ]));
     ?>
     <?php echo esc_html($shippingAddress->getName()) ?>,

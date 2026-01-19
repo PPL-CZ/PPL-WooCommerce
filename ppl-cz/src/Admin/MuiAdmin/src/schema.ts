@@ -101,6 +101,7 @@ export interface components {
     };
     UpdateShipmentParcelModel: {
       parcelCode: string | null;
+      parcelCountry?: string | null;
       hasParcel?: boolean | null;
     };
     CreateShipmentLabelBatchModel: {

@@ -244,7 +244,8 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
                  * @var ParcelDataModel $parcel
                  */
                 $code = $parcel->getCode();
-                $founded = ParcelData::getAccessPointByCode($code);
+                $country = $parcel->getCountry();
+                $founded = ParcelData::getAccessPointByCode($code, $country);
                 if (!$founded) {
                     $founded = new ParcelData();
                     $founded->set_country($parcel->getCountry());
