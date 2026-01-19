@@ -364,6 +364,10 @@
             "type": "string",
             "nullable": true
           },
+          "parcelCountry": {
+            "type": "string",
+            "nullable": true
+          },
           "hasParcel": {
             "type": "boolean",
             "nullable": true

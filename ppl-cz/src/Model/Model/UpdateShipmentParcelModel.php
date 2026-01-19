@@ -21,6 +21,12 @@ class UpdateShipmentParcelModel extends \ArrayObject
     /**
      * 
      *
+     * @var string|null
+     */
+    protected $parcelCountry;
+    /**
+     * 
+     *
      * @var bool|null
      */
     protected $hasParcel;
@@ -44,6 +50,28 @@ class UpdateShipmentParcelModel extends \ArrayObject
     {
         $this->initialized['parcelCode'] = true;
         $this->parcelCode = $parcelCode;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string|null
+     */
+    public function getParcelCountry() : ?string
+    {
+        return $this->parcelCountry;
+    }
+    /**
+     * 
+     *
+     * @param string|null $parcelCountry
+     *
+     * @return self
+     */
+    public function setParcelCountry(?string $parcelCountry) : self
+    {
+        $this->initialized['parcelCountry'] = true;
+        $this->parcelCountry = $parcelCountry;
         return $this;
     }
     /**

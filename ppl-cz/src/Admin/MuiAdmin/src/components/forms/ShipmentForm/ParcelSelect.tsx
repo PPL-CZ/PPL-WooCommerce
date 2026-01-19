@@ -54,6 +54,7 @@ const ParcelSelect = (props: {
           await mutateAsync({
             shipmentId: props.shipment.id!,
             parcelCode: accessPoint.code,
+            parcelCountry: accessPoint.country
           });
         } catch (e: any) {
           if (e?.message === "Parcel not found") {

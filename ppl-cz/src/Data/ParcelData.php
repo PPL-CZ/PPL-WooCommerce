@@ -146,8 +146,8 @@ class ParcelData extends PPLData {
         return $this->get_prop("valid", $context);
     }
 
-    public static function getAccessPointByCode($code)
+    public static function getAccessPointByCode($code, $country)
     {
-        return  ParcelDataStore::getAccessPointByCode($code);
+        return  ParcelDataStore::getAccessPointByCode($code, $country);
     }
 }

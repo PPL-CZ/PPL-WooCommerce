@@ -23,11 +23,11 @@ class ParcelDataStore extends PPLDataStore {
         add_filter('woocommerce_data_stores', [self::class, "stores"]);
     }
 
-    public static function getAccessPointByCode($code)
+    public static function getAccessPointByCode($code, $country)
     {
         global $wpdb;
         $output = [];
-        foreach ($wpdb->get_results($wpdb->prepare("select * from {$wpdb->prefix}pplcz_parcel where code = %s and hidden = 0", $code), ARRAY_A) as $item)
+        foreach ($wpdb->get_results($wpdb->prepare("select * from {$wpdb->prefix}pplcz_parcel where code = %s and country = %s and hidden = 0", $code, $country), ARRAY_A) as $item)
         {
             wp_cache_add($item["ppl_parcel_id"], $item, "pplcz_parcel");
             $output[] = new ParcelData($item["ppl_parcel_id"]);

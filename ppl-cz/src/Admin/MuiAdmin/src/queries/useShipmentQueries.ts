@@ -119,7 +119,7 @@ export const useUpdateRecipientMutation = (onSuccessCallback?: (shipmentId: numb
 export const useUpdateShipmentParcelMutation = (onSuccessCallback?: (shipmentId: number) => void) => {
   return useMutation({
     mutationKey: ["shipment-parcel-update"],
-    mutationFn: async (variables: { shipmentId: number; parcelCode: string }) => {
+    mutationFn: async (variables: { shipmentId: number; parcelCode: string, parcelCountry: string }) => {
       const { url, nonce } = baseConnectionUrl();
 
       const response = await fetch(`${url}/ppl-cz/v1/shipment/${variables.shipmentId}/parcel`, {
@@ -130,6 +130,7 @@ export const useUpdateShipmentParcelMutation = (onSuccessCallback?: (shipmentId:
         },
         body: JSON.stringify({
           parcelCode: variables.parcelCode,
+          parcelCountry: variables.parcelCountry
         } as UpdateShipmentParcelModel),
       });
 

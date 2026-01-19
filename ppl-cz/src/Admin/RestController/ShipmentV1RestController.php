@@ -209,10 +209,10 @@ class ShipmentV1RestController extends PPLRestController
         $sender = pplcz_denormalize($data, UpdateShipmentParcelModel::class);
         $shipment = $this->getShipment($request->get_param("id"));
 
-        $founded = ParcelData::getAccessPointByCode($sender->getParcelCode());
+        $founded = ParcelData::getAccessPointByCode($sender->getParcelCode(), $sender->getParcelCountry());
         if (!$founded) {
             $find = new CPLOperation();
-            $esp = $find->findParcel($sender->getParcelCode());
+            $esp = $find->findParcel($sender->getParcelCode(), $sender->getParcelCountry());
             if (!$esp) {
                 $resp = new \WP_REST_Response();
                 $resp->set_status(404);
