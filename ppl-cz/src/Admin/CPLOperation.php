@@ -858,7 +858,7 @@ class CPLOperation
                         $order = new \WC_Order($shipment->get_wc_order_id());
                         $phases = array_filter(PhaseSetting::getPhases()->getPhases(), function ($item) use ($data) {
                             return $item->getCode() === $data['phase']
-                                    || $item->getCode() === 'Deleted' && $data['phase'] === 'Canceled';
+                                    || $item->getCode() === 'Canceled' && $data['phase'] === 'Deleted';
                         });
                         $phases = reset($phases);
                         if ($phases)

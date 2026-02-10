@@ -160,6 +160,13 @@ class CartModelDernomalizer implements DenormalizerInterface
             $shipmentCartModel->setAlzaBoxEnabled($enabledByCountry && !$disabledAlzaBox && !$setting->getDisabledAlzaBox());
             $shipmentCartModel->setDisabledByCountry(!$enabledByCountry);
 
+            // u nemecka mit POSN u parcelboxu
+            if ($country === 'DE')
+            {
+                $shipmentCartModel->setParcelBoxEnabled(false);
+                $shipmentCartModel->setAlzaBoxEnabled(false);
+            }
+
         } else {
             $shipmentCartModel->setDisabledByCountry(false);
             $shipmentCartModel->setParcelBoxEnabled(false);
@@ -407,6 +414,7 @@ class CartModelDernomalizer implements DenormalizerInterface
             $shipmentCartModel->setParcelBoxEnabled(!$ageProductValidation && !$productModel->getPplDisabledParcelBox() && $shipmentCartModel->getParcelBoxEnabled());
             $shipmentCartModel->setParcelShopEnabled(!$productModel->getPplDisabledParcelShop() && $shipmentCartModel->getParcelShopEnabled());
             $shipmentCartModel->setAlzaBoxEnabled(!$ageProductValidation && !$productModel->getPplDisabledAlzaBox() && $shipmentCartModel->getAlzaBoxEnabled());
+
 
             $get_parents = $product->get_category_ids();
             $ids = [];

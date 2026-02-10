@@ -79,3 +79,6 @@
 - přidání logování
 # 1.0.41
 - úprava validace výdejního místa v košíku
+# 1.0.42
+- oprava "properties" u komponenty
+- znemožnění výběru ParcelBoxu v případě Německa
