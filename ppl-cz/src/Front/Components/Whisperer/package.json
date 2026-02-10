@@ -1,8 +1,8 @@
 {
-    "name": "gift-message",
+    "name": "pplcz_whisperer",
     "version": "1.0.0",
-    "description": "Plugin allows customers to add a gift message to order.",
-    "author": "Tyche Softwares",
+    "description": "Address suggestion.",
+    "author": "PPL.cz",
     "license": "GPL-2.0-or-later",
     "main": "build/index.js",
     "scripts": {

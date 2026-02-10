@@ -36,7 +36,7 @@ class BlockData {
 
     public static function cb_schema_callback() {
         $decoded = wp_json_file_decode(__DIR__ . '/../../../schema.json',  ["associative"=>true]);
-        $properties = $decoded["components"]["schemas"]["ParcelDataModel"];
+        $properties = $decoded["components"]["schemas"]["ParcelDataModel"]['properties'];
         return $properties;
     }
 
