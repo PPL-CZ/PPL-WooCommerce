@@ -49,7 +49,12 @@ class BlockOrderConfirmation extends ShippingAddress {
             return $this->render_content_fallback();
         }
 
-        $shippingAddress = self::getParcelshopOrderData($order);
+        $cartData = self::getOrderCartData($order);
+        $shippingAddress = null;
+
+        if ($cartData && $cartData->getParcelData())
+            $shippingAddress = $cartData->getParcelData();
+
         ob_start();
         wc_get_template("ppl/parcelshop-shipping-address.php", ["shippingAddress" => $shippingAddress] );
         return ob_get_clean();
@@ -63,9 +68,10 @@ class BlockOrderConfirmation extends ShippingAddress {
         $order_id = absint( get_query_var( 'order-received' ) );
         if($order_id) {
             $order = wc_get_order( $order_id );
-            if (self::getParcelshopOrderData($order, true)) {
+            $cartData = self::getOrderCartData($order);
+            if ($cartData && $cartData->getParcelData())
                 add_filter('render_block_data', [self::class, "update_block"], 100, 3);
-            }
+
         }
     }
 

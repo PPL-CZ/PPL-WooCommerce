@@ -1,6 +1,8 @@
 <?php
 
 use PPLCZ\Model\Model\ParcelDataModel;
+use PPLCZ\Model\Model\AdditionalDataModel;
+use \PPLCZ\Model\Model\CartDataModel;
 use PPLCZ\Model\Model\CartModel;
 use PPLCZ\Serializer;
 
@@ -112,36 +114,48 @@ function pplcz_get_version()
     return $pluginData['Version'];
 }
 
-/**
- * @return ParcelDataModel|null
- */
-function pplcz_get_cart_parceldata()
+function pplcz_set_cart_cartdata(?CartDataModel $data)
 {
+    $session = wc()->session;
+    $session->set(pplcz_create_name("parcelshop_data"), $data && $data->getParcelData() ? pplcz_normalize($data->getParcelData()) : null);
+    $session->set(pplcz_create_name("additional_data"), $data && $data->getAdditionalData() ? pplcz_normalize($data->getAdditionalData()) : null);
+}
+
+
+/**
+ * @return CartDataModel|null
+ */
+function pplcz_get_cart_cartdata()
+{
+
     $rate = pplcz_get_cart_shipping_method();
     if (!$rate)
         return null;
 
+    $session = wc()->session;
+
+    $cartData = new \PPLCZ\Model\Model\CartDataModel();
+
     /**
      * @var CartModel $metadata
      */
-    $metadata = Serializer::getInstance()->denormalize($rate->get_meta_data(), CartModel::class);
+    $metadata = pplcz_denormalize($rate->get_meta_data(), CartModel::class);
     if ($metadata->getParcelRequired()) {
-        $session = wc()->session;
         $parcelshop_data = $session->get(pplcz_create_name("parcelshop_data"));
         if ($parcelshop_data) {
-            return Serializer::getInstance()->denormalize($parcelshop_data, ParcelDataModel::class);
+            /**
+             * @var ParcelDataModel $parcelshop_data
+             */
+            $parcelshop_data = pplcz_denormalize($parcelshop_data, ParcelDataModel::class);
+            $cartData->setParcelData($parcelshop_data);
         }
     }
-    return null;
-}
 
-function pplcz_set_cart_parceldata(?ParcelDataModel $data)
-{
-    $session = wc()->session;
-    if ($data)
-        $session->set(pplcz_create_name("parcelshop_data"), Serializer::getInstance()->normalize($data));
-    else
-        $session->set(pplcz_create_name("parcelshop_data"), null);
+    $additionaldata = $session->get(pplcz_create_name("additional_data"));
+    if ($additionaldata)
+        $cartData->setAdditionalData(pplcz_denormalize($additionaldata, AdditionalDataModel::class));
+
+    return $cartData;
 }
 
 /**

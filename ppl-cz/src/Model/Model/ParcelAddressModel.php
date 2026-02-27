@@ -87,6 +87,12 @@ class ParcelAddressModel extends \ArrayObject
     /**
      * 
      *
+     * @var bool|null
+     */
+    protected $posnRequired;
+    /**
+     * 
+     *
      * @return float|null
      */
     public function getId() : ?float
@@ -346,6 +352,28 @@ class ParcelAddressModel extends \ArrayObject
     {
         $this->initialized['lng'] = true;
         $this->lng = $lng;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return bool|null
+     */
+    public function getPosnRequired() : ?bool
+    {
+        return $this->posnRequired;
+    }
+    /**
+     * 
+     *
+     * @param bool|null $posnRequired
+     *
+     * @return self
+     */
+    public function setPosnRequired(?bool $posnRequired) : self
+    {
+        $this->initialized['posnRequired'] = true;
+        $this->posnRequired = $posnRequired;
         return $this;
     }
 }

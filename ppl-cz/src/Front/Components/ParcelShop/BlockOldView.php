@@ -74,7 +74,10 @@ class BlockOldView
 
         printf("<input type='hidden' value='%s' name='pplcz_nonce' >",  esc_html(wp_create_nonce("selectparcelshop")));
         if ($cartModel->getParcelRequired() && !is_cart()) {
-            $parcelshop = pplcz_get_cart_parceldata();
+            $cartData = pplcz_get_cart_cartdata();
+            $parcelshop = null;
+            if ($cartData && $cartData->getParcelData())
+                $parcelshop = $cartData->getParcelData();
 
             $ageOk = !$cartModel->getAgeRequired();
             $ageOk = $ageOk || !$parcelshop || $parcelshop && $parcelshop->getAccessPointType() === "ParcelShop";
@@ -186,7 +189,10 @@ class BlockOldView
         /**
          * @var ParcelDataModel $parcelshop
          */
-        $parcelshop = pplcz_get_cart_parceldata();
+        $cartData = pplcz_get_cart_cartdata();
+        $parcelshop = null;
+        if ($cartData)
+            $parcelshop = $cartData->getParcelData();
 
         if ($cartModel->getParcelRequired()) {
             foreach ($args as $key => $value)

@@ -124,7 +124,7 @@ class MethodSetting
             "PRID" => "Doprava v rámci České republiky na adresu",
             "SMAD" => "Doprava v rámci České republiky na výdejní místo",
             "SBOD" => "Doprava v rámci České republiky pouze do ParcelBoxu (váha omezena do 10 kg a rozměry max 50×40×38cm)",
-            "SMED" => "Doprava v rámci Polska, Německa, Slovenska na výdejní místo",
+            "SMED" => "Doprava v rámci EU ('SK', 'PL', 'DE', 'NL', 'RO', 'BG', 'HU', 'AT') na výdejní místo",
             "COND" => "Doprava v rámci EU na adresu",
             "COPD" => "Doprava mimo EU v rámci Evropy",
         ];

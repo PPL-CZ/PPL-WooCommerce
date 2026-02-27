@@ -6,6 +6,8 @@ namespace PPLCZ\Front\Components\ParcelShop;
 defined("WPINC") or die();
 
 use PPLCZ\Front\Assets\JsFrontTemplate;
+use PPLCZ\Model\Model\CartAdditionalDataModel;
+use PPLCZ\Model\Model\CartDataModel;
 use PPLCZ\Model\Model\ParcelDataModel;
 use PPLCZ\Model\Normalizer\ParcelDataModelNormalizer;
 use PPLCZ\Serializer;
@@ -24,29 +26,30 @@ class BlockData {
     }
 
     public static function cb_data_callback() {
-
-        $parcelshopData = pplcz_get_cart_parceldata();
-        if ($parcelshopData) {
-            $data = Serializer::getInstance()->normalize($parcelshopData);
-            if ($data)
-                return ["parcel-shop" => $data];
-        }
-        return ["parcel-shop" => null];
+        $cartdata = pplcz_get_cart_cartdata();
+        return $cartdata ? pplcz_normalize($cartdata) : [];
     }
 
     public static function cb_schema_callback() {
         $decoded = wp_json_file_decode(__DIR__ . '/../../../schema.json',  ["associative"=>true]);
-        $properties = $decoded["components"]["schemas"]["ParcelDataModel"]['properties'];
+        $properties = $decoded["components"]["schemas"]["CartDataModel"]['properties'];
         return $properties;
     }
 
     public static function update_callback($data) {
         if (isset($data)) {
-            if ($data['parcel-shop']) {
-                pplcz_set_cart_parceldata(Serializer::getInstance()->denormalize($data["parcel-shop"], ParcelDataModel::class));
-            } else {
-                pplcz_set_cart_parceldata(null);
-            }
+            $cartdata = pplcz_get_cart_cartdata();
+            if (!$cartdata)
+                $cartdata = new CartDataModel();
+            /**
+             * @var CartDataModel $cartData
+             */
+            $newcartData = pplcz_denormalize($data, CartDataModel::class);
+            if ($newcartData->isInitialized("parcelData"))
+                $cartdata->setParcelData($newcartData->getParcelData());
+            if ($newcartData->isInitialized('additionalData'))
+                $cartdata->setAdditionalData($newcartData->getAdditionalData());
+            pplcz_set_cart_cartdata($cartdata);
         }
     }
 

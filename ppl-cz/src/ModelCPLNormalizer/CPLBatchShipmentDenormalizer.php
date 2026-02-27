@@ -2,6 +2,7 @@
 namespace PPLCZ\ModelCPLNormalizer;
 
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsOrderBatchOrderModelSender;
+use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchExternalNumberModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchRecipientAddressModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentModel;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsShipmentBatchShipmentModelCashOnDelivery;
@@ -53,6 +54,16 @@ class CPLBatchShipmentDenormalizer implements DenormalizerInterface
                 if ($data->get_age()) {
                     $shipmentBatch->setAgeCheck('A' . $data->get_age());
                 }
+
+                $address = new AddressData($data->get_recipient_address_id());
+                if ($address->get_postident_id())
+                    $shipmentBatch->setExternalNumbers([
+                        new EpsApiMyApi2WebModelsShipmentBatchExternalNumberModel([
+                            "external_number" => $address->get_postident_id(),
+                            "code" =>"POSN"
+                        ])
+                    ]);
+
                 $shipmentBatch->setShipmentSet(Serializer::getInstance()->denormalize($data, EpsApiMyApi2WebModelsShipmentBatchShipmentModelShipmentSet::class));
 
                 return $shipmentBatch;

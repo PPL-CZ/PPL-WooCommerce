@@ -93,6 +93,12 @@ class ParcelDataModel extends \ArrayObject
     /**
      * 
      *
+     * @var bool|null
+     */
+    protected $posnRequired;
+    /**
+     * 
+     *
      * @return string|null
      */
     public function getName() : ?string
@@ -374,6 +380,28 @@ class ParcelDataModel extends \ArrayObject
     {
         $this->initialized['gps'] = true;
         $this->gps = $gps;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return bool|null
+     */
+    public function getPosnRequired() : ?bool
+    {
+        return $this->posnRequired;
+    }
+    /**
+     * 
+     *
+     * @param bool|null $posnRequired
+     *
+     * @return self
+     */
+    public function setPosnRequired(?bool $posnRequired) : self
+    {
+        $this->initialized['posnRequired'] = true;
+        $this->posnRequired = $posnRequired;
         return $this;
     }
 }

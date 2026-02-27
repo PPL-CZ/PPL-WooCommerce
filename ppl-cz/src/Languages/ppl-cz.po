@@ -73,3 +73,11 @@ msgstr "on the map"
 msgid "Vybrané výdejní místo se nepodařilo najít"
 msgstr "The selected pickup location could not be found"
 
+msgid "Při výběru výdejního místo (box) v Německu je nutno zadat Postident ID"
+msgstr "When selecting a pickup point (box) in Germany, it is necessary to enter the Postident ID"
+
+msgid "Délka Postident ID musí být mezi 8-25 znaky, jen alfanumericke (max. s pomlčkou)"
+msgstr "The Postident ID must be between 8–25 characters long, alphanumeric only (hyphen allowed)"
+
+msgid "Není vyplňeno Postident ID u příjemce"
+msgstr "The recipient’s Postident ID is not filled in"

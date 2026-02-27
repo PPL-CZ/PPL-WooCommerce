@@ -134,6 +134,13 @@ class ParcelAddressModelNormalizer implements DenormalizerInterface, NormalizerI
         elseif (\array_key_exists('lng', $data) && $data['lng'] === null) {
             $object->setLng(null);
         }
+        if (\array_key_exists('posnRequired', $data) && $data['posnRequired'] !== null) {
+            $object->setPosnRequired($data['posnRequired']);
+            unset($data['posnRequired']);
+        }
+        elseif (\array_key_exists('posnRequired', $data) && $data['posnRequired'] === null) {
+            $object->setPosnRequired(null);
+        }
         foreach ($data as $key => $value) {
             if (preg_match('/.*/', (string) $key)) {
                 $object[$key] = $value;
@@ -182,6 +189,9 @@ class ParcelAddressModelNormalizer implements DenormalizerInterface, NormalizerI
         }
         if ($object->isInitialized('lng') && null !== $object->getLng()) {
             $data['lng'] = $object->getLng();
+        }
+        if ($object->isInitialized('posnRequired') && null !== $object->getPosnRequired()) {
+            $data['posnRequired'] = $object->getPosnRequired();
         }
         foreach ($object as $key => $value) {
             if (preg_match('/.*/', (string) $key)) {

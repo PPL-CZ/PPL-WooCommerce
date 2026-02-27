@@ -3,6 +3,7 @@ namespace PPLCZ\ModelNormalizer;
 
 defined("WPINC") or die();
 
+use PPLCZ\Traits\ParcelDataModelTrait;
 use PPLCZCPL\Model\EpsApiMyApi2WebModelsCustomerAddressModel;
 use PPLCZ\Data\AddressData;
 use PPLCZ\Data\ParcelData;
@@ -14,6 +15,7 @@ use PPLCZVendor\Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 class AddressModelDenormalizer implements DenormalizerInterface
 {
+    use ParcelDataModelTrait;
 
     public function denormalize($data, string $type, ?string $format = null, array $context = [])
     {
@@ -65,6 +67,10 @@ class AddressModelDenormalizer implements DenormalizerInterface
             $address->setName($order->get_shipping_first_name() . ' ' . $order->get_shipping_last_name());
         }
 
+        $cartData = self::getOrderCartData($order);
+        if ($cartData && $cartData->getAdditionalData())
+            $address->setPostidentId($cartData->getAdditionalData()->getPosn());
+
 
         return $address;
     }
@@ -77,6 +83,7 @@ class AddressModelDenormalizer implements DenormalizerInterface
         $address->setZip($data->get_zip());
         $address->setStreet($data->get_street());
         $address->setCountry($data->get_country());
+        $address->setPostidentId($data->get_postident_id());
 
         if ($data->get_phone())
             $address->setPhone($data->get_phone());
@@ -121,7 +128,7 @@ class AddressModelDenormalizer implements DenormalizerInterface
             $address->set_type("recipient");
             $address->set_hidden(true);
         }
-
+        $address->set_postident_id($data->getPostidentId());
         $address->set_name($data->getName());
         if ($data->isInitialized("contact"))
             $address->set_contact($data->getContact());

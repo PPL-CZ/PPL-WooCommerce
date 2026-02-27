@@ -178,7 +178,11 @@ class OrderFilter {
         /**
          * @var \WC_Order $data
          */
-        $parcel = self::getParcelshopOrderData($order, true);
+        $parcel = null;
+
+        $cartdata = self::getOrderCartData($order);
+        if ($cartdata)
+            $parcel = $cartdata->getParcelData();
 
         if ($parcel) {
             $data['formatted_parcel_shop'] = "ParcelShop<br/>{$parcel->getName()}<br/>{$parcel->getStreet()}<br/>{$parcel->getZipCode()} {$parcel->getCity()}";

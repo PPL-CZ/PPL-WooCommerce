@@ -46,7 +46,11 @@ const getAllowedCountries = (cart) => getMetaValue(cart, "enabledParcelCountries
 
 
 const parcelShopSelected = (cart) => {
-	return cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
+	return cart.extensions?.["pplcz_parcelshop"]?.["parcelData"];
+}
+
+const parcelAddtionaldata = (cart) => {
+	return cart.extensions?.["pplcz_parcelshop"]?.["additionalData"];
 }
 
 const ParcelShop = (props) => {
@@ -100,11 +104,7 @@ const restyle = (idsValues, cart, parcelShopBoxSelected)=> {
 		}
 
 		classNameSet["background-image"] = `url('${image}')`;
-		/*
-		const matched = image.match(/_([0-9]+)x([0-9]+)\./)
-		const s = matched[1] / matched[2]  + 1;
-		classNameSet["width"] = s + "em";
-		*/
+
 
 		classNameSet["width"] = "2em";
 
@@ -127,6 +127,44 @@ const restyle = (idsValues, cart, parcelShopBoxSelected)=> {
 	}
 
 	style.innerHTML = text;
+}
+
+const PosnContent = ({ cart, parcelShopSelected}) => {
+
+	const savingData = (posn) => {
+		extensionCartUpdate({
+			namespace: 'pplcz_parcelshop',
+			data: {
+				"additionalData": {
+					'posn': posn
+				}
+			}
+		});
+	}
+	const additinalData = parcelAddtionaldata(cart);
+
+	const [value, setValue] = useState(additinalData?.posn || '');
+
+	useEffect(() => {
+		if ((value  || '') !== (additinalData?.posn || '')) {
+			const timeout = setTimeout(() => {
+				savingData(value)
+			}, 500);
+			return () => clearTimeout(timeout);
+		}
+	}, [value]);
+
+	if (parcelShopSelected && parcelShopSelected.country === 'DE' &&
+		(parcelShopSelected.accessPointType !== 'ParcelShop'))
+	{
+		return <div id="pplcz_posn_item" className="wc-block-components-text-input wc-block-components-address-form__first_name is-active">
+			<input type="text" id="pplcz_posn"  onChange={e=>{
+				setValue(e.target.value);
+			}} aria-label="POSN" aria-describedby="" required="true" aria-invalid="false" title="" value={value}/>
+				<label htmlFor="pplcz_posn">{__('Postident ID *')}</label>
+			</div>
+	}
+	return null;
 }
 
 // Vnitřní komponenta - zde už máme jistotu, že cart a payment existují
@@ -184,7 +222,7 @@ const BlockContent = ({ cart, payment, parcelShopBoxSelected }) => {
 		extensionCartUpdate({
 			namespace: 'pplcz_parcelshop',
 			data: {
-				"parcel-shop": parcelShop
+				"parcelData": parcelShop
 			}
 		});
 	}
@@ -223,6 +261,7 @@ const BlockContent = ({ cart, payment, parcelShopBoxSelected }) => {
 				}}>{__("Zrušit výběr", "ppl-cz")}</a></>
 			)}
 			<br/>
+			<PosnContent cart={cart} parcelShopSelected={parcelShopBoxSelected}/>
 			{messages.length > 0 && <ul>{messages}</ul>}
 		</div>
 	);

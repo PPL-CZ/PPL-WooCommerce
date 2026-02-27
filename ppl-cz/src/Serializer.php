@@ -4,6 +4,8 @@ namespace PPLCZ;
 defined("WPINC") or die();
 
 use PPLCZ\Model\Model\ErrorLogModel;
+use PPLCZ\Model\Model\ParcelAddressModel;
+use PPLCZ\Model\Model\ParcelDataModel;
 use PPLCZ\ModelCPLNormalizer\CPLBatchAddressDenormalizer;
 use PPLCZ\ModelCPLNormalizer\CPLBatchCreateShipmentsDenormalizer;
 use PPLCZ\ModelCPLNormalizer\CPLBatchPackageDenormalizer;
@@ -12,6 +14,7 @@ use PPLCZ\Model\Normalizer\JaneObjectNormalizer;
 use PPLCZ\ModelNormalizer\AddressModelDenormalizer;
 use PPLCZ\ModelNormalizer\BankModelDenormalizer;
 use PPLCZ\ModelNormalizer\BatchModelDenormalizer;
+use PPLCZ\ModelNormalizer\CartDataModelNormalizer;
 use PPLCZ\ModelNormalizer\CategoryModelDenormalizer;
 use PPLCZ\ModelNormalizer\ErrorLogDenormalizer;
 use PPLCZ\ModelNormalizer\OrderAddressDataDenormalizer;
@@ -29,6 +32,7 @@ class Serializer extends \PPLCZVendor\Symfony\Component\Serializer\Serializer {
     public function __construct(array $normalizers = [], array $encoders = [])
     {
         parent::__construct([
+            new CartDataModelNormalizer(),
             new ShipmentDataDenormalizer(),
             new CollectionDataDenormalizer(),
             new OrderAddressDataDenormalizer(),
@@ -60,5 +64,25 @@ class Serializer extends \PPLCZVendor\Symfony\Component\Serializer\Serializer {
 
     public static function getInstance() {
         return self::$instance ?: (self::$instance = new self());
+    }
+
+    public function denormalize($data, string $type, ?string $format = null, array $context = [])
+    {
+        $output = parent::denormalize($data, $type, $format, $context);
+        if ($output instanceof ParcelDataModel ) {
+            if ($output->getAccessPointType() !== 'ParcelShop'
+                && $output->getCountry() === 'DE')
+            {
+                $output->setPosnRequired(true);
+            }
+        } else if ($output instanceof ParcelAddressModel)
+        {
+            if ($output->getType() !== 'ParcelShop'
+                && $output->getCountry() === 'DE')
+            {
+                $output->setPosnRequired(true);
+            }
+        }
+        return $output;
     }
 }

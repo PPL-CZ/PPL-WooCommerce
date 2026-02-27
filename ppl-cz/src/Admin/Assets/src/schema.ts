@@ -50,6 +50,7 @@ export interface components {
         latitude?: number | null;
         longitude?: number | null;
       }) | null;
+      posnRequired?: boolean | null;
     };
     GlobalSettingModel: {
       useOrderNumberInPackages?: boolean;
@@ -168,6 +169,7 @@ export interface components {
       type?: string | null;
       lat?: number | null;
       lng?: number | null;
+      posnRequired?: boolean | null;
     };
     LabelPrintModel: {
       title: string;
@@ -204,6 +206,14 @@ export interface components {
       country: string | null;
       mail?: string | null;
       phone?: string | null;
+      postidentId?: string | null;
+    };
+    CartDataModel: {
+      parcelData?: components["schemas"]["ParcelDataModel"];
+      additionalData?: components["schemas"]["AdditionalDataModel"];
+    };
+    AdditionalDataModel: {
+      posn?: string | null;
     };
     CartModel: {
       isPriceWithDph?: boolean | null;

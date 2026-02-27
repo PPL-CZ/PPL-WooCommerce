@@ -46,7 +46,10 @@ class CartValidator extends ModelValidator {
          */
         $data = pplcz_denormalize($shippingMethod->get_meta_data(), CartModel::class);
 
-        $parcel = pplcz_get_cart_parceldata();
+        $cartData = pplcz_get_cart_cartdata();
+        $parcel = null;
+        if ($cartData && $cartData->getParcelData())
+            $parcel = $cartData->getParcelData();
 
         if ($parcel) {
             if (!isset(self::$accessPoints[$parcel->getCode()])) {
@@ -108,6 +111,19 @@ class CartValidator extends ModelValidator {
             $errors->add("parcelshop-age-required", __("Z důvodu kontroly věku je nutné vybrat obchod, ne výdejní box", "ppl-cz"));
         }
 
+        if ($parcel && $parcel->getPosnRequired())
+        {
+            $additionalData = $cartData->getAdditionalData();
+            if (!$additionalData || !$additionalData->getPosn())
+                $errors->add("parcelshop-posn-required", __("Při výběru výdejního místo (box) v Německu je nutno zadat Postident ID", "ppl-cz"));
+            else {
+                $posn = $additionalData->getPosn();
+                if(!(bool) preg_match('/^[A-Za-z0-9-]{8,25}$/',trim($posn)))
+                {
+                    $errors->add("parcelshop-posn-required", __("Délka Postident ID musí být mezi 8-25 znaky, jen alfanumericke (max. s pomlčkou)", "ppl-cz"));
+                }
+            }
+        }
 
         if (!$model->getPhone()) {
             $errors->add("parcelshop-phone-required", __("Pro zasílání informací o stavu zásilky je nutno vyplnit telefonní číslo", "ppl-cz"));

@@ -15,10 +15,12 @@ import SaveInfo from "./SaveInfo";
 import { useUpdateRecipientMutation } from "../../../queries/useShipmentQueries";
 
 type RecipientAddressModel = components["schemas"]["RecipientAddressModel"];
+type ShipmentModel = components["schemas"]["ShipmentModel"];
 
 const RecipienAddressForm = (props: {
   address?: RecipientAddressModel;
   shipmentId: number;
+  shipment: ShipmentModel;
   onChange: (id: number) => void;
   onFinish?: () => void;
 }) => {
@@ -105,6 +107,13 @@ const RecipienAddressForm = (props: {
                 <FormLabel>Telefon</FormLabel>
                 <TextFieldController name="phone" control={control} />
               </Box>
+              {props.shipment.parcel && props.shipment.parcel.type !== 'ParcelShop' && props.shipment.parcel.country === 'DE' ?
+                  <Grid item>
+                    <Box p={1}>
+                      <FormLabel>Postident ID (pro Německé parcelboxy)</FormLabel>
+                      <TextFieldController name="postidentId" control={control} />
+                    </Box>
+                  </Grid>: null}
             </Grid>
           </Grid>
         </Box>
