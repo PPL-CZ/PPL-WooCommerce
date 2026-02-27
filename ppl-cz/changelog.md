@@ -82,3 +82,5 @@
 # 1.0.42
 - oprava "properties" u komponenty
 - znemožnění výběru ParcelBoxu v případě Německa
+# 1.0.43
+- v případě, že je vybrán parcelbox v Německu, je navíc vyžadované postident Id pro doručení.

@@ -63,6 +63,12 @@ class RecipientAddressModel extends \ArrayObject
     /**
      * 
      *
+     * @var string|null
+     */
+    protected $postidentId;
+    /**
+     * 
+     *
      * @return string|null
      */
     public function getContact() : ?string
@@ -234,6 +240,28 @@ class RecipientAddressModel extends \ArrayObject
     {
         $this->initialized['phone'] = true;
         $this->phone = $phone;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return string|null
+     */
+    public function getPostidentId() : ?string
+    {
+        return $this->postidentId;
+    }
+    /**
+     * 
+     *
+     * @param string|null $postidentId
+     *
+     * @return self
+     */
+    public function setPostidentId(?string $postidentId) : self
+    {
+        $this->initialized['postidentId'] = true;
+        $this->postidentId = $postidentId;
         return $this;
     }
 }

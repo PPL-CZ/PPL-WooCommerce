@@ -97,6 +97,13 @@ class RecipientAddressModelNormalizer implements DenormalizerInterface, Normaliz
         elseif (\array_key_exists('phone', $data) && $data['phone'] === null) {
             $object->setPhone(null);
         }
+        if (\array_key_exists('postidentId', $data) && $data['postidentId'] !== null) {
+            $object->setPostidentId($data['postidentId']);
+            unset($data['postidentId']);
+        }
+        elseif (\array_key_exists('postidentId', $data) && $data['postidentId'] === null) {
+            $object->setPostidentId(null);
+        }
         foreach ($data as $key => $value) {
             if (preg_match('/.*/', (string) $key)) {
                 $object[$key] = $value;
@@ -123,6 +130,9 @@ class RecipientAddressModelNormalizer implements DenormalizerInterface, Normaliz
         }
         if ($object->isInitialized('phone') && null !== $object->getPhone()) {
             $data['phone'] = $object->getPhone();
+        }
+        if ($object->isInitialized('postidentId') && null !== $object->getPostidentId()) {
+            $data['postidentId'] = $object->getPostidentId();
         }
         foreach ($object as $key => $value) {
             if (preg_match('/.*/', (string) $key)) {

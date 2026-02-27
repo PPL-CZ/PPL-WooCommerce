@@ -159,14 +159,6 @@ class CartModelDernomalizer implements DenormalizerInterface
             $shipmentCartModel->setParcelBoxEnabled($enabledByCountry && !$disabledParcelBox && !$setting->getDisabledParcelBox());
             $shipmentCartModel->setAlzaBoxEnabled($enabledByCountry && !$disabledAlzaBox && !$setting->getDisabledAlzaBox());
             $shipmentCartModel->setDisabledByCountry(!$enabledByCountry);
-
-            // u nemecka mit POSN u parcelboxu
-            if ($country === 'DE')
-            {
-                $shipmentCartModel->setParcelBoxEnabled(false);
-                $shipmentCartModel->setAlzaBoxEnabled(false);
-            }
-
         } else {
             $shipmentCartModel->setDisabledByCountry(false);
             $shipmentCartModel->setParcelBoxEnabled(false);

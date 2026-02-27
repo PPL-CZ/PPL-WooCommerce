@@ -18,6 +18,7 @@ class AddressData extends PPLData
         "city" => null,
         "zip" => null,
         "country" => null,
+        "postident_id" => null,
         "note"=> null,
         "type"=>null,
         "hidden"=> true,
@@ -31,6 +32,16 @@ class AddressData extends PPLData
         $this->set_props([
             'id' => $sqldata["ppl_address_id"],
         ] + $sqldata);
+    }
+
+    public function get_postident_id($context = 'view')
+    {
+        return $this->get_prop("postident_id", $context);
+    }
+
+    public function set_postident_id($value)
+    {
+        $this->set_prop("postident_id", $value);
     }
 
     public function set_address_name($value)

@@ -18,7 +18,12 @@ class  OrderAddressDataDenormalizer implements DenormalizerInterface
         $order = new \WC_Order($data->get_wc_order_id());
         $address = new Address();
 
-        $parcelshop = self::getParcelshopOrderData($order);
+        $cartdata = self::getOrderCartData($order);
+
+        $parcelshop = null;
+        if ($cartdata && $cartdata->getParcelData())
+            $parcelshop = $cartdata->getParcelData();
+
         if ($parcelshop) {
             $address->setAddress($parcelshop->getStreet());
             $address->setCity($parcelshop->getCity());

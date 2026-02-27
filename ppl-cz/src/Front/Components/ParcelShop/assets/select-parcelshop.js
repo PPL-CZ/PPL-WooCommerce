@@ -36,6 +36,27 @@ jQuery(document).on("click", "button[data-pplcz-select-parcel-shop],a[data-pplcz
    }
 });
 
+function pplcz_posn_required () {
+    let req = false;
+
+    try {
+        const data = jQuery('[name=pplcz_parcelshop]').val();
+        if (data) {
+            const parcel = JSON.parse(decodeURIComponent(data));
+            req = parcel && parcel.posnRequired;
+        }
+    }
+    catch (e)
+    {
+
+    }
+    if (req) {
+        jQuery("#shipping_pplcz_posn_field").show();
+    }
+    else {
+        jQuery("#shipping_pplcz_posn_field").hide();
+    }
+}
 
 jQuery('body').on('updated_checkout', function() {
 
@@ -52,8 +73,9 @@ jQuery('body').on('updated_checkout', function() {
     const showmap = jQuery('.pplcz-parcelshop-inner').data('pplcz-showmap');
     if (showmap == 1) {
         jQuery("a[data-pplcz-select-parcel-shop]").trigger("click")
-
     }
+    pplcz_posn_required();
+
 });
 
 
@@ -71,6 +93,6 @@ jQuery('body').on('updated_checkout', function() {
         {
             $('body').trigger('update_checkout');
         }
-
     });
+    pplcz_posn_required();
 })(jQuery);

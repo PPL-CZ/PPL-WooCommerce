@@ -17,12 +17,17 @@ class ParcelShop {
     public static function itemmeta($item_id, $item, $any) {
         if ($item instanceof \WC_Order_Item_Shipping)
         {
-            $meta = self::getParcelDataModel($item);
+            $cartdata = self::getOrderItemShippingCartDataModel($item);
+            $meta = null;
+            if ($cartdata)
+                $meta = $cartdata->getParcelData();
+
+
             $pplcz_meta_id_safe = (int)$item_id;
             wc_get_template("ppl/admin/parcelshop-shipping-address.php", [
-                "shippingAddress" => self::getParcelDataModel($item),
+                "shippingAddress" => $meta,
                 "meta_id" => $item_id,
-                "hidden_data" => wp_json_encode($meta ? Serializer::getInstance()->normalize($meta) : null),
+                "hidden_data" => wp_json_encode($meta ? pplcz_normalize($meta) : null),
                 "order_id" => $item->get_order_id(),
                 "nonce"=>wp_create_nonce("parcelshop_edit_metadata"),
                 "show" => str_contains($item->get_method_id(), pplcz_create_name(""))
@@ -106,17 +111,19 @@ class ParcelShop {
                     try {
                         $contentData = json_decode($data, true);
                         if ($contentData) {
-                            $data = Serializer::getInstance()->denormalize($contentData, ParcelDataModel::class);
-                            self::setParcelDataModel($item, $data);
+                            $cartData = self::getOrderItemShippingCartDataModel($item);
+                            $cartData->setParcelData(pplcz_denormalize($contentData, ParcelDataModel::class));
+                            self::setOrderCartData($item, $cartData);
                         }
                     } catch (\Exception $e) {
 
                     }
                 }
             } else {
-                self::setParcelDataModel($item, null);
+                $cartData = self::getOrderItemShippingCartDataModel($item);
+                $cartData->setParcelData(null);
+                self::setOrderShippingCartDataModel($item, $cartData);
             }
-
         }
         return;
     }

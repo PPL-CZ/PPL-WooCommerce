@@ -237,35 +237,39 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
 
         $shipmentModel->setRecipient(Serializer::getInstance()->denormalize($data, RecipientAddressModel::class));
 
-        if ($parcel) {
-            $parcel = self::getParcelshopOrderData($data);
-            if ($parcel) {
-                /**
-                 * @var ParcelDataModel $parcel
-                 */
-                $code = $parcel->getCode();
-                $country = $parcel->getCountry();
-                $founded = ParcelData::getAccessPointByCode($code, $country);
-                if (!$founded) {
-                    $founded = new ParcelData();
-                    $founded->set_country($parcel->getCountry());
-                    $founded->set_code($parcel->getCode());
-                    $founded->set_zip($parcel->getZipCode());
-                    $founded->set_city($parcel->getCity());
-                    $founded->set_type($parcel->getAccessPointType());
-                    $founded->set_street($parcel->getStreet());
-                    $founded->set_name($parcel->getName());
-                    $founded->set_lat($parcel->getGps()->getLatitude());
-                    $founded->set_lng($parcel->getGps()->getLongitude());
-                    $founded->set_valid(false);
-                    $founded->save();
-                }
+        $cartdata = self::getOrderCartData($data);
+        $parcel = null;
+        if ($cartdata && $cartdata->getParcelData())
+            $parcel = $cartdata->getParcelData();
 
-                $founded = Serializer::getInstance()->denormalize($founded, ParcelAddressModel::class);
-                $shipmentModel->setParcel($founded);
-                $shipmentModel->setHasParcel(true);
+
+        if ($parcel) {
+            /**
+             * @var ParcelDataModel $parcel
+             */
+            $code = $parcel->getCode();
+            $country = $parcel->getCountry();
+            $founded = ParcelData::getAccessPointByCode($code, $country);
+            if (!$founded) {
+                $founded = new ParcelData();
+                $founded->set_country($parcel->getCountry());
+                $founded->set_code($parcel->getCode());
+                $founded->set_zip($parcel->getZipCode());
+                $founded->set_city($parcel->getCity());
+                $founded->set_type($parcel->getAccessPointType());
+                $founded->set_street($parcel->getStreet());
+                $founded->set_name($parcel->getName());
+                $founded->set_lat($parcel->getGps()->getLatitude());
+                $founded->set_lng($parcel->getGps()->getLongitude());
+                $founded->set_valid(false);
+                $founded->save();
             }
+
+            $founded = Serializer::getInstance()->denormalize($founded, ParcelAddressModel::class);
+            $shipmentModel->setParcel($founded);
+            $shipmentModel->setHasParcel(true);
         }
+
 
         $shipmentModel->setAge("");
 
@@ -593,7 +597,7 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
         $id = $shipment->get_recipient_address_id();
         $founded = new AddressData($id);
         $founded->set_type("recipient");
-        $address = Serializer::getInstance()->denormalize($recipientAddressModel, AddressData::class,null, ["data" =>$founded]);
+        $address = Serializer::getInstance()->denormalize($recipientAddressModel, AddressData::class, null, ["data" => $founded]);
         $address->save();
         $shipment->set_recipient_address_id($address->get_id());
         return $shipment;
@@ -603,23 +607,15 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
     {
         if ($data instanceof ShipmentData && $type == ShipmentModel::class) {
             return $this->ShipmentDataToModel($data, $context);
-        }
-        else if ($data instanceof \WC_Order && $type == ShipmentModel::class) {
+        } else if ($data instanceof \WC_Order && $type == ShipmentModel::class) {
             return $this->OrderToModel($data, $context);
-        }
-        else if ($data instanceof ShipmentModel && $type == ShipmentData::class) {
+        } else if ($data instanceof ShipmentModel && $type == ShipmentData::class) {
             return $this->ShipmentModelToShipmentData($data, $context);
-        }
-        else if ($data instanceof UpdateShipmentModel && $type === ShipmentData::class)
-        {
+        } else if ($data instanceof UpdateShipmentModel && $type === ShipmentData::class) {
             return $this->UpdateShipmentToData($data, $context);
-        }
-        else if($data instanceof UpdateShipmentSenderModel && $type === ShipmentData::class)
-        {
+        } else if ($data instanceof UpdateShipmentSenderModel && $type === ShipmentData::class) {
             return $this->UpdateShipmentSenderToData($data, $context);
-        }
-        else if ($data instanceof RecipientAddressModel && $type === ShipmentData::class)
-        {
+        } else if ($data instanceof RecipientAddressModel && $type === ShipmentData::class) {
             return $this->UpdateRecipientToData($data, $context);
         }
     }
@@ -627,7 +623,7 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
     public function supportsDenormalization($data, string $type, ?string $format = null)
     {
         $stopka = 1;
-        if($data instanceof ShipmentData && $type === ShipmentModel::class)
+        if ($data instanceof ShipmentData && $type === ShipmentModel::class)
             return true;
         if ($data instanceof \WC_Order && $type === ShipmentModel::class)
             return true;

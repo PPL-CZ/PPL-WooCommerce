@@ -49,6 +49,7 @@ function pplcz_installdb()
   `city` varchar(50) DEFAULT NULL,
   `zip` varchar(10) DEFAULT NULL,
   `country` varchar(2) DEFAULT NULL,
+  `postident_id` varchar(50) DEFAULT NULL,
   `type` varchar(10) NOT NULL,
   `note` varchar(300) DEFAULT NULL,
   `draft` datetime DEFAULT NULL,

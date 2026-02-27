@@ -32,8 +32,7 @@
             },
             "nullable": true
           },
-          "pplSizes" :
-          {
+          "pplSizes": {
             "type": "array",
             "nullable": true,
             "items": {
@@ -72,8 +71,7 @@
             },
             "nullable": true
           },
-          "pplSize" :
-          {
+          "pplSize": {
             "$ref": "#/components/schemas/PackageSizeModel"
           }
         }
@@ -162,13 +160,17 @@
               }
             },
             "nullable": true
+          },
+          "posnRequired": {
+            "type": "boolean",
+            "nullable": true
           }
         }
       },
       "GlobalSettingModel": {
         "type": "object",
         "properties": {
-          "useOrderNumberInPackages" : {
+          "useOrderNumberInPackages": {
             "type": "boolean",
             "nullable": false
           },
@@ -641,6 +643,10 @@
           "lng": {
             "type": "number",
             "nullable": true
+          },
+          "posnRequired": {
+            "type": "boolean",
+            "nullable": true
           }
         }
       },
@@ -794,6 +800,32 @@
             "nullable": true
           },
           "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "postidentId" : {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CartDataModel": {
+        "type": "object",
+        "properties": {
+          "parcelData": {
+            "$ref": "#/components/schemas/ParcelDataModel",
+            "nullable": true
+          },
+          "additionalData": {
+            "$ref": "#/components/schemas/AdditionalDataModel",
+            "nullable": true
+          }
+        }
+      },
+      "AdditionalDataModel": {
+        "type": "object",
+        "properties": {
+          "posn": {
             "type": "string",
             "nullable": true
           }
@@ -1321,7 +1353,7 @@
           }
         }
       },
-      "PrintSettingModel" : {
+      "PrintSettingModel": {
         "type": "object",
         "required": [
           "print",

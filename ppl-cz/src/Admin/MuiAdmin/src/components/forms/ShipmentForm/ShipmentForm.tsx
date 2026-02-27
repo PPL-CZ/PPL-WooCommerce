@@ -74,6 +74,7 @@ const ShipmentForm = (props: { shipment: ShipmentModel; onFinish?: () => void; o
               }}
             >
               <RecipienAddressForm
+                  shipment={shipment}
                 address={shipment.recipient}
                 shipmentId={shipment.id}
                 onChange={onChange}

@@ -14,7 +14,7 @@ const getMetaValue = (shipment, key) => {
 	return getShippingRate(shipment)?.meta_data?.find(x => x.key === key)?.value;
 }
 
-const getParcelShop = (cart) => cart.extensions?.["pplcz_parcelshop"]?.["parcel-shop"];
+const getParcelShop = (cart) => cart.extensions?.["pplcz_parcelshop"]?.["parcelData"];
 
 const isMapAllowed = (shipment) => !!parseInt(getMetaValue(shipment, "mapEnabled"));
 

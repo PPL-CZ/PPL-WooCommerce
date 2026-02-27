@@ -142,6 +142,13 @@ class ParcelDataModelNormalizer implements DenormalizerInterface, NormalizerInte
         elseif (\array_key_exists('gps', $data) && $data['gps'] === null) {
             $object->setGps(null);
         }
+        if (\array_key_exists('posnRequired', $data) && $data['posnRequired'] !== null) {
+            $object->setPosnRequired($data['posnRequired']);
+            unset($data['posnRequired']);
+        }
+        elseif (\array_key_exists('posnRequired', $data) && $data['posnRequired'] === null) {
+            $object->setPosnRequired(null);
+        }
         foreach ($data as $key => $value_1) {
             if (preg_match('/.*/', (string) $key)) {
                 $object[$key] = $value_1;
@@ -197,6 +204,9 @@ class ParcelDataModelNormalizer implements DenormalizerInterface, NormalizerInte
         }
         if ($object->isInitialized('gps') && null !== $object->getGps()) {
             $data['gps'] = $this->normalizer->normalize($object->getGps(), 'json', $context);
+        }
+        if ($object->isInitialized('posnRequired') && null !== $object->getPosnRequired()) {
+            $data['posnRequired'] = $object->getPosnRequired();
         }
         foreach ($object as $key => $value_1) {
             if (preg_match('/.*/', (string) $key)) {

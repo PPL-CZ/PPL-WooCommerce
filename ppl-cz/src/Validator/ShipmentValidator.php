@@ -75,6 +75,12 @@ class ShipmentValidator extends ModelValidator
                 }
             }
 
+            if ($model->getHasParcel() && $model->getParcel() && $model->getParcel()->getCountry() === 'DE' && $model->getParcel()->getType() !== "ParcelShop"
+                && (!$model->getRecipient() || !$model->getRecipient()->getPostidentId()))
+            {
+                $errors->add("recipient.postidentId", "Není vyplňeno postident u příjemce");
+            }
+
             $code = $this->getValue($model, 'serviceCode');
 
             if ($code) {
