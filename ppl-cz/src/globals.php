@@ -26,7 +26,7 @@ function pplcz_asset_icon($name)
 
 function pplcz_set_shipment_print($shipmentId, $print)
 {
-    set_transient(pplcz_create_name("print_shipment_{$shipmentId}"), $print, time() + 60 * 60 * 48);
+    set_transient(pplcz_create_name("print_shipment_{$shipmentId}"), $print, 60 * 60 * 48);
 }
 
 function pplcz_get_shipment_print($shipmentId)
@@ -36,7 +36,7 @@ function pplcz_get_shipment_print($shipmentId)
 
 function pplcz_set_batch_print($batchId, $print)
 {
-    set_transient(pplcz_create_name("print_batch_{$batchId}"), $print, time() + 60 * 60 * 48);
+    set_transient(pplcz_create_name("print_batch_{$batchId}"), $print, 60 * 60 * 48);
 }
 
 function pplcz_get_batch_print($batchId)

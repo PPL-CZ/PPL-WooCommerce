@@ -16,7 +16,6 @@ class CPLBatchCreateShipmentsDenormalizer implements DenormalizerInterface
     public function denormalize($data, string $type, ?string $format = null, array $context = [])
     {
         $createShipment = new EpsApiMyApi2WebModelsShipmentBatchCreateShipmentBatchModel();
-        $throwException = false;
         $createShipment->setShipments(array_map(function ($item) {
             if (!($item instanceof ShipmentData))
                 $item = new ShipmentData($item);
@@ -34,8 +33,6 @@ class CPLBatchCreateShipmentsDenormalizer implements DenormalizerInterface
                 $item->save();
             }
         }, $data));
-        if ($throwException)
-            throw new \Exception("Problém se zásilkama");
 
         $batch = new EpsApiMyApi2WebModelsShipmentBatchLabelSettingsModelCompleteLabelSettings();
         $batch->setIsCompleteLabelRequested(true);

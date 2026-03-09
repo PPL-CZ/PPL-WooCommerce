@@ -293,6 +293,7 @@ class ShipmentV1RestController extends PPLRestController
         }
         $resp = new \WP_REST_Response();
         $resp->set_status(204);
+        return $resp;
     }
 
     public function cancel(\WP_REST_Request $request)
@@ -306,6 +307,7 @@ class ShipmentV1RestController extends PPLRestController
         }
         $resp = new \WP_REST_Response();
         $resp->set_status(204);
+        return $resp;
     }
 
 }

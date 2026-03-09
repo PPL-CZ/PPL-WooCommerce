@@ -269,7 +269,7 @@ class ShipmentBatchV1Controller extends  PPLRestController
                 if ($shipmentData->get_batch_local_id() == $batchData->get_id())
                     continue;
 
-                if ($shipmentData->get_import_state() || $shipmentData->get_import_state() === "None") {
+                if (!$shipmentData->get_import_state() || $shipmentData->get_import_state() === "None") {
                     $shipmentData->set_batch_local_id($batchData->get_id());
                     $shipmentData->save();
                     $shipments[] = $shipmentData;

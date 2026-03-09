@@ -274,7 +274,10 @@ class CPLOperation
             $shipmentBatchApi = new ShipmentBatchApi($client, $configuration);
 
             $output = $shipmentBatchApi->createShipmentsWithHttpInfo($send, "cs-CZ");
-            $location = reset($output[2]["Location"]);
+
+            $output[2] = array_change_key_case($output[2], CASE_LOWER);
+            $location = reset($output[2]["location"]);
+
             $location = explode("/", $location);
             $batch_id = end($location);
             $batchdata->ignore_lock();
@@ -730,7 +733,9 @@ class CPLOperation
 
         $output = $order->createOrdersWithHttpInfo($modelBatch);
 
-        $location = reset($output[2]["Location"]);
+        $output[2] = array_change_key_case($output[2], CASE_LOWER);
+
+        $location = reset($output[2]["location"]);
         $location = explode("/", $location);
         $batch_id = end($location);
 

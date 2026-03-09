@@ -84,3 +84,7 @@
 - znemožnění výběru ParcelBoxu v případě Německa
 # 1.0.43
 - v případě, že je vybrán parcelbox v Německu, je navíc vyžadované postident Id pro doručení.
+- # 1.0.44
+- oprava minor bugů, úprava ppl api url
+- # 1.0.45
+- oprava parsrování location

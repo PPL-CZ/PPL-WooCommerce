@@ -259,8 +259,8 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
                 $founded->set_type($parcel->getAccessPointType());
                 $founded->set_street($parcel->getStreet());
                 $founded->set_name($parcel->getName());
-                $founded->set_lat($parcel->getGps()->getLatitude());
-                $founded->set_lng($parcel->getGps()->getLongitude());
+                $founded->set_lat($parcel->getGps()->getLatitude() ?: 0);
+                $founded->set_lng($parcel->getGps()->getLongitude() ?: 0);
                 $founded->set_valid(false);
                 $founded->save();
             }
@@ -355,6 +355,10 @@ class ShipmentDataDenormalizer implements DenormalizerInterface
             $shipmentData->set_import_state("None");
             if ($model->isInitialized("orderId"))
                 $shipmentData->set_wc_order_id($model->getOrderId());
+        }
+
+        if($model->getAge()){
+            $shipmentData->set_age($model->getAge());
         }
 
         $shipmentData->set_reference_id($model->getReferenceId());
