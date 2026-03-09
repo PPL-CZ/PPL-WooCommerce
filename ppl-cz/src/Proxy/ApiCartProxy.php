@@ -41,7 +41,7 @@ class ApiCartProxy
 
     public function getCountry()
     {
-        if ($this->shipping_address && isset($this->shipping_address['country']) && $this->shipping_address['postcode'])
+        if ($this->shipping_address && isset($this->shipping_address['country']) && $this->shipping_address['country'])
             return $this->shipping_address['country'];
         return $this->cart->get_customer()->get_shipping_country();
     }

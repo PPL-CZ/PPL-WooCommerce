@@ -53,11 +53,10 @@ class MethodSetting
         $disabledParcelShop = !!get_option(pplcz_create_name("disabled_parcelshop"));
         $disabledAlzaBox = !!get_option(pplcz_create_name("disabled_alzabox"));
         $disabledByStripe = !!get_option(pplcz_create_name("disabled_by_stripe"));
+        $languageMap = get_option(pplcz_create_name("map_language"));
         $disabledCountriesFromBaseSetting = get_option(pplcz_create_name("disabled_parcel_countries"));
         if (!is_array($disabledCountriesFromBaseSetting))
             $disabledCountriesFromBaseSetting = [];
-
-        $languageMap = pplcz_create_name("map_language");
 
         $parcelPlaces->setDisabledByStripe($disabledByStripe);
         $parcelPlaces->setDisabledCountries($disabledCountriesFromBaseSetting);
@@ -77,6 +76,7 @@ class MethodSetting
         $disabledByStripe = pplcz_create_name("disabled_by_stripe");
         $disabledCountries = pplcz_create_name("disabled_parcel_countries");
         $languageMap = pplcz_create_name("map_language");
+
         add_option($disabledByStripe, $setting->getDisabledByStripe()) || update_option($disabledByStripe, $setting->getDisabledByStripe());
         add_option($parcelbox, $setting->getDisabledParcelBox()) || update_option($parcelbox, $setting->getDisabledParcelBox());
         add_option($parcelshop, $setting->getDisabledParcelShop()) || update_option($parcelshop, $setting->getDisabledParcelShop());

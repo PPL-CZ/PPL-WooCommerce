@@ -55,7 +55,7 @@ class CPLBatchAddressDenormalizer implements DenormalizerInterface
                 }
                 else
                 {
-                    $name = array_merge(array_pop($add), $name);
+                    $name = array_merge([array_pop($add)], $name);
                     break;
                 }
             }

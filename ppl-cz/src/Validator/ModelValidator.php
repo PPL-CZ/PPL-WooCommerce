@@ -129,7 +129,7 @@ LU ^\d{4}$
 HR ^\d{5}$
 CY ^\d{4}$
 IE ^.+$
-USA ^.+$
+US ^.+$
 CN ^.+$";
 
         $zips = array_filter(array_map("trim", preg_split("~\r?\n~", $content)));
