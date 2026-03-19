@@ -88,3 +88,5 @@
 - oprava minor bugů, úprava ppl api url
 - # 1.0.45
 - oprava parsrování location
+- # 1.0.46
+- oprava column cod_value

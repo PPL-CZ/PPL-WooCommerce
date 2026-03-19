@@ -230,7 +230,7 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
   `recipient_address_id` int(11) DEFAULT NULL,
   `sender_address_id` int(11) DEFAULT NULL,
   `return_address_id` int(11) DEFAULT NULL,
-  `cod_value` decimal(10,0) DEFAULT NULL,
+  `cod_value` decimal(12,2) DEFAULT NULL,
   `cod_value_currency` varchar(4) DEFAULT NULL,
   `cod_variable_number` varchar(10) DEFAULT NULL,
   `cod_bank_account_id` int(11) DEFAULT NULL,
@@ -250,7 +250,10 @@ CHANGE `country` `country` varchar(2) COLLATE 'utf8mb4_general_ci' NULL AFTER `z
 
     $suppress = $wpdb->suppress_errors();
     @$wpdb->query("ALTER TABLE `{$wpdb->prefix}pplcz_shipment` DROP INDEX `reference_id`");
+    @$wpdb->query("ALTER TABLE `{$wpdb->prefix}pplcz_shipment` MODIFY COLUMN cod_value DECIMAL(12,2) DEFAULT NULL");
     $wpdb->suppress_errors($suppress);
+
+
 
 
     $table = "{$wpdb->prefix}pplcz_batch";
