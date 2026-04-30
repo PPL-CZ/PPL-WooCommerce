@@ -96,8 +96,10 @@ const BatchGrid = (props: { isLoading: boolean; data: BatchModel[] | undefined }
       rows={availableBatchs ?? []}
       loading={isLoading}
       columns={columns}
-      autoPageSize={true}
-      autoHeight={true}
+      pageSizeOptions={[10, 20, 30, 40, 50, 100]}
+      initialState={{
+        pagination: { paginationModel: { pageSize: 30 } },
+      }}
       checkboxSelection
       getRowId={value => {
         return value.id!;

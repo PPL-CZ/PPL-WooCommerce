@@ -166,7 +166,10 @@ const CollectionGrid = (props: { isLoading: boolean; data: CollectionModel[] | u
             rows={availableCollections ?? []}
             loading={isLoading}
             columns={columns}
-            autoPageSize={true}
+            pageSizeOptions={[10, 20, 30, 40, 50, 100]}
+            initialState={{
+                pagination: { paginationModel: { pageSize: 30 } },
+            }}
             checkboxSelection
             getRowId={value => {
                 return value.id;
