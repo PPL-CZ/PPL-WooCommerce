@@ -11,6 +11,7 @@ import Card from "@mui/material/Card";
 import SavingProgress from "../components/SavingProgress";
 
 import BatchGrid from "../components/datagrids/BatchGrid";
+import CollectionGrid from "../components/datagrids/CollectionGrid";
 
 const BatchPage = () => {
   const navigate = useNavigate();
@@ -42,7 +43,9 @@ const BatchPage = () => {
         <Box pl={2} pr={2} justifyContent="center" display={"flex"}>
           <Grid maxWidth={"xl"} pt={4} pb={4} alignContent={"center"} height={"100%"} spacing={0} container>
             <Grid item xs={12}>
-              <BatchGrid isLoading={isLoading} data={data} />
+                <Card  style={{ height: 685 }} >
+                    <BatchGrid isLoading={isLoading} data={data} />
+                </Card>
             </Grid>
           </Grid>
         </Box>

@@ -90,3 +90,5 @@
 - oprava parsrování location
 - # 1.0.46
 - oprava column cod_value
+- # 1.0.47
+- oprava chování gridu v ramci svozu a batche
