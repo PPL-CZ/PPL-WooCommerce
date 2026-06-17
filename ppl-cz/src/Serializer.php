@@ -66,8 +66,15 @@ class Serializer extends \PPLCZVendor\Symfony\Component\Serializer\Serializer {
         return self::$instance ?: (self::$instance = new self());
     }
 
+    public function normalize($data, ?string $format = null, array $context = [])
+    {
+        return parent::normalize($data, $format === null ? '' : $format, $context);
+    }
+
     public function denormalize($data, string $type, ?string $format = null, array $context = [])
     {
+        if ($format === null)
+            $format = '';
         $output = parent::denormalize($data, $type, $format, $context);
         if ($output instanceof ParcelDataModel ) {
             if ($output->getAccessPointType() !== 'ParcelShop'
@@ -75,7 +82,8 @@ class Serializer extends \PPLCZVendor\Symfony\Component\Serializer\Serializer {
             {
                 $output->setPosnRequired(true);
             }
-        } else if ($output instanceof ParcelAddressModel)
+        }
+        else if ($output instanceof ParcelAddressModel)
         {
             if ($output->getType() !== 'ParcelShop'
                 && $output->getCountry() === 'DE')
