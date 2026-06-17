@@ -12,15 +12,26 @@ return call_user_func(function() {
             $currencies = $cpl->getCodCurrencies();
             if ($currencies) {
                 set_transient(pplcz_create_name("cod_currencies"), $currencies);
-                return $currencies;
             }
         }
         catch (\Exception $ex)
         {
             return [];
         }
-    } else if (is_array($currencies)) {
-        return $currencies;
     }
-    return  [];
+    if (is_array($currencies)) {
+        if (array_filter($currencies, function ($item) {
+            return $item['country'] === 'SK' && $item['currency'] === 'EUR';
+        }))
+        {
+            $currencies[] = [
+                'country' => 'SK',
+                'currency' => 'CZK'
+            ];
+        }
+    }
+    else {
+        $currencies = [];
+    }
+    return  $currencies;
 });

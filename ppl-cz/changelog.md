@@ -92,3 +92,6 @@
 - oprava column cod_value
 - # 1.0.47
 - oprava chování gridu v ramci svozu a batche
+- # 1.0.48
+- umožnění dobírky v CZK i na Slovensko, pokud má slovenský eurový účet
+- oprava formátu pri serializaci/deserializaci (php 8.5.*)
