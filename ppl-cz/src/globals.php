@@ -242,6 +242,7 @@ function pplcz_tables($activate = false)
                 \PPLCZ\Setting\PhaseSetting::setPhase($phase->getCode(), true, null);
             }
             \PPLCZ\Setting\MethodSetting::setAvailableOldMap(false);
+            \PPLCZ\Setting\MethodSetting::setUseOrderNumberInPackagesAndVariableNumber(true);
         }
 
         require_once __DIR__ . '/installdb.php';

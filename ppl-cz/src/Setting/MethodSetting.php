@@ -15,6 +15,17 @@ class MethodSetting
         add_option($optionName, $enabled ? "yes" : "no") || update_option($optionName, $enabled ? "yes" : "no");
     }
 
+    public static function setUseOrderNumberInPackagesAndVariableNumber($enabled)
+    {
+        $key1 = pplcz_create_name("use_order_number_in_packages");
+        $key2 = pplcz_create_name("use_order_number_in_variable_number");
+
+        if ($enabled) {
+            add_option($key1, $enabled ? "yes" : "no") || update_option($key1, $enabled ? "yes" : "no");
+            add_option($key2, $enabled ? "yes" : "no") || update_option($key2, $enabled ? "yes" : "no");
+        }
+    }
+
     public static function getGlobalSetting()
     {
         $globalSetting = new GlobalSettingModel();
