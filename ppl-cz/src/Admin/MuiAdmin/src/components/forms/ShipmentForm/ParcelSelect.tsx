@@ -32,7 +32,7 @@ const ParcelSelect = (props: {
   const onClick = () => {
     const recipient = props.shipment.recipient;
     const map: { address?: string; country?: string; parcelShop?: boolean, hiddenPoints?: string[] } = {};
-    map.address = [recipient?.street, recipient?.city, recipient?.zip].filter(x => x).join(", ");
+    map.address = [recipient?.street, [recipient?.zip, recipient?.city].filter(x => x).join(' ')].filter(x => x).join(", ");
     if (props.shipment.recipient?.country) map.country = props.shipment.recipient.country;
 
     if (data)

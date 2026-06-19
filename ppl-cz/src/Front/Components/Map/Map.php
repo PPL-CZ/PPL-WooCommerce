@@ -1,6 +1,8 @@
 <?php
 namespace PPLCZ\Front\Components\Map;
 
+use PPLCZ\Setting\MethodSetting;
+
 defined("WPINC") or die();
 
 class Map {
@@ -53,8 +55,7 @@ class Map {
         return $vars;
     }
 
-    public static function args()
-    {
+    private static function oldmap() {
         global $wp_query;
         $lat = $wp_query->query_vars['ppl_lat'];
         $lng = $wp_query->query_vars['ppl_lng'];
@@ -113,6 +114,69 @@ class Map {
         return $data;
     }
 
+    private static function newmap() {
+        $map  = MethodSetting::getGlobalSetting()->getMap();
+
+        global $wp_query;
+        $lat = $wp_query->query_vars['ppl_lat'];
+        $lng = $wp_query->query_vars['ppl_lng'];
+        $withCard = $wp_query->query_vars['ppl_withCard'];
+        $withCash = $wp_query->query_vars['ppl_withCash'];
+        $country = $wp_query->query_vars['ppl_country'];
+        $hiddenPoints = array_filter(explode(',', $wp_query->query_vars['ppl_hiddenpoints'] ?: ''));
+        $allowedAccessPoint = array_diff(['AlzaBox', 'ParcelBox', 'ParcelShop'], $hiddenPoints);
+        $countries = $wp_query->query_vars['ppl_countries'];
+
+        $address = $wp_query->query_vars['ppl_address'];
+        $languageMap = pplcz_create_name("map_language");
+        $lang = strtolower(get_option($languageMap));
+        switch($lang)
+        {
+            case 'cs':
+            case 'en':
+                break;
+            default:
+                $lang = 'cs';
+        }
+
+        $data = [
+            "mode" => "SHOPCART",
+            'allowedAccessPointTypes' => $allowedAccessPoint,
+            'allowedCountries' => array_filter([strtoupper($country)]),
+            'defaultLanguage' => $lang,
+            'viewMode' => "inline",
+            "defaultCountry" => strtoupper($country),
+            "disabledAccessPointTypes" => $hiddenPoints
+        ];
+
+        if ($address)
+            $data['centeredToAddress'] = $address;
+
+        $apikey =  $map->getApikey();
+
+        if (floatval($lat) && floatval($lng)) {
+            $data['centeredToLat'] = $lat;
+            $data['centeredToLon'] = $lng;
+        }
+
+        if ($withCash) {
+            $data['codRequired'] = true;
+        }
+
+        return ['apikey' => $apikey, 'config' => $data];
+    }
+
+    public static function args()
+    {
+        $map  = MethodSetting::getGlobalSetting()->getMap();
+        if ($map->getEnabled()) {
+            return self::newmap();
+        }
+        else {
+            return self::oldmap();
+        }
+    }
+
     public static function wp_register()
     {
 
@@ -130,8 +194,15 @@ class Map {
 
     public static function wp_enqueue()
     {
-        wp_enqueue_style("ppl_external_css", "https://www.ppl.cz/sources/map/main.css", [], pplcz_get_version()); //  updating is different from plugins, cannot be done locally
-        wp_enqueue_script("ppl_external_js",  "https://www.ppl.cz/sources/map/main.js", [], pplcz_get_version(), true); //  updating is different from plugins, cannot be done locally
+        $map  = MethodSetting::getGlobalSetting()->getMap();
+
+        if ($map->getEnabled()) {
+           wp_enqueue_script("ppl_external_js", "https://ppl.cz/accesspointwidget/loader.js", [], pplcz_get_version(), true); //  updating is different from plugins, cannot be done locally
+        }
+        else {
+            wp_enqueue_style("ppl_external_css", "https://www.ppl.cz/sources/map/main.css", [], pplcz_get_version()); //  updating is different from plugins, cannot be done locally
+            wp_enqueue_script("ppl_external_js",  "https://www.ppl.cz/sources/map/main.js", [], pplcz_get_version(), true); //  updating is different from plugins, cannot be done locally
+        }
 
         $path = plugins_url("/Map/ppl-external.css", __DIR__);
         wp_enqueue_style("ppl_internal_css", $path, [], pplcz_get_version());
@@ -142,16 +213,27 @@ class Map {
 
     public static function template_include($template)
     {
+
+        $map  = MethodSetting::getGlobalSetting()->getMap();
+        $mappath = "/ppl/parcelshops-map.php";
+        if ($map->getEnabled())
+        {
+            $mappath = "/ppl/parcelshops-new-map.php";
+        } else if (!$map->getAvailableOldMap())
+        {
+            $mappath = "/ppl/parcelshops-disabled-map.php";
+        }
+
         global $wp_query;
         if (isset($wp_query->query_vars['ppl_map']) && $wp_query->query_vars['ppl_map']) {
             self::wp_enqueue();
             $path1 = get_stylesheet_directory();
             $path2 = get_template_directory();
-            if (file_exists($path1 . "/ppl/parcelshops-map.php"))
-                return $path1 . "/ppl/parcelshops-map.php";
-            else if ($path2 !== $path1 && file_exists($path2 . "/ppl/parcelshops-map.php"))
-                return $path2 . "/ppl/parcelshops-map.php";
-            return __DIR__ . '/../../../Template/ppl/parcelshops-map.php';
+            if (file_exists($path1 . $mappath))
+                return $path1 . $mappath;
+            else if ($path2 !== $path1 && file_exists($path2 . $mappath))
+                return $path2 . $mappath;
+            return __DIR__ . '/../../../Template' . $mappath;
         }
         return $template;
     }

@@ -207,11 +207,12 @@ export const useGlobalSettingQuery = () => {
     queryKey: ["globalsetting"],
     queryFn: async () => {
       const baseUrl = baseConnectionUrl();
-      return fetch(`${baseUrl.url}/ppl-cz/v1/setting/global-settings`, {
+      const data = await fetch(`${baseUrl.url}/ppl-cz/v1/setting/global-settings`, {
         headers: {
           "X-WP-Nonce": baseUrl.nonce,
         },
-      }).then(x => x.json() as Promise<GlobalSettingModel>);
+      }).then(x => x.json());
+      return { ...data, timestamp: new Date().getTime() } as GlobalSettingModel
     },
   });
 };

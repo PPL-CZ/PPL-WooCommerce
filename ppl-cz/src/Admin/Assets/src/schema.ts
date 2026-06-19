@@ -52,9 +52,15 @@ export interface components {
       }) | null;
       posnRequired?: boolean | null;
     };
+    GlobalSettingMapModel: {
+      apikey?: string | null;
+      enabled?: boolean;
+      availableOldMap?: boolean;
+    };
     GlobalSettingModel: {
       useOrderNumberInPackages?: boolean;
       useOrderNumberInVariableSymbol?: boolean;
+      map?: components["schemas"]["GlobalSettingMapModel"];
     };
     ParcelPlacesModel: {
       disabledByStripe?: boolean | null;

@@ -6,6 +6,7 @@ defined("WPINC") or die();
 use PPLCZ\Admin\Assets\JsTemplate;
 use PPLCZ\Admin\CPLOperation;
 use PPLCZ\Admin\Cron\ShipmentPhaseCron;
+use PPLCZ\Setting\MethodSetting;
 
 class OptionPage {
 
@@ -53,12 +54,52 @@ class OptionPage {
                 <p>Byla nainstalována nová verze PPL pluginu. Prosím, podívejte se na <a href='". esc_html($url). "'>novinky</a>, které jsou s aktualizací spojené.</p>
             </div>";
         }
+
+        $maps_news = get_option(pplcz_create_name("old_map_news"));
+        $map = MethodSetting::getGlobalSetting()->getMap();
+        if ($maps_news !== 'ok_1'
+            && ($map->getAvailableOldMap() || !$map->getEnabled() || !$map->getApikey())
+        )
+        {
+            ob_start();
+            $url = menu_page_url(self::SLUG) . '#/setting';
+            ob_clean();
+
+            $nonce = wp_create_nonce("hide_notice");
+            JsTemplate::add_inline_script("pplczNotices");
+
+            if (!$map->getAvailableOldMap()):
+                echo "<div data-nonce='". esc_html($nonce)  ."' class=\"pplcz-oldmap-notice notice notice-warning is-dismissible\">
+                    <p>Bez platného API klíče není možné mapu výdejních míst používat. Před integrací se ujistěte, že máte API klíč správně vytvořený a aktivní. Bližší info na stránce <a href='". esc_html($url). "'>nastavení</a> v sekci \"obecné nastavení\"</p>
+                </div>";
+            else:
+                echo "<div data-nonce='". esc_html($nonce)  ."' class=\"pplcz-oldmap-notice notice notice-error is-dismissible\">
+                    <p>
+                    Podpora původních map pro výdejní místa PPL.cz bude ukončena k <b>31. 7. 2026.</b> Po tomto datu bude pro zobrazení mapy výdejních míst vyžadován platný API klíč. Před integrací se ujistěte, že je váš API klíč správně vytvořený a aktivní. Více informací naleznete v nastavení v sekci <a href='". esc_html($url). "'>„Nastavení“</a>.
+                    </p>
+                </div>";
+            endif;
+        }
+
     }
 
     public static function hide_new_notices() {
         $version = get_option(pplcz_create_name("version"));
         $code = pplcz_create_name("version_news");
         add_option($code, $version) || update_option($code, $version);
+        if (!isset($_POST['hide_notice']) || !wp_verify_nonce(sanitize_key($_POST['hide_notice']), 'hide_notice'))
+        {
+            http_response_code(403);
+            wp_die();
+        }
+        http_response_code(204);
+        wp_die();
+    }
+
+    public static function hide_oldmap_notices() {
+        $code = get_option(pplcz_create_name("old_map_news"));
+
+        add_option($code, 'ok_1') || update_option($code, 'ok_1');
         if (!isset($_POST['hide_notice']) || !wp_verify_nonce(sanitize_key($_POST['hide_notice']), 'hide_notice'))
         {
             http_response_code(403);
@@ -143,5 +184,6 @@ class OptionPage {
 
         add_action("admin_notices", [self::class, "news"]);
         add_action('wp_ajax_pplcz_hide_new_notice', [self::class, "hide_new_notices"]);
+        add_action('wp_ajax_pplcz_hide_oldmap_notices',  [self::class, "hide_oldmap_notices"]);
     }
 }

@@ -26,6 +26,11 @@ const NewsPage = () => {
                     <Box m={4} maxWidth={"700px"} className={markdownClasses.markdown}>
                         <ul>
                             <li>
+                                Spustili jsme novou mapu výdejních míst (Widget&nbsp;2.0), která přináší modernější rozhraní, lepší možnosti konfigurace a jednodušší integraci do vašich řešení.<br/>
+                                Současně je nově vyžadováno používání API klíče. Bez platného a aktivního API klíče není možné mapu výdejních míst používat. Každý uživatel si musí API klíč vytvořit a aktivovat v administraci před samotnou integrací.<br/>
+                                Doporučujeme všem stávajícím i novým uživatelům přejít na novou verzi mapy výdejních míst a provést nastavení API klíče co nejdříve. Podrobný postup naleznete v <a target={"_blank"} href={"https://ppl-widgetapikey.apidog.io"}>technické dokumentaci</a>. Adresa pro získání API klíče je <a href="https://klient.ppl.cz/widgetadmin">https://klient.ppl.cz/widgetadmin</a>.
+                            </li>
+                            <li>
                                 Zákazník si nyní může v rámci konfigurace nastavit, která výdejní místa nechce
                                 zobrazovat ve výdejním
                                 widgetu. Tato místa budou z widgetu automaticky vyfiltrována a nebudou nabízená koncovým

@@ -95,3 +95,5 @@
 - # 1.0.48
 - umožnění dobírky v CZK i na Slovensko, pokud má slovenský eurový účet
 - oprava formátu pri serializaci/deserializaci (php 8.5.*)
+- # 1.1.1
+- přidání možnosti výběru staré a nové mapy. U novych klientů jen nové mapy

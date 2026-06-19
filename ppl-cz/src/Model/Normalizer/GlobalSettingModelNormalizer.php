@@ -49,6 +49,10 @@ class GlobalSettingModelNormalizer implements DenormalizerInterface, NormalizerI
             $object->setUseOrderNumberInVariableSymbol($data['useOrderNumberInVariableSymbol']);
             unset($data['useOrderNumberInVariableSymbol']);
         }
+        if (\array_key_exists('map', $data)) {
+            $object->setMap($this->denormalizer->denormalize($data['map'], 'PPLCZ\\Model\\Model\\GlobalSettingMapModel', 'json', $context));
+            unset($data['map']);
+        }
         foreach ($data as $key => $value) {
             if (preg_match('/.*/', (string) $key)) {
                 $object[$key] = $value;
@@ -67,6 +71,9 @@ class GlobalSettingModelNormalizer implements DenormalizerInterface, NormalizerI
         }
         if ($object->isInitialized('useOrderNumberInVariableSymbol') && null !== $object->getUseOrderNumberInVariableSymbol()) {
             $data['useOrderNumberInVariableSymbol'] = $object->getUseOrderNumberInVariableSymbol();
+        }
+        if ($object->isInitialized('map') && null !== $object->getMap()) {
+            $data['map'] = $this->normalizer->normalize($object->getMap(), 'json', $context);
         }
         foreach ($object as $key => $value) {
             if (preg_match('/.*/', (string) $key)) {

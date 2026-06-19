@@ -97,7 +97,16 @@ class CartModelDernomalizer implements DenormalizerInterface
                     }
                 }
             }
-            $shipmentCartModel->setMapEnabled(true);
+
+            $globalMapSetting = MethodSetting::getGlobalSetting()->getMap();
+
+            $enabledMap = $globalMapSetting->getAvailableOldMap() || $globalMapSetting->getApikey();
+
+            $shipmentCartModel->setMapEnabled($enabledMap);
+
+            if (!$enabledMap)
+                $shipmentCartModel->setDisabledByRules(true);
+            
             $shipmentCartModel->setParcelRequired(true);
             /**
              * ppl ma vzdy 4 zeme, CR, PL, DE, SK
@@ -145,7 +154,6 @@ class CartModelDernomalizer implements DenormalizerInterface
                 $data_countries = $countriesWithParcelshop;
             }
 
-
             // zikani povolenych zemi pomoci mnozinove operace minus (viz vyse)
             $allowedParcelCountries = array_diff($countriesWithParcelshop, $disabledCountries);
             // zeme musi byt podporovana i wp zonou
@@ -159,6 +167,10 @@ class CartModelDernomalizer implements DenormalizerInterface
             $shipmentCartModel->setParcelBoxEnabled($enabledByCountry && !$disabledParcelBox && !$setting->getDisabledParcelBox());
             $shipmentCartModel->setAlzaBoxEnabled($enabledByCountry && !$disabledAlzaBox && !$setting->getDisabledAlzaBox());
             $shipmentCartModel->setDisabledByCountry(!$enabledByCountry);
+
+
+
+
         } else {
             $shipmentCartModel->setDisabledByCountry(false);
             $shipmentCartModel->setParcelBoxEnabled(false);
@@ -471,7 +483,8 @@ class CartModelDernomalizer implements DenormalizerInterface
         }
 
         $shipmentCartModel->setMapEnabled(
-            ($shipmentCartModel->getParcelShopEnabled() || $shipmentCartModel->getParcelBoxEnabled() || $shipmentCartModel->getAlzaBoxEnabled())
+            $shipmentCartModel->getMapEnabled()
+            && ($shipmentCartModel->getParcelShopEnabled() || $shipmentCartModel->getParcelBoxEnabled() || $shipmentCartModel->getAlzaBoxEnabled())
             && !$shipmentCartModel->getDisabledByCountry()
         );
 

@@ -1,7 +1,7 @@
 === PPL CZ ===
 Tags: PPL, woocommerce
 Tested up to: 6.7
-Stable tag: 1.0.48
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,7 @@ For any inquiries, please contact us at cisteam@ppl.cz.
 
 URL: https://www.ppl.cz/sources/map/main.css
 URL: https://www.ppl.cz/sources/map/main.js
+URL: https://ppl.cz/accesspointwidget/loader.js
 These url's are used to select a pickup location that allows you to locate it on a map. Updating them is done outside of updating the plugin itself. No data from the user (web browser client) is stored in this section.
 
 URL: https://www1.ppl.cz
