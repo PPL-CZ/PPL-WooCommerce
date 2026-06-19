@@ -167,6 +167,23 @@
           }
         }
       },
+      "GlobalSettingMapModel": {
+        "type": "object",
+        "properties": {
+          "apikey": {
+            "type": "string",
+            "nullable": true
+          },
+          "enabled": {
+            "type": "boolean",
+            "nullable": false
+          },
+          "availableOldMap": {
+            "type": "boolean",
+            "nullable": false
+          }
+        }
+      },
       "GlobalSettingModel": {
         "type": "object",
         "properties": {
@@ -177,6 +194,9 @@
           "useOrderNumberInVariableSymbol": {
             "type": "boolean",
             "nullable": false
+          },
+          "map": {
+            "$ref": "#/components/schemas/GlobalSettingMapModel"
           }
         }
       },

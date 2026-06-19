@@ -2,12 +2,29 @@
 namespace PPLCZ\Setting;
 
 use PPLCZ\Admin\CPLOperation;
+use PPLCZ\Model\Model\GlobalSettingMapModel;
 use PPLCZ\Model\Model\ParcelPlacesModel;
 use PPLCZ\Model\Model\ShipmentMethodModel;
 use PPLCZ\Model\Model\GlobalSettingModel;
 
 class MethodSetting
 {
+
+    public static function setAvailableOldMap($enabled) {
+        $optionName = pplcz_create_name("available_old_map");
+        add_option($optionName, $enabled ? "yes" : "no") || update_option($optionName, $enabled ? "yes" : "no");
+    }
+
+    public static function setUseOrderNumberInPackagesAndVariableNumber($enabled)
+    {
+        $key1 = pplcz_create_name("use_order_number_in_packages");
+        $key2 = pplcz_create_name("use_order_number_in_variable_number");
+
+        if ($enabled) {
+            add_option($key1, $enabled ? "yes" : "no") || update_option($key1, $enabled ? "yes" : "no");
+            add_option($key2, $enabled ? "yes" : "no") || update_option($key2, $enabled ? "yes" : "no");
+        }
+    }
 
     public static function getGlobalSetting()
     {
@@ -29,6 +46,25 @@ class MethodSetting
 
         $globalSetting->setUseOrderNumberInVariableSymbol($value2 === 'yes');
 
+        $apikeyKey = pplcz_create_name("map_api_key");
+        $usenewmapKey = pplcz_create_name("use_new_map");
+        $oldmapKey = pplcz_create_name("available_old_map");
+
+        $globalSettingMapModel = new GlobalSettingMapModel();
+        $globalSettingMapModel->setApikey(get_option($apikeyKey) ?: null);
+        $globalSettingMapModel->setEnabled(get_option($usenewmapKey) === 'yes' ? true: false);
+
+        $availableOldMap = get_option($oldmapKey) === 'no' ? false : true;
+        if ($availableOldMap && time() > (new \DateTime('2026-08-01'))->getTimestamp())
+        {
+            $availableOldMap = false;
+        }
+
+        $globalSettingMapModel->setAvailableOldMap($availableOldMap);
+
+        $globalSetting->setMap($globalSettingMapModel);
+
+
         return $globalSetting;
 
     }
@@ -43,6 +79,31 @@ class MethodSetting
 
         add_option($key1, $value1) || update_option($key1, $value1);
         add_option($key2, $value2) || update_option($key2, $value2);
+
+
+        $apikeyKey = pplcz_create_name("map_api_key");
+        $usenewmapKey = pplcz_create_name("use_new_map");
+
+        $map = $globalSettingModel->getMap();
+
+        if ($map)
+        {
+            $oldMap = self::getGlobalSetting()->getMap();
+            $enabled = $oldMap->getAvailableOldMap() ? 'no': 'yes'; // pokud nelze pouzit stare mapy, zakladem bude yes
+
+            $apikey = $map->getApikey();
+
+            if ($map->getEnabled())
+                $enabled = 'yes';
+            if (!$apikey)
+                $enabled = 'no';
+
+            add_option($usenewmapKey, $enabled) || update_option($usenewmapKey, $enabled);
+            if ($apikey)
+                add_option($apikeyKey, $apikey) || update_option($apikeyKey, $apikey);
+            else
+                delete_option($apikeyKey);
+        }
     }
 
     public static function getGlobalParcelboxesSetting()

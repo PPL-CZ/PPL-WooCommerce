@@ -241,10 +241,8 @@ function pplcz_tables($activate = false)
             foreach ($phases as $phase) {
                 \PPLCZ\Setting\PhaseSetting::setPhase($phase->getCode(), true, null);
             }
-            $globalSetting = new \PPLCZ\Model\Model\GlobalSettingModel();
-            $globalSetting->setUseOrderNumberInPackages(true);
-            $globalSetting->setUseOrderNumberInVariableSymbol(true);
-
+            \PPLCZ\Setting\MethodSetting::setAvailableOldMap(false);
+            \PPLCZ\Setting\MethodSetting::setUseOrderNumberInPackagesAndVariableNumber(true);
         }
 
         require_once __DIR__ . '/installdb.php';

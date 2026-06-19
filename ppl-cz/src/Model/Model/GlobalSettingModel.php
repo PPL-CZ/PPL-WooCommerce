@@ -27,6 +27,12 @@ class GlobalSettingModel extends \ArrayObject
     /**
      * 
      *
+     * @var GlobalSettingMapModel
+     */
+    protected $map;
+    /**
+     * 
+     *
      * @return bool
      */
     public function getUseOrderNumberInPackages() : ?bool
@@ -66,6 +72,28 @@ class GlobalSettingModel extends \ArrayObject
     {
         $this->initialized['useOrderNumberInVariableSymbol'] = true;
         $this->useOrderNumberInVariableSymbol = $useOrderNumberInVariableSymbol;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return GlobalSettingMapModel
+     */
+    public function getMap() : ?GlobalSettingMapModel
+    {
+        return $this->map;
+    }
+    /**
+     * 
+     *
+     * @param GlobalSettingMapModel $map
+     *
+     * @return self
+     */
+    public function setMap(?GlobalSettingMapModel $map) : self
+    {
+        $this->initialized['map'] = true;
+        $this->map = $map;
         return $this;
     }
 }
