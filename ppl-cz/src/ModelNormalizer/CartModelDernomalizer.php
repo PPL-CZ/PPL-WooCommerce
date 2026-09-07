@@ -180,7 +180,12 @@ class CartModelDernomalizer implements DenormalizerInterface
 
         $shipmentCartModel->setDisabledByWeight(true);
 
-        $totalWeight = $cart->get_cart_contents_weight();
+        $totalWeightRaw = (float) $cart->get_cart_contents_weight();
+        // WooCommerce vrací váhu v jednotce obchodu (g/kg/lbs/oz).
+        // Pravidla PPL a limity metod jsou vedené v kg, proto normalizujeme do kg.
+        $totalWeight = function_exists('wc_get_weight')
+            ? (float) wc_get_weight($totalWeightRaw, 'kg')
+            : $totalWeightRaw;
 
         $selectedWeightPrice = 0;
 
