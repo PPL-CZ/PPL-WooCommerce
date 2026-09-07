@@ -32,17 +32,37 @@ trait ParcelDataModelTrait {
         return null;
     }
 
-    public static function setOrderCartData(\WC_Order $order, ?CartDataModel $data)
+    /**
+     * @param \WC_Order|\WC_Order_Item_Shipping $order
+     * @param CartDataModel|null $data
+     * @return void
+     * @throws \Exception
+     */
+
+    public static function setOrderCartData( $order, ?CartDataModel $data)
     {
-        /**
-         * @var  \WC_Order_Item_Shipping[] $shippingMethods
-         */
-        $shippingMethods = $order->get_shipping_methods();
+        if ($order instanceof \WC_Order)
+        {
+            /**
+             * @var  \WC_Order_Item_Shipping[] $shippingMethods
+             */
+            $shippingMethods = $order->get_shipping_methods();
+        }
+        else
+        {
+            $shippingMethods = [$order];
+        }
 
         foreach ($shippingMethods as $shippingMethod) {
             if (str_contains($shippingMethod->get_method_id(), pplcz_create_name(""))) {
-                $method = new ShipmentMethod($shippingMethod->get_instance_id());
-                $code = str_replace(pplcz_create_name(""), "",$method->id);
+
+                if ($shippingMethod->get_instance_id()) {
+                    $method = new ShipmentMethod($shippingMethod->get_instance_id());
+                    $code = str_replace(pplcz_create_name(""), "", $method->id);
+                }
+                else {
+                    $code = str_replace(pplcz_create_name(""), "", $shippingMethod->get_method_id());
+                }
                 $methodsetting = MethodSetting::getMethod($code);
                 if ($methodsetting && $data) {
                     if ($data->getParcelData()) {

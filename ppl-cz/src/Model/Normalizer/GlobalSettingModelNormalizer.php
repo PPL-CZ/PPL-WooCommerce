@@ -49,6 +49,10 @@ class GlobalSettingModelNormalizer implements DenormalizerInterface, NormalizerI
             $object->setUseOrderNumberInVariableSymbol($data['useOrderNumberInVariableSymbol']);
             unset($data['useOrderNumberInVariableSymbol']);
         }
+        if (\array_key_exists('openMapOnRequest', $data)) {
+            $object->setOpenMapOnRequest($data['openMapOnRequest']);
+            unset($data['openMapOnRequest']);
+        }
         if (\array_key_exists('map', $data)) {
             $object->setMap($this->denormalizer->denormalize($data['map'], 'PPLCZ\\Model\\Model\\GlobalSettingMapModel', 'json', $context));
             unset($data['map']);
@@ -71,6 +75,9 @@ class GlobalSettingModelNormalizer implements DenormalizerInterface, NormalizerI
         }
         if ($object->isInitialized('useOrderNumberInVariableSymbol') && null !== $object->getUseOrderNumberInVariableSymbol()) {
             $data['useOrderNumberInVariableSymbol'] = $object->getUseOrderNumberInVariableSymbol();
+        }
+        if ($object->isInitialized('openMapOnRequest') && null !== $object->getOpenMapOnRequest()) {
+            $data['openMapOnRequest'] = $object->getOpenMapOnRequest();
         }
         if ($object->isInitialized('map') && null !== $object->getMap()) {
             $data['map'] = $this->normalizer->normalize($object->getMap(), 'json', $context);

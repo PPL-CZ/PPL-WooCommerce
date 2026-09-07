@@ -46,6 +46,15 @@ class MethodSetting
 
         $globalSetting->setUseOrderNumberInVariableSymbol($value2 === 'yes');
 
+        $key3 = pplcz_create_name("open_map_on_request");
+
+        $value3 = get_option($key3);
+
+        if ($value3 !== 'yes' && $value3 !== 'no')
+            $value3 = 'no';
+
+        $globalSetting->setOpenMapOnRequest($value3 === 'yes');
+
         $apikeyKey = pplcz_create_name("map_api_key");
         $usenewmapKey = pplcz_create_name("use_new_map");
         $oldmapKey = pplcz_create_name("available_old_map");
@@ -73,12 +82,15 @@ class MethodSetting
     {
         $key1 = pplcz_create_name("use_order_number_in_packages");
         $key2 = pplcz_create_name("use_order_number_in_variable_number");
+        $key3 = pplcz_create_name("open_map_on_request");
 
         $value1 = $globalSettingModel->getUseOrderNumberInPackages() ? 'yes': 'no';
         $value2 = $globalSettingModel->getUseOrderNumberInVariableSymbol() ? 'yes': 'no';
+        $value3 = $globalSettingModel->getOpenMapOnRequest() ? 'yes': 'no';
 
         add_option($key1, $value1) || update_option($key1, $value1);
         add_option($key2, $value2) || update_option($key2, $value2);
+        add_option($key3, $value3) || update_option($key3, $value3);
 
 
         $apikeyKey = pplcz_create_name("map_api_key");
@@ -152,7 +164,8 @@ class MethodSetting
             "CONN" => "COND",
             "SMAR" => "SMAD",
             "SMEU" => "SMED",
-            "SBOX" => "SBOD"
+            "SBOX" => "SBOD",
+            "BUSS" => "BUSD",
         ];
 
         if (isset($methods[$code]))
@@ -188,6 +201,7 @@ class MethodSetting
             "SMED" => "Doprava v rámci EU ('SK', 'PL', 'DE', 'NL', 'RO', 'BG', 'HU', 'AT') na výdejní místo",
             "COND" => "Doprava v rámci EU na adresu",
             "COPD" => "Doprava mimo EU v rámci Evropy",
+            "BUSD" => "PPL Parcel CZ Business"
         ];
 
 
@@ -201,7 +215,9 @@ class MethodSetting
 
             "COPL" => "PPL Parcel Connect Plus",
 
-            "SBOX" => "PPL Parcel CZ Smart To Box"
+            "SBOX" => "PPL Parcel CZ Smart To Box",
+
+            "BUSS" => "PPL Parcel CZ Business"
         ];
 
         foreach ($methods as $key => $value) {
@@ -243,7 +259,8 @@ class MethodSetting
             "SMAD" => "PPL Parcel CZ Smart - dobírka", // cz, VM
             "SMED" => "PPL Parcel Smart Europe - dobírka", // necz
             "COND" => "PPL Parcel Connect - dobírka", // necz,
-            "SBOD" => "PPL Parcel CZ Smart To Box - dobírka"
+            "SBOD" => "PPL Parcel CZ Smart To Box - dobírka",
+            "BUSD" => "PPL Parcel CZ Business - dobírka"
         ];
 
         foreach ($codMethods as $key => $value) {
@@ -283,7 +300,7 @@ class MethodSetting
         {
             $code = $value->getCode();
             $countries = [];
-            if (in_array($code, ['SMAR',"SMAD", 'PRIV', 'PRID', "SBOX", "SBOD" ]))
+            if (in_array($code, ['SMAR',"SMAD", 'PRIV', 'PRID', "SBOX", "SBOD", "BUSS", "BUSD" ]))
                 $countries = ["CZ"];
             else if (in_array($code,['SMEU',"SMED", 'CONN', 'COND']))
                 $countries = self::getEuCountries();
@@ -341,7 +358,8 @@ class MethodSetting
             $codes = [
                 'PRIV' => 'PRIV', 'PRID'=> "PRID", 'SMAR'=> 'SMAR', 'SMAD'=> 'SMAD',
                 'SMEU' => "SMAR", "SMED" => "SMAD", "CONN" => "PRIV", 'COND'=> "PRID",
-                "COPL" => "PRIV", "SBOX" => "SBOX", "SBOD" => "SBOD"
+                "COPL" => "PRIV", "SBOX" => "SBOX", "SBOD" => "SBOD",
+                "BUSS" => "BUSD", "BUSD" => "BUSD"
             ];
             if (isset($codes[$method]))
                 return $codes[$method];

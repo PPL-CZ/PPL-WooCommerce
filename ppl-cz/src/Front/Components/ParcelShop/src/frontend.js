@@ -20,6 +20,8 @@ const getMetaValue = (cart, key) => {
 	return getMetaData(cart)?.find(x => x.key === key)?.value;
 }
 
+const isOpenMapOnRequest = () => !!parseInt(window.parcelshop_block_frontend?.open_map_on_request ?? 0);
+
 const isMapAllowed = (cart) => !!parseInt(getMetaValue(cart, "mapEnabled"));
 
 const isParcelRequired = (cart) => !!parseInt(getMetaValue(cart, "parcelRequired"));
@@ -232,7 +234,7 @@ const BlockContent = ({ cart, payment, parcelShopBoxSelected }) => {
 			onUpdateComponent.current = true;
 			return;
 		}
-		if (parcelRequired && !parcelShopBoxSelected && !hideComponent) {
+		if (parcelRequired && !parcelShopBoxSelected && !hideComponent && !isOpenMapOnRequest()) {
 			PplMap(savingData, {...mapSetting});
 		}
 	}, [parcelRequired, parcelShopBoxSelected]);

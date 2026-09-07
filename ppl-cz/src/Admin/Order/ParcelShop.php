@@ -7,12 +7,47 @@ use PPLCZ\Admin\Assets\JsTemplate;
 use PPLCZ\Model\Model\ParcelDataModel;
 use PPLCZ\Model\Normalizer\ParcelDataModelNormalizer;
 use PPLCZ\ShipmentMethod;
+use PPLCZ\Setting\MethodSetting;
 use PPLCZ\Serializer;
 use PPLCZ\Traits\ParcelDataModelTrait;
 
 class ParcelShop {
 
     use ParcelDataModelTrait;
+
+    /**
+     * Podporuje daná dopravní metoda doručení na výdejní místo?
+     *
+     * @param string $methodId id dopravní metody (pplcz_SMAR, pplcz_SMAR:3, ...)
+     * @return bool
+     */
+    public static function supports_parcelshop($methodId)
+    {
+        if (!$methodId || !str_contains($methodId, pplcz_create_name("")))
+            return false;
+
+        $code = str_replace(pplcz_create_name(""), "", $methodId);
+        $code = explode(":", $code)[0];
+
+        $method = MethodSetting::getMethod($code);
+
+        return $method ? !!$method->getParcelRequired() : false;
+    }
+
+    /**
+     * Mapa "id dopravní metody" => "podporuje výdejní místo" pro javascript v administraci
+     *
+     * @return array
+     */
+    public static function parcelshop_support_map()
+    {
+        $output = [];
+        foreach (MethodSetting::getMethods() as $method)
+        {
+            $output[pplcz_create_name($method->getCode())] = !!$method->getParcelRequired();
+        }
+        return $output;
+    }
 
     public static function itemmeta($item_id, $item, $any) {
         if ($item instanceof \WC_Order_Item_Shipping)
@@ -30,7 +65,7 @@ class ParcelShop {
                 "hidden_data" => wp_json_encode($meta ? pplcz_normalize($meta) : null),
                 "order_id" => $item->get_order_id(),
                 "nonce"=>wp_create_nonce("parcelshop_edit_metadata"),
-                "show" => str_contains($item->get_method_id(), pplcz_create_name(""))
+                "show" => str_contains($item->get_method_id(), pplcz_create_name("")) && (self::supports_parcelshop($item->get_method_id()) || $meta)
             ]);
 
             JsTemplate::add_inline_script("pplczPPLParcelshop", "pplcz_parcelshop_$pplcz_meta_id_safe");
@@ -84,7 +119,7 @@ class ParcelShop {
                     "hidden_data" => wp_json_encode($data ? Serializer::getInstance()->normalize($data) : null),
                     "order_id" => $order_id,
                     "nonce"=>wp_create_nonce("parcelshop_edit_metadata"),
-                    "show"=> str_contains($shipping->get_method_id(), pplcz_create_name(""))
+                    "show"=> str_contains($shipping->get_method_id(), pplcz_create_name("")) && (self::supports_parcelshop($shipping->get_method_id()) || $data)
                 ]);
                 $content = ob_get_clean();
                 wp_send_json_success([
@@ -107,7 +142,13 @@ class ParcelShop {
             else
                 $data = null;
             if (str_contains($item->get_method_id(), pplcz_create_name(""))) {
-                if ($data) {
+                if (!self::supports_parcelshop($item->get_method_id())) {
+                    // doprava nepodporuje výdejní místo – dříve vybraný parcelshop/parcelbox zahodíme
+                    $cartData = self::getOrderItemShippingCartDataModel($item);
+                    $cartData->setParcelData(null);
+                    self::setOrderShippingCartDataModel($item, $cartData);
+                }
+                else if ($data) {
                     try {
                         $contentData = json_decode($data, true);
                         if ($contentData) {

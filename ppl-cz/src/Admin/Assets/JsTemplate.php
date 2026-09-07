@@ -2,6 +2,7 @@
 namespace  PPLCZ\Admin\Assets;
 
 use PPLCZ\Admin\Page\FilePage;
+use PPLCZ\Admin\Order\ParcelShop;
 
 defined("WPINC") or die();
 
@@ -65,7 +66,8 @@ class JsTemplate
             "newCollectionUrl" => self::COLLECTIONURL,
             "ajax_url" => admin_url("admin-ajax.php"),
             "file_download_url" => FilePage::createUrl(null),
-            "old_order_url" => !$newWoo
+            "old_order_url" => !$newWoo,
+            "parcelshop_support" => ParcelShop::parcelshop_support_map()
         ]);
         wp_add_inline_script("pplcz_plugin", "window.PPLczPlugin = window.PPLczPlugin || [];");
     }

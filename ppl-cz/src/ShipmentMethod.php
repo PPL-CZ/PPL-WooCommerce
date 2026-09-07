@@ -69,10 +69,13 @@ class ShipmentMethod extends \WC_Shipping_Method {
             }
         }
 
-        $this->supports = array(
-            "shipping-zones",
-            "instance-settings"
-        );
+        if ($pplId === "BUSS" )
+            $this->supports = [];
+        else
+            $this->supports = array(
+                "shipping-zones",
+                "instance-settings"
+            );
     }
 
     public function get_instance_form_fields() {
