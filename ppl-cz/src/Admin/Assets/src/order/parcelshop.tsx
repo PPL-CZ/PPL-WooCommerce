@@ -37,6 +37,19 @@ const initMutationObserver = (): void => {
     }
 };
 
+/**
+ * Podporuje vybraná dopravní metoda doručení na výdejní místo?
+ * Mapa id metody => bool přichází z PHP v pplcz_data.parcelshop_support.
+ */
+const supportsParcelShop = (methodValue?: string | null): boolean => {
+    if (!methodValue || !methodValue.includes("pplcz_")) return false;
+
+    // @ts-ignore
+    const support = pplcz_data?.parcelshop_support ?? {};
+
+    return !!support[methodValue.split(":")[0]];
+};
+
 export function parcelshop(element: HTMLElement): void {
     initMutationObserver();
 
@@ -125,10 +138,15 @@ export function parcelshop(element: HTMLElement): void {
                     .addClass(eventNamespace)
                     .on(`change.${eventNamespace}`, function() {
                         const selectedValue = jQuery(this).val() as string;
-                        const isPplczMethod = selectedValue?.includes('pplcz_');
+                        const isParcelShopMethod = supportsParcelShop(selectedValue);
 
-                        container.toggle(isPplczMethod);
-                        container.find('button').css('display', isPplczMethod ? 'block' : 'none');
+                        if (!isParcelShopMethod) {
+                            // doprava bez výdejního místa – zahodíme dříve vybraný parcelshop/parcelbox
+                            container.find(`input[name="pplcz_parcelshop[${metaId}]"]`).val("");
+                        }
+
+                        container.toggle(isParcelShopMethod);
+                        container.find("button").css("display", isParcelShopMethod ? "block" : "none");
                     });
             }, 300);
         });

@@ -97,3 +97,6 @@
 - oprava formátu pri serializaci/deserializaci (php 8.5.*)
 - # 1.1.1
 - přidání možnosti výběru staré a nové mapy. U novych klientů jen nové mapy
+- # 1.1.2
+- přidání PPL Parcel Business (lze použít pouze v administraci)
+- oprava chování při editaci samotné objednávky

@@ -27,6 +27,12 @@ class GlobalSettingModel extends \ArrayObject
     /**
      * 
      *
+     * @var bool
+     */
+    protected $openMapOnRequest;
+    /**
+     * 
+     *
      * @var GlobalSettingMapModel
      */
     protected $map;
@@ -72,6 +78,28 @@ class GlobalSettingModel extends \ArrayObject
     {
         $this->initialized['useOrderNumberInVariableSymbol'] = true;
         $this->useOrderNumberInVariableSymbol = $useOrderNumberInVariableSymbol;
+        return $this;
+    }
+    /**
+     * 
+     *
+     * @return bool
+     */
+    public function getOpenMapOnRequest() : ?bool
+    {
+        return $this->openMapOnRequest;
+    }
+    /**
+     * 
+     *
+     * @param bool $openMapOnRequest
+     *
+     * @return self
+     */
+    public function setOpenMapOnRequest(bool $openMapOnRequest) : self
+    {
+        $this->initialized['openMapOnRequest'] = true;
+        $this->openMapOnRequest = $openMapOnRequest;
         return $this;
     }
     /**

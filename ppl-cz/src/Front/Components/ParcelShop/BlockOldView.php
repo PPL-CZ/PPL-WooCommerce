@@ -8,6 +8,7 @@ use PPLCZ\Model\Model\ParcelDataModel;
 use PPLCZ\Model\Model\CartModel;
 use PPLCZ\Serializer;
 use PPLCZ\Traits\ParcelDataModelTrait;
+use PPLCZ\Setting\MethodSetting;
 
 class BlockOldView
 {
@@ -82,6 +83,8 @@ class BlockOldView
             $ageOk = !$cartModel->getAgeRequired();
             $ageOk = $ageOk || !$parcelshop || $parcelshop && $parcelshop->getAccessPointType() === "ParcelShop";
 
+            $openMapOnRequest = MethodSetting::getGlobalSetting()->getOpenMapOnRequest();
+
             wc_get_template("ppl/select-parcelshop-inner.php", [
                 "shipping_address" => $parcelshop,
                 "cod" => $cartModel->getCost() > 0 ? true: false,
@@ -97,7 +100,7 @@ class BlockOldView
                 "content" => urlencode(wp_json_encode($parcelshop ? Serializer::getInstance()->normalize($parcelshop) : null)),
                 "image" =>  pplcz_asset_icon("ps_pb.png"),
                 "nonce" =>  wp_create_nonce("selectparcelshop"),
-                "showMap" => is_ajax() && !$parcelshop && self::$updateOrderReview
+                "showMap" => is_ajax() && !$parcelshop && self::$updateOrderReview && !$openMapOnRequest
             ]);
 
 

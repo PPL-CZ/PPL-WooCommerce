@@ -6,6 +6,7 @@ namespace PPLCZ\Front\Components\ParcelShop;
 defined("WPINC") or die();
 
 use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
+use PPLCZ\Setting\MethodSetting;
 
 define('PPLCZ_PARCEL_SHOP_VERSION', '1.0.0');
 
@@ -126,6 +127,7 @@ class Block implements IntegrationInterface
 
         wp_localize_script("parcelshop-block-frontend", "parcelshop_block_frontend", [
             "assets_url" => plugins_url('Admin/Assets/Images', realpath(__DIR__ .'/../../') ),
+            "open_map_on_request" => MethodSetting::getGlobalSetting()->getOpenMapOnRequest() ? 1 : 0,
         ]);
 
         $path = realpath(dirname(plugin_dir_path(__FILE__)) . '/../../Languages');

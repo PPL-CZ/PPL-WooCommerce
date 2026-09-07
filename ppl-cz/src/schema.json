@@ -195,6 +195,10 @@
             "type": "boolean",
             "nullable": false
           },
+          "openMapOnRequest": {
+            "type": "boolean",
+            "nullable": false
+          },
           "map": {
             "$ref": "#/components/schemas/GlobalSettingMapModel"
           }

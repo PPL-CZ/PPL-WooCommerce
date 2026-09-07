@@ -60,6 +60,7 @@ export interface components {
     GlobalSettingModel: {
       useOrderNumberInPackages?: boolean;
       useOrderNumberInVariableSymbol?: boolean;
+      openMapOnRequest?: boolean;
       map?: components["schemas"]["GlobalSettingMapModel"];
     };
     ParcelPlacesModel: {

@@ -98,6 +98,13 @@ const GlobalSettingForm = () => {
                   control={control}
                 />
               </Grid>
+              <Grid item xs={12} display={"flex"} alignContent={"center"}>
+                <Check
+                  label={"Zobrazit mapu výdejních míst až na vyžádání zákazníka"}
+                  name={"openMapOnRequest"}
+                  control={control}
+                />
+              </Grid>
               {data?.map?.availableOldMap !== false ? (
                 <Grid item xs={12} display={"flex"} alignContent={"center"}>
                   <Check label={"Povolená nová mapa"} name={"map.enabled"} control={control} />
