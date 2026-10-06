@@ -73,7 +73,7 @@ function PplMap (onComplete, data) {
             }
             catch (e)
             {
-                console.log(e);
+                console.debug(e);
             }
 
         }

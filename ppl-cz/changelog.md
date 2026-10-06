@@ -100,3 +100,6 @@
 - # 1.1.2
 - přidání PPL Parcel Business (lze použít pouze v administraci)
 - oprava chování při editaci samotné objednávky
+- # 1.1.3
+- oprava chování mapy při zobrazení na mobilu při překryvu ovládacími prvky UI
+- úprava stranky mapy

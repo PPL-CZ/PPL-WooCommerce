@@ -2,17 +2,18 @@
 defined("WPINC") or die();
 
 ?>
+<!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
     <meta charset="<?php bloginfo( 'charset' ); ?>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <?php wp_head(); ?>
 </head>
-<body <?php body_class(); ?>>
+<body class="pplcz-map-body">
 <div id="pplcz-parcelshop-info">PPL mapa</div>
-<?php wp_body_open(); ?>
 <div id="ppl-parcelshop-map" <?php
 foreach (pplcz_map_args() as $key => $value) {
-    echo " " . esc_html($key) . "=\"" . esc_html($value) ."\"";
+    echo " " . esc_attr($key) . "=\"" . esc_attr($value) ."\"";
 }
 ?> >
 </div>
