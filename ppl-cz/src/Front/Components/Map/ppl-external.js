@@ -12,6 +12,8 @@
     );
 
     const widget = document.querySelector("ppl-access-point-widget");
+
+
     widget.addEventListener("ppl-accesspointwidget-select", (e) => {
 
         let type = e.detail.type || e.detail.accessPointType;
@@ -19,9 +21,11 @@
         switch (type)
         {
             case 'ALZA_BOX':
+            case 'AlzaBox':
                 type = 'AlzaBox';
                 break;
             case 'PPL_SHOP':
+            case 'ParcelShop':
                 type = 'ParcelShop';
                 break;
             default:

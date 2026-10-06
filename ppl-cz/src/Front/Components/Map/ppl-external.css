@@ -1,3 +1,13 @@
+/* the map page is a standalone document inside an iframe - the body belongs to the map only */
+html, body.pplcz-map-body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #fff;
+}
+
 #wpadminbar {
     display: none !important;
 }
@@ -7,6 +17,7 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
     text-align: center;
     position: absolute;
@@ -14,9 +25,12 @@
     top: 0;
 }
 
-#ppl-parcelshop-map {
+#ppl-parcelshop-map,
+ppl-access-point-widget {
+    display: block;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     position: absolute;
     left: 0;
     top: 0;

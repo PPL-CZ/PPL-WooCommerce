@@ -7,6 +7,9 @@ defined("WPINC") or die();
 
 class Map {
 
+    private const STYLES = ["ppl_external_css", "ppl_internal_css"];
+    private const SCRIPTS = ["ppl_external_js", "ppl_internal_js"];
+
     public static function register() {
 
         add_action("init", [self::class, 'rewrite_rule']);
@@ -211,6 +214,39 @@ class Map {
 
     }
 
+    /**
+     * The map is a standalone document rendered inside an iframe - the active theme and other
+     * plugins must not render into it at all. Everything hooked on the document hooks is dropped
+     * and only the map assets are printed back.
+     */
+    private static function isolate_document()
+    {
+        show_admin_bar(false);
+
+        remove_all_actions("wp_enqueue_scripts");
+        remove_all_actions("wp_print_styles");
+        remove_all_actions("wp_print_scripts");
+        remove_all_actions("wp_print_head_scripts");
+        remove_all_actions("wp_print_footer_scripts");
+        remove_all_actions("wp_head");
+        remove_all_actions("wp_body_open");
+        remove_all_actions("wp_footer");
+        remove_all_filters("body_class");
+
+        add_action("wp_head", [self::class, 'print_styles']);
+        add_action("wp_footer", [self::class, 'print_scripts']);
+    }
+
+    public static function print_styles()
+    {
+        wp_print_styles(self::STYLES);
+    }
+
+    public static function print_scripts()
+    {
+        wp_print_scripts(self::SCRIPTS);
+    }
+
     public static function template_include($template)
     {
 
@@ -227,6 +263,7 @@ class Map {
         global $wp_query;
         if (isset($wp_query->query_vars['ppl_map']) && $wp_query->query_vars['ppl_map']) {
             self::wp_enqueue();
+            self::isolate_document();
             $path1 = get_stylesheet_directory();
             $path2 = get_template_directory();
             if (file_exists($path1 . $mappath))
